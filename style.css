@@ -67,6 +67,10 @@ h1 { font-size: clamp(46px, 8vw, 84px); line-height: .94; letter-spacing: -.045e
 .btn:hover { background: var(--ink); color: var(--paper); }
 .btn.main { background: var(--cable); }
 .btn.main:hover { background: var(--ink); }
+button.btn { font-family: inherit; line-height: inherit; cursor: pointer; }
+.btn[hidden] { display: none; }
+.hors-ecran { position: fixed; left: -9999px; top: 0; }
+.copie { align-self: center; font-family: var(--mono); font-size: 13px; color: var(--soft); }
 
 .fig { width: 178px; }
 .fig .frame { background: var(--sheet); border: 1.5px solid var(--ink); padding: 6px; }

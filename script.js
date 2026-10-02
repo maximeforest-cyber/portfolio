@@ -75,6 +75,42 @@
   });
   egaliserTout();
 
+  // Contact : copier l'adresse (utile quand aucun logiciel de messagerie n'est configuré)
+  var copier = document.getElementById('copier');
+  if (copier) {
+    var etat = document.getElementById('copie-etat');
+    var adresse = copier.getAttribute('data-adresse');
+    var libelle = copier.textContent;
+    var retour;
+    var annoncer = function (ok) {
+      copier.textContent = ok ? 'Adresse copiée ✓' : libelle;
+      etat.textContent = ok ? adresse + ' est dans le presse-papiers.' : 'Copie impossible : sélectionnez l\'adresse dans le tableau.';
+      clearTimeout(retour);
+      retour = setTimeout(function () { copier.textContent = libelle; etat.textContent = ''; }, 4000);
+    };
+    var copierAncien = function () {
+      var z = document.createElement('textarea');
+      z.value = adresse;
+      z.setAttribute('readonly', '');
+      z.className = 'hors-ecran';
+      document.body.appendChild(z);
+      z.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      z.remove();
+      copier.focus();
+      annoncer(ok);
+    };
+    copier.hidden = false;
+    copier.addEventListener('click', function () {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(adresse).then(function () { annoncer(true); }, copierAncien);
+      } else {
+        copierAncien();
+      }
+    });
+  }
+
   // Rubrique en cours de lecture, signalée dans le menu
   var liens = {};
   nav.querySelectorAll('a').forEach(function (a) {

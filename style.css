@@ -177,7 +177,7 @@ summary:hover { color: var(--cable-text); }
 .cert .badge { width: 96px; height: 96px; display: grid; place-items: center; border: 1.5px solid var(--ink); background: var(--paper); font-family: var(--mono); font-size: 12.5px; overflow: hidden; }
 .cert .badge img { width: 100%; height: 100%; object-fit: contain; }
 .x509 { margin-top: 10px; font-size: 14.5px; }
-.x509 div { display: grid; grid-template-columns: 92px 1fr; padding: 4px 0; border-top: 1px dashed var(--hair); }
+.x509 div { display: grid; grid-template-columns: 84px minmax(0, 1fr); padding: 4px 0; border-top: 1px dashed var(--hair); }
 .x509 dt { font-family: var(--mono); font-size: 11.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--soft); padding-top: 2px; }
 
 /* Veille */
@@ -207,6 +207,7 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 6px 22px; justify-content: s
   .nav ul { flex-direction: column; }
   .nav a { padding: 11px 12px; font-size: 15px; }
   .g3 { grid-template-columns: repeat(2, 1fr); }
+  #certifications .g2 { grid-template-columns: 1fr; }
 }
 @media (max-width: 760px) {
   .hero .wrap { padding-block: 26px 34px; }

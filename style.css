@@ -117,6 +117,8 @@ h2 { font-size: clamp(28px, 4.4vw, 42px); line-height: 1.05; letter-spacing: -.0
 .sub { color: var(--soft); max-width: 68ch; margin-top: 18px; }
 h3 { font-size: 19px; line-height: 1.28; letter-spacing: -.01em; }
 .grid { display: grid; gap: 16px; margin-top: 28px; }
+/* Une fiche ouverte ne doit pas étirer ses voisines */
+.grid:has(details[open]) { align-items: start; }
 .g2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
 .g3 { grid-template-columns: repeat(3, 1fr); }
 .card { background: var(--sheet); border: 1.5px solid var(--ink); padding: 20px; }

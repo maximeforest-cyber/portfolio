@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gestion des utilisateurs avec un contrôleur de domaine | Maxime Forest</title>
+<meta name="description" content="Compte rendu : mise en place d&#x27;un domaine Active Directory (contrôleur de domaine, partages et droits NTFS, GPO, création des comptes par script PowerShell).">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#f3eee2">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/utilisateurs-active-directory.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/utilisateurs-active-directory.html">
+<meta property="og:title" content="Gestion des utilisateurs avec un contrôleur de domaine | Maxime Forest">
+<meta property="og:description" content="Compte rendu : mise en place d&#x27;un domaine Active Directory (contrôleur de domaine, partages et droits NTFS, GPO, création des comptes par script PowerShell).">
+<meta property="og:image" content="https://forestmaxime-pf.fr/favicon.png">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="../#projet-utilisateurs-ad">← Projets et stages</a></p>
+    <p class="kicker">Atelier professionnel · <b>janvier 2025</b> · en binôme</p>
+    <h1>Gestion des utilisateurs avec un contrôleur de domaine</h1>
+    <p class="lead">Mise en place d'un domaine Active Directory pour la Maison des Ligues : contrôleur de domaine, partages et droits NTFS, stratégies de groupe, création des comptes par script et intégration des postes clients.</p>
+    <dl class="facts"><div><dt>Contexte</dt><dd>Maison des Ligues (contexte fictif), pour le prestataire NetworkSI</dd></div><div><dt>Cadre</dt><dd>Atelier professionnel de 1<sup>re</sup> année de BTS SIO, en binôme : 16 heures sur 4 séances, suivi sur Trello</dd></div><div><dt>Technique</dt><dd>Windows Server 2022, Windows 10 et 11, domaine MDL.LOCAL</dd></div><div><dt>Points clés</dt><dd>AD DS, DNS, droits NTFS, GPO, PowerShell</dd></div></dl>
+    <ul class="tags"><li>Active Directory</li><li>Windows Server</li><li>GPO</li><li>NTFS</li><li>PowerShell</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Contexte et objectifs</a></li><li><a href="#partie-2"><span>02</span>Organisation</a></li><li><a href="#partie-3"><span>03</span>Contrôleur de domaine</a></li><li><a href="#partie-4"><span>04</span>Administration à distance</a></li><li><a href="#partie-5"><span>05</span>Dossiers partagés et permissions</a></li><li><a href="#partie-6"><span>06</span>Stratégies de groupe</a></li><li><a href="#partie-7"><span>07</span>Création des utilisateurs par script</a></li><li><a href="#partie-8"><span>08</span>Comptes invités</a></li><li><a href="#partie-9"><span>09</span>Intégration des postes clients</a></li><li><a href="#partie-10"><span>10</span>Tests</a></li><li><a href="#partie-11"><span>11</span>Bilan</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Contexte et objectifs</h2>
+<p>La Maison des Ligues fait appel à NetworkSI, une société de services informatiques, pour mettre en place une infrastructure réseau adaptée. Avec l'augmentation des recrutements, l'administration « poste par poste » devient trop lourde : l'objectif est une gestion centralisée des utilisateurs et des ressources avec Active Directory.</p>
+<ul class="b"><li>Mettre en place un contrôleur de domaine sous Windows Server 2022.</li><li>Gérer les utilisateurs et les ressources dans un domaine nommé MDL.LOCAL.</li><li>Attribuer et sécuriser les droits d'accès aux répertoires personnels et partagés.</li><li>Automatiser des tâches d'administration : création des utilisateurs, déploiement de logiciels.</li><li>Configurer les postes clients sous Windows 10 et Windows 11.</li><li>Restreindre les actions des utilisateurs par des stratégies de groupe (GPO).</li><li>Tester, valider et rédiger un document technique.</li></ul>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>Organisation</h2>
+<p>Le projet a été découpé en onze activités, planifiées sur Trello et réparties au sein du binôme : planification, installation, mise en place des droits et des GPO, puis tests et validation.</p>
+<p>Les utilisateurs sont recensés par service : 3 à l'accueil, 20 à la comptabilité, 20 à la communication et 7 à la direction. Leur identifiant suit une règle unique : les sept premières lettres du nom suivies de la première lettre du prénom, sans caractères spéciaux (par exemple <span class="k">forestm</span> pour Forest Maxime).</p>
+<p>Dans Active Directory, chaque service a son unité d'organisation et son groupe. Côté ressources :</p>
+<ul class="b"><li>chaque utilisateur a un dossier personnel sur lequel il a tous les droits ;</li><li>chaque service a un dossier commun, accessible en lecture à ses seuls membres ;</li><li>les comptes invités n'ont accès à aucune ressource réseau et n'ont pas de dossier personnel.</li></ul>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>Contrôleur de domaine</h2>
+<p>Dans le gestionnaire de serveur, nous ajoutons le rôle des services de domaine Active Directory (AD DS).</p>
+<figure class="shot"><a href="img/utilisateurs-active-directory-01.webp"><img src="img/utilisateurs-active-directory-01.webp" alt="Assistant d&#x27;ajout de rôles : installation des services de domaine Active Directory." width="1377" height="876" loading="lazy"></a><figcaption><b>Fig. 1</b> Installation du rôle AD DS.</figcaption></figure>
+<p>Le rôle DNS est ajouté pour que le serveur devienne contrôleur de domaine.</p>
+<figure class="shot"><a href="img/utilisateurs-active-directory-02.webp"><img src="img/utilisateurs-active-directory-02.webp" alt="Assistant de configuration AD DS : vérification de la configuration requise réussie." width="1340" height="871" loading="lazy"></a><figcaption><b>Fig. 2</b> Vérification de la configuration avant la promotion du serveur.</figcaption></figure>
+<p>Le domaine est nommé MDL.local ; ce nom sera rappelé sur les postes clients.</p>
+<figure class="shot"><a href="img/utilisateurs-active-directory-03.webp"><img src="img/utilisateurs-active-directory-03.webp" alt="Assistant de configuration AD DS : ajout d&#x27;une nouvelle forêt nommée MDL.local." width="1340" height="864" loading="lazy"></a><figcaption><b>Fig. 3</b> Création d'une nouvelle forêt, MDL.local.</figcaption></figure>
+<p>Le contrôleur de domaine reçoit enfin une adresse IP fixe.</p>
+<figure class="shot"><a href="img/utilisateurs-active-directory-04.webp"><img src="img/utilisateurs-active-directory-04.webp" alt="Propriétés IPv4 du serveur : adresse 172.18.50.2, masque 255.255.0.0." width="585" height="676" loading="lazy"></a><figcaption><b>Fig. 4</b> Adresse IP fixe du contrôleur de domaine.</figcaption></figure>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>Administration à distance</h2>
+<p>Nous installons le rôle des services Bureau à distance, puis nous activons le Bureau à distance dans les paramètres système du serveur.</p>
+<div class="shots"><figure class="shot"><a href="img/utilisateurs-active-directory-05.webp"><img src="img/utilisateurs-active-directory-05.webp" alt="Gestionnaire de serveur : rôle Services Bureau à distance installé." width="211" height="406" loading="lazy"></a><figcaption><b>Fig. 5</b> Le rôle Services Bureau à distance.</figcaption></figure><figure class="shot"><a href="img/utilisateurs-active-directory-06.webp"><img src="img/utilisateurs-active-directory-06.webp" alt="Paramètres système : Bureau à distance activé." width="1067" height="164" loading="lazy"></a><figcaption><b>Fig. 6</b> Bureau à distance activé.</figcaption></figure></div>
+<p>Depuis un autre poste, l'application Connexion Bureau à distance permet alors d'ouvrir une session sur le serveur avec son adresse IP et les identifiants d'un utilisateur.</p>
+</div>
+<div class="part" id="partie-5">
+<h2><span class="n">05</span>Dossiers partagés et permissions</h2>
+<p>Sur le disque du serveur, un dossier partagé contient un dossier par service de l'entreprise.</p>
+<figure class="shot"><a href="img/utilisateurs-active-directory-07.webp"><img src="img/utilisateurs-active-directory-07.webp" alt="Explorateur de fichiers : dossiers partagés Accueil, Communication, Comptabilité et Direction." width="903" height="478" loading="lazy"></a><figcaption><b>Fig. 7</b> Un dossier partagé par service.</figcaption></figure>
+<p>Pour chaque dossier, nous ajoutons dans l'onglet Partage le groupe qui y aura accès, avec ses droits.</p>
+<figure class="shot"><a href="img/utilisateurs-active-directory-08.webp"><img src="img/utilisateurs-active-directory-08.webp" alt="Autorisations du partage : groupe Direction en lecture." width="420" height="472" loading="lazy"></a><figcaption><b>Fig. 8</b> Partage du dossier de la direction : lecture pour le groupe Direction.</figcaption></figure>
+<p>Les droits NTFS sont ensuite réglés sur chaque dossier.</p>
+<figure class="shot"><a href="img/utilisateurs-active-directory-09.webp"><img src="img/utilisateurs-active-directory-09.webp" alt="Onglet Sécurité : le groupe Accueil a les droits de lecture et d&#x27;exécution." width="444" height="483" loading="lazy"></a><figcaption><b>Fig. 9</b> Droits NTFS sur le dossier de l'accueil.</figcaption></figure>
+<p>Enfin, le dossier racine est partagé en lecture aux utilisateurs authentifiés : chacun y voit uniquement le contenu auquel il a droit.</p>
+<figure class="shot"><a href="img/utilisateurs-active-directory-10.webp"><img src="img/utilisateurs-active-directory-10.webp" alt="Fenêtre d&#x27;accès réseau : utilisateurs authentifiés en lecture." width="1400" height="590" loading="lazy"></a><figcaption><b>Fig. 10</b> Partage du dossier racine aux utilisateurs authentifiés.</figcaption></figure>
+</div>
+<div class="part" id="partie-6">
+<h2><span class="n">06</span>Stratégies de groupe</h2>
+<p>Dans la console Gestion de stratégie de groupe, trois GPO sont liées à l'ensemble des utilisateurs.</p>
+<figure class="shot"><a href="img/utilisateurs-active-directory-11.webp"><img src="img/utilisateurs-active-directory-11.webp" alt="GPO Dossiers personnels, Fond écran imposé et Restrictions." width="252" height="74" loading="lazy"></a><figcaption><b>Fig. 11</b> Les trois GPO communes à tous les utilisateurs.</figcaption></figure>
+<p>La GPO « Dossiers personnels » fait apparaître, à l'ouverture de session, un lecteur réseau au nom de l'utilisateur. Le lecteur P: pointe vers <span class="k">\\172.18.50.2\Partagé\Dossiers Personnels\%username%</span> : la variable crée un dossier au nom de chaque utilisateur sur le serveur.</p>
+<figure class="shot"><a href="img/utilisateurs-active-directory-12.webp"><img src="img/utilisateurs-active-directory-12.webp" alt="Éditeur de stratégie de groupe : Préférences, Paramètres Windows, Mappages de lecteurs." width="202" height="520" loading="lazy"></a><figcaption><b>Fig. 12</b> Mappage de lecteur dans la GPO.</figcaption></figure>
+<p>La GPO « Fond d'écran imposé » applique une image déposée dans un dossier partagé en lecture.</p>
+<figure class="shot"><a href="img/utilisateurs-active-directory-13.webp"><img src="img/utilisateurs-active-directory-13.webp" alt="Paramètre de GPO Papier peint du Bureau activé, avec le chemin réseau de l&#x27;image." width="1022" height="957" loading="lazy"></a><figcaption><b>Fig. 13</b> Paramètre « Papier peint du Bureau ».</figcaption></figure>
+<p>La GPO « Restrictions » masque des éléments du panneau de configuration.</p>
+<figure class="shot"><a href="img/utilisateurs-active-directory-14.webp"><img src="img/utilisateurs-active-directory-14.webp" alt="Paramètres de GPO masquant des pages du panneau de configuration des programmes." width="840" height="214" loading="lazy"></a><figcaption><b>Fig. 14</b> Restrictions appliquées aux utilisateurs.</figcaption></figure>
+<p>Une GPO par service connecte le dossier commun du service sur le lecteur Q:, sur le même principe que les dossiers personnels.</p>
+<figure class="shot"><a href="img/utilisateurs-active-directory-15.webp"><img src="img/utilisateurs-active-directory-15.webp" alt="GPO Accueil, Communication, Comptabilité et Direction." width="240" height="145" loading="lazy"></a><figcaption><b>Fig. 15</b> Une GPO par service.</figcaption></figure>
+<p>Une dernière GPO déploie Mozilla Firefox et VLC sur les postes. Les installateurs MSI sont placés dans un dossier partagé ; les postes les installent automatiquement au démarrage.</p>
+<figure class="shot"><a href="img/utilisateurs-active-directory-16.webp"><img src="img/utilisateurs-active-directory-16.webp" alt="Éditeur de stratégie de groupe : installation de logiciel, Mozilla Firefox et VLC attribués depuis un chemin réseau." width="1168" height="810" loading="lazy"></a><figcaption><b>Fig. 16</b> Déploiement de Firefox et de VLC par GPO.</figcaption></figure>
+<p>Au total, huit GPO répondent aux besoins.</p>
+<figure class="shot"><a href="img/utilisateurs-active-directory-17.webp"><img src="img/utilisateurs-active-directory-17.webp" alt="Console Gestion de stratégie de groupe : GPO liées aux unités d&#x27;organisation Ordinateurs et Utilisateurs." width="913" height="602" loading="lazy"></a><figcaption><b>Fig. 17</b> Vue d'ensemble des GPO du domaine.</figcaption></figure>
+</div>
+<div class="part" id="partie-7">
+<h2><span class="n">07</span>Création des utilisateurs par script</h2>
+<p>Pour éviter de créer les comptes un par un, un script PowerShell lit un fichier CSV et crée chaque utilisateur avec <span class="k">New-ADUser</span>.</p>
+<figure class="shot"><a href="img/utilisateurs-active-directory-18.webp"><img src="img/utilisateurs-active-directory-18.webp" alt="Script PowerShell : import du fichier AdUsers.csv puis création des comptes avec New-ADUser." width="1012" height="511" loading="lazy"></a><figcaption><b>Fig. 18</b> Script PowerShell de création des utilisateurs.</figcaption></figure>
+<p>Le fichier <span class="k">AdUsers.csv</span> contient, pour chaque utilisateur, les informations nécessaires : nom, prénom, identifiant, groupe et unité d'organisation.</p>
+<figure class="shot"><a href="img/utilisateurs-active-directory-19.webp"><img src="img/utilisateurs-active-directory-19.webp" alt="Tableau des utilisateurs : prénom, nom, identifiant, groupe, unité d&#x27;organisation." width="1400" height="466" loading="lazy"></a><figcaption><b>Fig. 19</b> Extrait du fichier CSV (utilisateurs fictifs, mots de passe masqués).</figcaption></figure>
+</div>
+<div class="part" id="partie-8">
+<h2><span class="n">08</span>Comptes invités</h2>
+<p>Windows fournit un compte Invité, désactivé par défaut. Nous l'avons activé et lui avons attribué un mot de passe, ce qui donne un accès invité soumis aux restrictions demandées.</p>
+<figure class="shot"><a href="img/utilisateurs-active-directory-20.webp"><img src="img/utilisateurs-active-directory-20.webp" alt="Console Utilisateurs et ordinateurs Active Directory : compte Invité sélectionné." width="754" height="464" loading="lazy"></a><figcaption><b>Fig. 20</b> Le compte Invité dans Active Directory.</figcaption></figure>
+</div>
+<div class="part" id="partie-9">
+<h2><span class="n">09</span>Intégration des postes clients</h2>
+<p>Sur chaque poste client, nous configurons une adresse IP du réseau du domaine, avec le contrôleur de domaine comme serveur DNS.</p>
+<figure class="shot"><a href="img/utilisateurs-active-directory-21.webp"><img src="img/utilisateurs-active-directory-21.webp" alt="Propriétés IPv4 du poste : adresse 172.18.50.3, DNS 172.18.50.2." width="277" height="309" loading="lazy"></a><figcaption><b>Fig. 21</b> Configuration IP d'un poste client.</figcaption></figure>
+<p>Dans les propriétés système, le poste est ensuite joint au domaine MDL.local.</p>
+<figure class="shot"><a href="img/utilisateurs-active-directory-22.webp"><img src="img/utilisateurs-active-directory-22.webp" alt="Message « Bienvenue dans le domaine MDL.LOCAL »." width="703" height="535" loading="lazy"></a><figcaption><b>Fig. 22</b> Le poste rejoint le domaine.</figcaption></figure>
+</div>
+<div class="part" id="partie-10">
+<h2><span class="n">10</span>Tests</h2>
+<p>Les tests sont réalisés sur un poste client. Le fond d'écran est bien imposé et les logiciels sont installés.</p>
+<figure class="shot"><a href="img/utilisateurs-active-directory-23.webp"><img src="img/utilisateurs-active-directory-23.webp" alt="Bureau du poste client avec le fond d&#x27;écran imposé et les icônes de Firefox et VLC." width="1400" height="1052" loading="lazy"></a><figcaption><b>Fig. 23</b> Fond d'écran imposé, Firefox et VLC installés.</figcaption></figure>
+<p>L'utilisateur accède aux ressources prévues : le dossier commun de son service et son dossier personnel.</p>
+<figure class="shot"><a href="img/utilisateurs-active-directory-24.webp"><img src="img/utilisateurs-active-directory-24.webp" alt="Explorateur de fichiers : lecteurs réseau Dossier Communication et dossier personnel." width="1400" height="1044" loading="lazy"></a><figcaption><b>Fig. 24</b> Les lecteurs réseau de l'utilisateur.</figcaption></figure>
+<p>Les restrictions appliquées ont également été testées et fonctionnent.</p>
+</div>
+<div class="part" id="partie-11">
+<h2><span class="n">11</span>Bilan</h2>
+<p>Nous avons répondu à la demande de la Maison des Ligues : un contrôleur de domaine administrable à distance, des utilisateurs qui accèdent à leurs ressources et uniquement à celles-ci, et les restrictions nécessaires pour chaque profil. Le script de création des utilisateurs pourra être réutilisé pour les prochains recrutements. Les postes clients ont été intégrés au domaine, et les tests montrent que l'ensemble répond à la demande.</p>
+</div>
+<nav class="pager" aria-label="Autres comptes rendus"><a href="intranet-web-ftp.html"><span>Précédent</span>Intranet web et FTP à accès restreints</a><a class="next" href="scripts-gpo.html"><span>Suivant</span>Automatisation par scripts et GPO</a></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js"></script>
+</body>
+</html>

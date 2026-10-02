@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Automatisation par scripts et GPO | Maxime Forest</title>
+<meta name="description" content="Compte rendu : création d&#x27;un service dans Active Directory et automatisation de tâches d&#x27;administration Windows Server par scripts batch, GPO et tâches planifiées.">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#f3eee2">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/scripts-gpo.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/scripts-gpo.html">
+<meta property="og:title" content="Automatisation par scripts et GPO | Maxime Forest">
+<meta property="og:description" content="Compte rendu : création d&#x27;un service dans Active Directory et automatisation de tâches d&#x27;administration Windows Server par scripts batch, GPO et tâches planifiées.">
+<meta property="og:image" content="https://forestmaxime-pf.fr/favicon.png">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="../#projet-scripts-gpo">← Projets et stages</a></p>
+    <p class="kicker">Travaux pratiques · <b>1<sup>re</sup> année</b> · individuel</p>
+    <h1>Automatisation par scripts et GPO</h1>
+    <p class="lead">Création d'un nouveau service dans Active Directory et automatisation de tâches d'administration sous Windows Server : lecteurs réseau, sauvegarde planifiée, maintenance et extinction des postes.</p>
+    <dl class="facts"><div><dt>Contexte</dt><dd>CentreCall (entreprise fictive) ouvre un service Développement de quatre personnes</dd></div><div><dt>Cadre</dt><dd>Travaux pratiques de 1<sup>re</sup> année de BTS SIO : 3 heures de pratique, 1 heure de compte rendu</dd></div><div><dt>Technique</dt><dd>Windows Server, Active Directory, poste client Windows 10</dd></div><div><dt>Points clés</dt><dd>Droits NTFS, GPO, scripts batch, planificateur de tâches</dd></div></dl>
+    <ul class="tags"><li>Scripts batch</li><li>GPO</li><li>Active Directory</li><li>Windows Server</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Contexte et objectifs</a></li><li><a href="#partie-2"><span>02</span>Le service Développement dans Active Directory</a></li><li><a href="#partie-3"><span>03</span>Mappage automatique des lecteurs réseau</a></li><li><a href="#partie-4"><span>04</span>Sauvegarde planifiée du serveur de fichiers</a></li><li><a href="#partie-5"><span>05</span>Script de maintenance</a></li><li><a href="#partie-6"><span>06</span>Extinction programmée des postes</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Contexte et objectifs</h2>
+<p>CentreCall ouvre un service Développement de quatre personnes, à intégrer à l'Active Directory existant. Chaque développeur doit accéder à son répertoire personnel et au dossier collaboratif du service, avec les droits appropriés. La mission comprend aussi l'automatisation de plusieurs tâches d'administration.</p>
+<ul class="b"><li>Créer le service Développement dans Active Directory.</li><li>Connecter automatiquement les lecteurs réseau du service.</li><li>Sauvegarder le serveur de fichiers chaque nuit à 2 heures.</li><li>Écrire un script de maintenance générale.</li><li>Éteindre les postes à minuit, avec un message personnalisé.</li></ul>
+<p>Les tests sont réalisés sur une machine virtuelle cliente Windows 10, membre du domaine.</p>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>Le service Développement dans Active Directory</h2>
+<p>Je crée l'unité d'organisation « dév », puis un groupe « développeur » et les quatre utilisateurs, membres de ce groupe.</p>
+<figure class="shot"><a href="img/scripts-gpo-01.webp"><img src="img/scripts-gpo-01.webp" alt="Console Utilisateurs et ordinateurs Active Directory : groupe développeur et ses quatre membres." width="1400" height="807" loading="lazy"></a><figcaption><b>Fig. 1</b> Unité d'organisation, groupe et utilisateurs du service.</figcaption></figure>
+<p>Chaque utilisateur a un dossier personnel sur le serveur, connecté sur le lecteur P:.</p>
+<figure class="shot"><a href="img/scripts-gpo-02.webp"><img src="img/scripts-gpo-02.webp" alt="Onglet Profil de l&#x27;utilisateur développeur1 : dossier de base connecté sur P:." width="609" height="645" loading="lazy"></a><figcaption><b>Fig. 2</b> Dossier de base de l'utilisateur, connecté en P:.</figcaption></figure>
+<p>Sur son dossier, l'utilisateur a le droit de modification mais pas le contrôle total.</p>
+<figure class="shot"><a href="img/scripts-gpo-03.webp"><img src="img/scripts-gpo-03.webp" alt="Onglet Sécurité du dossier développeur1 : modification autorisée, contrôle total non accordé." width="580" height="597" loading="lazy"></a><figcaption><b>Fig. 3</b> Droits NTFS sur le dossier personnel.</figcaption></figure>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>Mappage automatique des lecteurs réseau</h2>
+<p>Une GPO liée à l'unité d'organisation du service connecte le dossier commun des développeurs à l'ouverture de session.</p>
+<figure class="shot"><a href="img/scripts-gpo-04.webp"><img src="img/scripts-gpo-04.webp" alt="Console de stratégie de groupe : GPO Dev et mappage du lecteur vers le dossier commun des développeurs." width="1400" height="990" loading="lazy"></a><figcaption><b>Fig. 4</b> Mappage de lecteur dans la GPO du service.</figcaption></figure>
+<p>Sur le poste client, le dossier personnel et le dossier commun apparaissent bien dans l'explorateur.</p>
+<figure class="shot"><a href="img/scripts-gpo-05.webp"><img src="img/scripts-gpo-05.webp" alt="Explorateur de fichiers du poste client : lecteurs réseau développeur1 et Dossiers commun développeur." width="1127" height="595" loading="lazy"></a><figcaption><b>Fig. 5</b> Les deux lecteurs réseau sur le poste client.</figcaption></figure>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>Sauvegarde planifiée du serveur de fichiers</h2>
+<p>Une tâche planifiée lance chaque jour, à 2 heures du matin, un script qui copie les dossiers partagés vers une partition de sauvegarde.</p>
+<div class="shots"><figure class="shot"><a href="img/scripts-gpo-06.webp"><img src="img/scripts-gpo-06.webp" alt="Propriétés de la tâche planifiée : déclencheur quotidien à 02:00." width="782" height="591" loading="lazy"></a><figcaption><b>Fig. 6</b> Déclenchement : tous les jours à 02:00.</figcaption></figure><figure class="shot"><a href="img/scripts-gpo-07.webp"><img src="img/scripts-gpo-07.webp" alt="Propriétés de la tâche planifiée : action Démarrer un programme." width="781" height="588" loading="lazy"></a><figcaption><b>Fig. 7</b> Action : exécution du script de sauvegarde.</figcaption></figure></div>
+<figure class="shot"><a href="img/scripts-gpo-08.webp"><img src="img/scripts-gpo-08.webp" alt="Script batch : création du dossier de sauvegarde s&#x27;il n&#x27;existe pas, puis copie avec xcopy." width="937" height="643" loading="lazy"></a><figcaption><b>Fig. 8</b> Le script de sauvegarde.</figcaption></figure>
+</div>
+<div class="part" id="partie-5">
+<h2><span class="n">05</span>Script de maintenance</h2>
+<p>Ce script supprime les fichiers temporaires et les fichiers de plus de deux semaines du dossier Téléchargements, puis vérifie et répare le disque. Il n'est pas planifié : les administrateurs le lancent sur un poste lorsque c'est nécessaire.</p>
+<figure class="shot"><a href="img/scripts-gpo-09.webp"><img src="img/scripts-gpo-09.webp" alt="Script batch : suppression des fichiers temporaires, forfiles sur le dossier Téléchargements, chkdsk." width="931" height="635" loading="lazy"></a><figcaption><b>Fig. 9</b> Le script de maintenance.</figcaption></figure>
+</div>
+<div class="part" id="partie-6">
+<h2><span class="n">06</span>Extinction programmée des postes</h2>
+<p>Le script d'extinction est placé dans le dossier SYSVOL, accessible à tous les ordinateurs du domaine.</p>
+<figure class="shot"><a href="img/scripts-gpo-10.webp"><img src="img/scripts-gpo-10.webp" alt="Explorateur de fichiers : script d&#x27;arrêt des ordinateurs dans le dossier SYSVOL." width="1400" height="1090" loading="lazy"></a><figcaption><b>Fig. 10</b> Le script dans le dossier SYSVOL.</figcaption></figure>
+<p>Il prévient l'utilisateur, puis éteint le poste au bout d'une minute.</p>
+<figure class="shot"><a href="img/scripts-gpo-11.webp"><img src="img/scripts-gpo-11.webp" alt="Script batch : message d&#x27;avertissement puis commande shutdown avec un délai de 60 secondes." width="930" height="639" loading="lazy"></a><figcaption><b>Fig. 11</b> Le script d'extinction.</figcaption></figure>
+<p>Une tâche planifiée, déployée par GPO, l'exécute tous les jours à minuit.</p>
+<div class="shots"><figure class="shot"><a href="img/scripts-gpo-12.webp"><img src="img/scripts-gpo-12.webp" alt="Propriétés de la tâche Extinction_Globale : exécution du script depuis SYSVOL." width="490" height="563" loading="lazy"></a><figcaption><b>Fig. 12</b> La tâche planifiée exécute le script.</figcaption></figure><figure class="shot"><a href="img/scripts-gpo-13.webp"><img src="img/scripts-gpo-13.webp" alt="Onglet Planifier de la tâche : tous les jours à 00:00." width="491" height="562" loading="lazy"></a><figcaption><b>Fig. 13</b> Planification : tous les jours à 00:00.</figcaption></figure></div>
+</div>
+<nav class="pager" aria-label="Autres comptes rendus"><a href="utilisateurs-active-directory.html"><span>Précédent</span>Gestion des utilisateurs avec un contrôleur de domaine</a><a class="next" href="serveur.html"><span>Suivant</span>Démontage et remontage d'un serveur</a></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js"></script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cloud interne sécurisé avec Nextcloud | Maxime Forest</title>
+<meta name="description" content="Compte rendu : déploiement et sécurisation d&#x27;un cloud interne Nextcloud sur Ubuntu Server (politique de mots de passe, chiffrement, double authentification).">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#f3eee2">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/nextcloud.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/nextcloud.html">
+<meta property="og:title" content="Cloud interne sécurisé avec Nextcloud | Maxime Forest">
+<meta property="og:description" content="Compte rendu : déploiement et sécurisation d&#x27;un cloud interne Nextcloud sur Ubuntu Server (politique de mots de passe, chiffrement, double authentification).">
+<meta property="og:image" content="https://forestmaxime-pf.fr/favicon.png">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="../#projet-nextcloud">← Projets et stages</a></p>
+    <p class="kicker">Atelier professionnel · <b>mars 2025</b> · en équipe</p>
+    <h1>Cloud interne sécurisé avec Nextcloud</h1>
+    <p class="lead">Déploiement d'un service de stockage Nextcloud sur Ubuntu Server pour l'entreprise fictive CentreCall, sécurisé par une politique de mots de passe, le chiffrement côté serveur et l'authentification à deux facteurs.</p>
+    <dl class="facts"><div><dt>Contexte</dt><dd>CentreCall, entreprise fictive d'accueil téléphonique et de télémarketing</dd></div><div><dt>Cadre</dt><dd>Atelier professionnel de 1<sup>re</sup> année de BTS SIO, en équipe</dd></div><div><dt>Technique</dt><dd>Ubuntu Server 24.04, Apache, MariaDB, Nextcloud 31, SSH, DNS</dd></div><div><dt>Sécurité</dt><dd>Politique de mots de passe, chiffrement côté serveur, double authentification TOTP</dd></div></dl>
+    <ul class="tags"><li>Nextcloud</li><li>Ubuntu Server</li><li>MariaDB</li><li>SSH</li><li>2FA</li><li>DNS</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Contexte et objectifs</a></li><li><a href="#partie-2"><span>02</span>Environnement et réseau</a></li><li><a href="#partie-3"><span>03</span>Accès distant en SSH</a></li><li><a href="#partie-4"><span>04</span>Installation de Nextcloud</a></li><li><a href="#partie-5"><span>05</span>Configuration du service</a></li><li><a href="#partie-6"><span>06</span>Sécurisation</a></li><li><a href="#partie-7"><span>07</span>Application mobile</a></li><li><a href="#partie-8"><span>08</span>Fiche de configuration et tests</a></li><li><a href="#partie-9"><span>09</span>Résolution de nom</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Contexte et objectifs</h2>
+<p>CentreCall, société spécialisée dans l'accueil téléphonique et le télémarketing, souhaite disposer d'un stockage cloud interne. L'atelier consistait à installer Nextcloud, à le sécuriser, puis à le rendre accessible par un nom interne : <span class="k">nextcloud.centrecall.local</span>.</p>
+<ul class="b"><li>Mettre en place le serveur Nextcloud et la résolution de son nom.</li><li>Sécuriser le service.</li><li>Vérifier et valider le fonctionnement par des tests.</li></ul>
+<p>Le cahier des charges prévoyait aussi un accès Wi-Fi par une borne dédiée ; ce compte rendu couvre la partie Nextcloud.</p>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>Environnement et réseau</h2>
+<p>Nous avons réutilisé le serveur Ubuntu Server 24.04 mis en place lors de l'atelier précédent (<a href="intranet-web-ftp.html">intranet web et FTP</a>), déjà configuré avec l'adresse IP statique 172.18.70.5.</p>
+<figure class="shot"><a href="img/nextcloud-01.webp"><img src="img/nextcloud-01.webp" alt="Fichier netplan du serveur : adresse 172.18.70.5/16, passerelle et serveur DNS." width="1273" height="1042" loading="lazy"></a><figcaption><b>Fig. 1</b> Configuration IP statique du serveur avec netplan.</figcaption></figure>
+<figure class="shot"><a href="img/nextcloud-02.webp"><img src="img/nextcloud-02.webp" alt="Résultat d&#x27;un ping vers 172.18.70.5 : trois réponses reçues." width="1385" height="283" loading="lazy"></a><figcaption><b>Fig. 2</b> Le serveur répond au ping depuis un poste client.</figcaption></figure>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>Accès distant en SSH</h2>
+<p>Pour que chaque membre de l'équipe puisse administrer le serveur à distance, nous avons installé le serveur OpenSSH.</p>
+<figure class="shot"><a href="img/nextcloud-03.webp"><img src="img/nextcloud-03.webp" alt="Commande apt d&#x27;installation du serveur OpenSSH." width="731" height="26" loading="lazy"></a><figcaption><b>Fig. 3</b> Installation du serveur OpenSSH.</figcaption></figure>
+<figure class="shot"><a href="img/nextcloud-04.webp"><img src="img/nextcloud-04.webp" alt="Sortie de systemctl status ssh : service actif." width="870" height="292" loading="lazy"></a><figcaption><b>Fig. 4</b> Le service SSH est actif.</figcaption></figure>
+<p>Dans le cadre de l'atelier, le pare-feu ufw a été désactivé pour éviter tout blocage du port 22.</p>
+<figure class="shot"><a href="img/nextcloud-05.webp"><img src="img/nextcloud-05.webp" alt="Commande ufw disable et sa confirmation." width="475" height="46" loading="lazy"></a><figcaption><b>Fig. 5</b> Désactivation du pare-feu ufw.</figcaption></figure>
+<p>Depuis un poste client, la connexion se fait en ligne de commande avec <span class="k">ssh utilisateur@adresse</span>, ici avec le compte développeur dev1.</p>
+<figure class="shot"><a href="img/nextcloud-06.webp"><img src="img/nextcloud-06.webp" alt="Session SSH ouverte sur le serveur Ubuntu avec le compte dev1." width="1237" height="979" loading="lazy"></a><figcaption><b>Fig. 6</b> Connexion SSH au serveur depuis un poste Windows.</figcaption></figure>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>Installation de Nextcloud</h2>
+<p>L'archive de Nextcloud est téléchargée avec wget, puis décompressée dans le dossier du serveur web.</p>
+<figure class="shot"><a href="img/nextcloud-07.webp"><img src="img/nextcloud-07.webp" alt="Commande wget téléchargeant la dernière version de Nextcloud." width="1385" height="276" loading="lazy"></a><figcaption><b>Fig. 7</b> Téléchargement de Nextcloud.</figcaption></figure>
+<p>L'utilisateur du serveur web (www-data) devient propriétaire du dossier de Nextcloud.</p>
+<figure class="shot"><a href="img/nextcloud-08.webp"><img src="img/nextcloud-08.webp" alt="Commandes chown et chmod sur /var/www/nextcloud." width="1167" height="57" loading="lazy"></a><figcaption><b>Fig. 8</b> Attribution des droits sur le dossier de Nextcloud.</figcaption></figure>
+<p>Nous installons ensuite Apache, MariaDB et les modules PHP nécessaires, puis nous sécurisons MariaDB avec <span class="k">mysql_secure_installation</span>.</p>
+<figure class="shot"><a href="img/nextcloud-09.webp"><img src="img/nextcloud-09.webp" alt="Commande apt install listant apache2, mariadb-server et les modules PHP." width="1286" height="151" loading="lazy"></a><figcaption><b>Fig. 9</b> Installation d'Apache, de MariaDB et des modules PHP.</figcaption></figure>
+<figure class="shot"><a href="img/nextcloud-10.webp"><img src="img/nextcloud-10.webp" alt="Sortie de systemctl status mariadb : service actif." width="1286" height="1041" loading="lazy"></a><figcaption><b>Fig. 10</b> Le service MariaDB est actif.</figcaption></figure>
+<figure class="shot"><a href="img/nextcloud-11.webp"><img src="img/nextcloud-11.webp" alt="Fin de l&#x27;assistant mysql_secure_installation." width="1261" height="130" loading="lazy"></a><figcaption><b>Fig. 11</b> Sécurisation de l'installation de MariaDB.</figcaption></figure>
+<p>Enfin, nous créons la base de données de Nextcloud et un compte dédié, qui reçoit tous les droits sur cette seule base.</p>
+<figure class="shot"><a href="img/nextcloud-12.webp"><img src="img/nextcloud-12.webp" alt="Console MariaDB : création de la base nextcloud et de l&#x27;utilisateur groupe7." width="828" height="482" loading="lazy"></a><figcaption><b>Fig. 12</b> Création de la base et de son utilisateur (mot de passe masqué).</figcaption></figure>
+</div>
+<div class="part" id="partie-5">
+<h2><span class="n">05</span>Configuration du service</h2>
+<p>Le fichier <span class="k">config.php</span> de Nextcloud est adapté aux besoins de l'atelier, notamment les domaines de confiance et les paramètres de la base de données.</p>
+<figure class="shot"><a href="img/nextcloud-13.webp"><img src="img/nextcloud-13.webp" alt="Fichier config.php : domaines de confiance 172.18.70.5 et nextcloud.centrecall.local, base MariaDB." width="1400" height="676" loading="lazy"></a><figcaption><b>Fig. 13</b> Fichier config.php (valeurs sensibles masquées).</figcaption></figure>
+<p>En saisissant l'adresse IP du serveur dans un navigateur, on arrive sur Nextcloud, où l'on crée le compte administrateur du service.</p>
+<figure class="shot"><a href="img/nextcloud-14.webp"><img src="img/nextcloud-14.webp" alt="Page d&#x27;installation de Nextcloud : création du compte administrateur et paramètres de la base." width="1273" height="650" loading="lazy"></a><figcaption><b>Fig. 14</b> Création du compte administrateur de Nextcloud.</figcaption></figure>
+<p>La configuration se termine par l'installation des applications recommandées.</p>
+<figure class="shot"><a href="img/nextcloud-15.webp"><img src="img/nextcloud-15.webp" alt="Liste des applications recommandées par Nextcloud." width="1253" height="635" loading="lazy"></a><figcaption><b>Fig. 15</b> Installation des applications recommandées.</figcaption></figure>
+</div>
+<div class="part" id="partie-6">
+<h2><span class="n">06</span>Sécurisation</h2>
+<p>Plusieurs mesures renforcent la sécurité du service :</p>
+<ul class="b"><li>cinq tentatives de connexion au maximum avant la désactivation du compte ;</li><li>expiration des mots de passe au bout de 90 jours ;</li><li>politique de complexité : 12 caractères au minimum, mots de passe courants interdits.</li></ul>
+<figure class="shot"><a href="img/nextcloud-16.webp"><img src="img/nextcloud-16.webp" alt="Réglages de sécurité : 5 tentatives maximum, expiration à 90 jours, longueur minimale de 12 caractères." width="895" height="871" loading="lazy"></a><figcaption><b>Fig. 16</b> Politique de mots de passe.</figcaption></figure>
+<p>Le chiffrement côté serveur est activé.</p>
+<figure class="shot"><a href="img/nextcloud-17.webp"><img src="img/nextcloud-17.webp" alt="Option « Activer le chiffrement côté serveur » cochée." width="1297" height="385" loading="lazy"></a><figcaption><b>Fig. 17</b> Activation du chiffrement côté serveur.</figcaption></figure>
+<p>Pour l'authentification à deux facteurs, nous téléchargeons l'application <span class="k">twofactor_totp</span> depuis GitHub, nous la plaçons dans les applications de Nextcloud, puis nous l'activons avec la commande <span class="k">occ</span>.</p>
+<figure class="shot"><a href="img/nextcloud-18.webp"><img src="img/nextcloud-18.webp" alt="Commandes wget et unzip de l&#x27;application twofactor_totp." width="1400" height="448" loading="lazy"></a><figcaption><b>Fig. 18</b> Téléchargement de l'application twofactor_totp.</figcaption></figure>
+<figure class="shot"><a href="img/nextcloud-19.webp"><img src="img/nextcloud-19.webp" alt="Déplacement de l&#x27;application dans le dossier apps et activation avec occ." width="1345" height="108" loading="lazy"></a><figcaption><b>Fig. 19</b> Installation et activation de l'application.</figcaption></figure>
+<p>À la connexion, Nextcloud demande désormais un code à usage unique généré par une application d'authentification.</p>
+<figure class="shot"><a href="img/nextcloud-20.webp"><img src="img/nextcloud-20.webp" alt="Écran de Nextcloud demandant le code d&#x27;authentification TOTP." width="1387" height="703" loading="lazy"></a><figcaption><b>Fig. 20</b> Demande du code TOTP à la connexion.</figcaption></figure>
+</div>
+<div class="part" id="partie-7">
+<h2><span class="n">07</span>Application mobile</h2>
+<p>L'application Nextcloud est installée sur un téléphone depuis l'App Store, pour matérialiser l'accès d'un utilisateur au service.</p>
+<div class="shots"><figure class="shot"><a href="img/nextcloud-21.webp"><img src="img/nextcloud-21.webp" alt="Fiche de l&#x27;application Nextcloud dans l&#x27;App Store." width="413" height="899" loading="lazy"></a><figcaption><b>Fig. 21</b> L'application dans l'App Store.</figcaption></figure><figure class="shot"><a href="img/nextcloud-22.webp"><img src="img/nextcloud-22.webp" alt="Écran de connexion à Nextcloud sur le téléphone, à l&#x27;adresse 172.18.70.5." width="414" height="900" loading="lazy"></a><figcaption><b>Fig. 22</b> Connexion au serveur depuis le téléphone.</figcaption></figure></div>
+</div>
+<div class="part" id="partie-8">
+<h2><span class="n">08</span>Fiche de configuration et tests</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Élément</th><th scope="col">Valeur</th></tr></thead><tbody><tr><td>Service</td><td>Nextcloud</td></tr><tr><td>Système du serveur</td><td>Ubuntu Server 24.04</td></tr><tr><td>Adresse IP statique</td><td>172.18.70.5</td></tr><tr><td>Nom interne</td><td>nextcloud.centrecall.local</td></tr><tr><td>Dossier d'installation</td><td>/var/www/nextcloud</td></tr><tr><td>Base de données</td><td>MariaDB, base nextcloud</td></tr><tr><td>Double authentification</td><td>twofactor_totp activé</td></tr></tbody></table></div>
+<div class="tw"><table class="t"><thead><tr><th scope="col">N°</th><th scope="col">Cas de test</th><th scope="col">Étapes</th><th scope="col">Résultat attendu</th><th scope="col">Statut</th></tr></thead><tbody><tr><td>T1</td><td>Accès web</td><td>Saisir 172.18.70.5 dans le navigateur</td><td>Page de connexion visible</td><td>Fonctionnel</td></tr><tr><td>T2</td><td>Authentification et 2FA</td><td>Identifiants puis code TOTP</td><td>Connexion réussie</td><td>Fonctionnel</td></tr><tr><td>T3</td><td>Accès global au service</td><td>Tests d'utilisation de Nextcloud</td><td>Applications fonctionnelles</td><td>Fonctionnel</td></tr></tbody></table></div>
+</div>
+<div class="part" id="partie-9">
+<h2><span class="n">09</span>Résolution de nom</h2>
+<p>Sur le contrôleur de domaine Windows Server mis en place lors d'un atelier précédent, nous créons dans l'outil DNS une zone de recherche directe <span class="k">centrecall.local</span>, avec un hôte A nommé « nextcloud » qui pointe vers l'adresse du serveur.</p>
+<figure class="shot"><a href="img/nextcloud-23.webp"><img src="img/nextcloud-23.webp" alt="Gestionnaire DNS : zone centrecall.local et hôte nextcloud vers 172.18.70.5." width="748" height="504" loading="lazy"></a><figcaption><b>Fig. 23</b> Enregistrement DNS du service.</figcaption></figure>
+<p>Le poste client utilise ce contrôleur de domaine comme serveur DNS.</p>
+<figure class="shot"><a href="img/nextcloud-24.webp"><img src="img/nextcloud-24.webp" alt="Propriétés IPv4 du poste client : serveur DNS préféré 172.18.70.2." width="582" height="663" loading="lazy"></a><figcaption><b>Fig. 24</b> Serveur DNS configuré sur le poste client.</figcaption></figure>
+<p>Le service est alors accessible par son nom dans le navigateur.</p>
+<figure class="shot"><a href="img/nextcloud-25.webp"><img src="img/nextcloud-25.webp" alt="Page de connexion de Nextcloud affichée à l&#x27;adresse nextcloud.centrecall.local." width="1400" height="709" loading="lazy"></a><figcaption><b>Fig. 25</b> Accès à Nextcloud par son nom.</figcaption></figure>
+</div>
+<nav class="pager" aria-label="Autres comptes rendus"><span></span><a class="next" href="intranet-web-ftp.html"><span>Suivant</span>Intranet web et FTP à accès restreints</a></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js"></script>
+</body>
+</html>

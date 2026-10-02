@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Démontage et remontage d'un serveur | Maxime Forest</title>
+<meta name="description" content="Compte rendu : inventaire des composants d&#x27;un serveur HP ProLiant ML110 G6, évaluation de leurs performances et propositions d&#x27;évolution.">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#f3eee2">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/serveur.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/serveur.html">
+<meta property="og:title" content="Démontage et remontage d&#x27;un serveur | Maxime Forest">
+<meta property="og:description" content="Compte rendu : inventaire des composants d&#x27;un serveur HP ProLiant ML110 G6, évaluation de leurs performances et propositions d&#x27;évolution.">
+<meta property="og:image" content="https://forestmaxime-pf.fr/favicon.png">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="../#projet-serveur">← Projets et stages</a></p>
+    <p class="kicker">Travaux pratiques · <b>1<sup>re</sup> année</b> · individuel</p>
+    <h1>Démontage et remontage d'un serveur</h1>
+    <p class="lead">Inventaire des composants d'un serveur HP ProLiant ML110 G6, évaluation de leurs performances et proposition d'évolutions matérielles.</p>
+    <dl class="facts"><div><dt>Contexte</dt><dd>CentreCall (entreprise fictive) veut améliorer les performances de ses anciens serveurs</dd></div><div><dt>Cadre</dt><dd>Travaux pratiques de 1<sup>re</sup> année de BTS SIO, 4 heures</dd></div><div><dt>Matériel</dt><dd>HP ProLiant ML110 G6, commercialisé en 2010</dd></div><div><dt>Compétence</dt><dd>B1.2 – Répondre aux incidents et aux demandes d'assistance et d'évolution</dd></div></dl>
+    <ul class="tags"><li>Matériel</li><li>Diagnostic</li><li>Inventaire</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Contexte</a></li><li><a href="#partie-2"><span>02</span>Inventaire des composants</a></li><li><a href="#partie-3"><span>03</span>Évaluation des performances</a></li><li><a href="#partie-4"><span>04</span>Évolutions proposées</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Contexte</h2>
+<p>Tout juste embauché à la direction des systèmes d'information de CentreCall, je dois améliorer les performances des anciens serveurs de l'entreprise. La démarche se fait en trois temps : inventorier les composants d'un serveur en le démontant, évaluer leurs performances, puis proposer de nouveaux composants là où c'est utile.</p>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>Inventaire des composants</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Composant</th><th scope="col">Relevé</th></tr></thead><tbody><tr><td>Serveur</td><td>HP ProLiant ML110 G6</td></tr><tr><td>Processeur</td><td>Intel Pentium G6950 (2,80 GHz, 73 W, 3 Mo de cache)</td></tr><tr><td>Carte vidéo</td><td>Puce Matrox G200eH intégrée, sortie VGA</td></tr><tr><td>Disque dur</td><td>Un disque dur Western Digital GB0250EAFYK de 250 Go</td></tr><tr><td>Carte réseau</td><td>Une carte Broadcom BCM5723 Gigabit Ethernet, intégrée à la carte mère</td></tr><tr><td>Mémoire vive</td><td>Une barrette Dane-Elec de 2 Go, DDR3 1333 MHz</td></tr><tr><td>Carte mère</td><td>HP ProLiant ML110 G6 (573944-001)</td></tr><tr><td>Connectique externe</td><td>Ports USB 2.0, VGA, DB9, DIN et deux ports Ethernet</td></tr><tr><td>Système d'exploitation</td><td>Ubuntu 16.04</td></tr></tbody></table></div>
+<p>Après remontage, le serveur est fonctionnel.</p>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>Évaluation des performances</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Composant</th><th scope="col">Évaluation</th></tr></thead><tbody><tr><td>Serveur</td><td>Commercialisé en 2010</td></tr><tr><td>Processeur</td><td>Commercialisé en janvier 2010 : 2 cœurs à 2,8 GHz</td></tr><tr><td>Carte vidéo</td><td>Puce Matrox G200eH, commercialisée vers 2009</td></tr><tr><td>Disque dur</td><td>Commercialisé en 2009 : 7 200 tr/min, environ 100 à 120 Mo/s en lecture et 90 à 110 Mo/s en écriture</td></tr><tr><td>Carte réseau</td><td>Gigabit Ethernet (10/100/1000 Mb/s), soit 1 Gb/s</td></tr><tr><td>Mémoire vive</td><td>Commercialisée en 2009 : 1333 MHz ; pas de benchmark disponible pour ce modèle</td></tr><tr><td>Carte mère</td><td>Commercialisée en 2010 : disques SATA II, débit maximal de 3 Gbit/s</td></tr><tr><td>Entrées et sorties</td><td>USB 2.0 : 60 Mo/s théoriques au maximum ; VGA : jusqu'à 1600 × 1200 à 60 Hz</td></tr></tbody></table></div>
+<figure class="shot"><a href="img/serveur-01.webp"><img src="img/serveur-01.webp" alt="Tableau de résultats de benchmark du processeur Intel Pentium G6950." width="1320" height="795" loading="lazy"></a><figcaption><b>Fig. 1</b> Résultats de benchmark du processeur (source : PassMark).</figcaption></figure>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>Évolutions proposées</h2>
+<ul class="b"><li>Mémoire vive : passer à 4 barrettes de 4 Go de DDR3 1333 MHz, pour les données actives.</li><li>Un SSD de 128 Go réservé au système, pour accélérer le démarrage et le lancement des applications.</li><li>Quatre disques de 2 To en RAID 5 logiciel, pour garantir la redondance des données.</li><li>Une alimentation de 500 W certifiée Gold, pour alimenter les nouveaux composants.</li><li>Une carte réseau 10 Gb/s, pour offrir une meilleure bande passante aux employés.</li><li>Un processeur Intel Xeon.</li></ul>
+</div>
+<nav class="pager" aria-label="Autres comptes rendus"><a href="scripts-gpo.html"><span>Précédent</span>Automatisation par scripts et GPO</a><span></span></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js"></script>
+</body>
+</html>

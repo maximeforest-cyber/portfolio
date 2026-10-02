@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Intranet web et FTP à accès restreints | Maxime Forest</title>
+<meta name="description" content="Compte rendu : mise en place d&#x27;un intranet Apache protégé par authentification et d&#x27;un serveur FTP réservé aux développeurs, sur Ubuntu Server.">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#f3eee2">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/intranet-web-ftp.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/intranet-web-ftp.html">
+<meta property="og:title" content="Intranet web et FTP à accès restreints | Maxime Forest">
+<meta property="og:description" content="Compte rendu : mise en place d&#x27;un intranet Apache protégé par authentification et d&#x27;un serveur FTP réservé aux développeurs, sur Ubuntu Server.">
+<meta property="og:image" content="https://forestmaxime-pf.fr/favicon.png">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="../#projet-web-ftp">← Projets et stages</a></p>
+    <p class="kicker">Atelier professionnel · <b>février – mars 2025</b> · en binôme</p>
+    <h1>Intranet web et FTP à accès restreints</h1>
+    <p class="lead">Mise en place, pour le laboratoire fictif GSB, d'un intranet sous Apache protégé par authentification et d'un serveur FTP réservé aux développeurs, sur Ubuntu Server.</p>
+    <dl class="facts"><div><dt>Contexte</dt><dd>Galaxy Swiss Bourdin (GSB), laboratoire pharmaceutique fictif</dd></div><div><dt>Cadre</dt><dd>Atelier professionnel de 1<sup>re</sup> année de BTS SIO, en binôme</dd></div><div><dt>Technique</dt><dd>Hyper-V, Ubuntu Server 24.04, Apache 2.4, vsftpd, FileZilla, DNS</dd></div><div><dt>Sécurité</dt><dd>Authentification HTTP, liste d'utilisateurs FTP autorisés, droits par groupe</dd></div></dl>
+    <ul class="tags"><li>Linux</li><li>Apache</li><li>vsftpd</li><li>DNS</li><li>Habilitations</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Contexte et objectifs</a></li><li><a href="#partie-2"><span>02</span>Environnement</a></li><li><a href="#partie-3"><span>03</span>Adresse IP statique</a></li><li><a href="#partie-4"><span>04</span>Serveur web Apache</a></li><li><a href="#partie-5"><span>05</span>Sécurisation du serveur web</a></li><li><a href="#partie-6"><span>06</span>Validation du service web</a></li><li><a href="#partie-7"><span>07</span>Serveur FTP</a></li><li><a href="#partie-8"><span>08</span>Sécurisation du serveur FTP</a></li><li><a href="#partie-9"><span>09</span>Validation du service FTP</a></li><li><a href="#partie-10"><span>10</span>Résolution de noms</a></li><li><a href="#partie-11"><span>11</span>Bilan</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Contexte et objectifs</h2>
+<p>Galaxy Swiss Bourdin (GSB) est un laboratoire pharmaceutique issu de la fusion de deux entreprises. Cette fusion demande d'améliorer le système informatique pour faciliter l'activité des visiteurs médicaux et la communication interne.</p>
+<p>L'objectif est de mettre en place un intranet et un serveur FTP sécurisé, par lequel les développeurs déposent les mises à jour du site. L'accès doit être réservé aux acteurs de l'entreprise.</p>
+<ul class="b"><li>Mettre en place un serveur intranet sécurisé avec Apache.</li><li>Configurer les accès des utilisateurs et les permissions.</li><li>Mettre en place un serveur FTP sécurisé.</li><li>Configurer la résolution du nom du serveur.</li><li>Vérifier et valider le tout par des tests.</li></ul>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>Environnement</h2>
+<p>Nous créons sous Hyper-V une machine virtuelle Ubuntu Server 24.04, qui hébergera les services.</p>
+<figure class="shot"><a href="img/intranet-web-ftp-01.webp"><img src="img/intranet-web-ftp-01.webp" alt="Gestionnaire Hyper-V listant la machine virtuelle Ubuntu Server." width="1400" height="591" loading="lazy"></a><figcaption><b>Fig. 1</b> La machine virtuelle dans le gestionnaire Hyper-V.</figcaption></figure>
+<p>Une fois sur le serveur, nous créons le groupe des développeurs et ses trois utilisateurs :</p>
+<pre class="cmd"><code>sudo groupadd devs
+sudo useradd dev1
+sudo useradd dev2
+sudo useradd dev3
+sudo usermod -aG devs dev1
+sudo usermod -aG devs dev2
+sudo usermod -aG devs dev3</code></pre>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>Adresse IP statique</h2>
+<p>Le serveur reçoit une adresse IP statique, 172.18.70.5, pour que les services restent joignables à la même adresse.</p>
+<figure class="shot"><a href="img/intranet-web-ftp-02.webp"><img src="img/intranet-web-ftp-02.webp" alt="Fichier netplan du serveur : adresse 172.18.70.5/16, passerelle et serveur DNS." width="1273" height="1042" loading="lazy"></a><figcaption><b>Fig. 2</b> Configuration IP statique avec netplan.</figcaption></figure>
+<figure class="shot"><a href="img/intranet-web-ftp-03.webp"><img src="img/intranet-web-ftp-03.webp" alt="Résultat d&#x27;un ping vers 172.18.70.5 : trois réponses reçues." width="1385" height="283" loading="lazy"></a><figcaption><b>Fig. 3</b> Le serveur répond au ping depuis un poste client.</figcaption></figure>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>Serveur web Apache</h2>
+<p>Apache, installé avec apt, sert l'intranet de l'entreprise.</p>
+<figure class="shot"><a href="img/intranet-web-ftp-04.webp"><img src="img/intranet-web-ftp-04.webp" alt="Sortie de systemctl status apache2 : service actif." width="882" height="278" loading="lazy"></a><figcaption><b>Fig. 4</b> Le service Apache est actif.</figcaption></figure>
+<figure class="shot"><a href="img/intranet-web-ftp-05.webp"><img src="img/intranet-web-ftp-05.webp" alt="Commande apache2 -v : Apache 2.4.58." width="455" height="65" loading="lazy"></a><figcaption><b>Fig. 5</b> Version d'Apache installée.</figcaption></figure>
+</div>
+<div class="part" id="partie-5">
+<h2><span class="n">05</span>Sécurisation du serveur web</h2>
+<p>L'accès au site est protégé par un nom d'utilisateur et un mot de passe. La commande <span class="k">htpasswd</span> crée le fichier <span class="k">/etc/apache2/.htpasswd</span>, qui contient l'utilisateur et son mot de passe chiffré.</p>
+<figure class="shot"><a href="img/intranet-web-ftp-06.webp"><img src="img/intranet-web-ftp-06.webp" alt="Commande sudo htpasswd -c /etc/apache2/.htpasswd admin." width="674" height="20" loading="lazy"></a><figcaption><b>Fig. 6</b> Création du fichier .htpasswd.</figcaption></figure>
+<p>Le fichier <span class="k">000-default.conf</span> reçoit ensuite les directives qui protègent le dossier du site, <span class="k">/var/www/html</span>.</p>
+<figure class="shot"><a href="img/intranet-web-ftp-07.webp"><img src="img/intranet-web-ftp-07.webp" alt="Fichier 000-default.conf : AuthType Basic, AuthUserFile et Require valid-user sur /var/www/html." width="843" height="724" loading="lazy"></a><figcaption><b>Fig. 7</b> Directives d'authentification dans la configuration du site.</figcaption></figure>
+<figure class="shot"><a href="img/intranet-web-ftp-08.webp"><img src="img/intranet-web-ftp-08.webp" alt="Fenêtre d&#x27;authentification affichée par le navigateur à l&#x27;adresse du serveur." width="1400" height="767" loading="lazy"></a><figcaption><b>Fig. 8</b> Le navigateur demande une authentification.</figcaption></figure>
+</div>
+<div class="part" id="partie-6">
+<h2><span class="n">06</span>Validation du service web</h2>
+<p>Nous vérifions que le serveur web répond et que l'authentification est bien active.</p>
+<figure class="shot"><a href="img/intranet-web-ftp-09.webp"><img src="img/intranet-web-ftp-09.webp" alt="Fenêtre « Se connecter pour accéder à ce site » sur 172.18.70.5." width="1385" height="445" loading="lazy"></a><figcaption><b>Fig. 9</b> Demande d'identifiants à l'ouverture du site.</figcaption></figure>
+<figure class="shot"><a href="img/intranet-web-ftp-10.webp"><img src="img/intranet-web-ftp-10.webp" alt="Page par défaut d&#x27;Apache sur Ubuntu." width="1400" height="761" loading="lazy"></a><figcaption><b>Fig. 10</b> Page par défaut d'Apache après authentification.</figcaption></figure>
+</div>
+<div class="part" id="partie-7">
+<h2><span class="n">07</span>Serveur FTP</h2>
+<p>Le service vsftpd permet de transférer des fichiers vers le serveur avec un client FTP.</p>
+<figure class="shot"><a href="img/intranet-web-ftp-11.webp"><img src="img/intranet-web-ftp-11.webp" alt="Sortie de systemctl status vsftpd : service actif." width="1298" height="1040" loading="lazy"></a><figcaption><b>Fig. 11</b> Le service vsftpd est actif.</figcaption></figure>
+<p>Avec le client FileZilla, nous nous connectons au serveur et transférons dans <span class="k">/var/www/html</span> les fichiers du site à mettre en ligne.</p>
+<figure class="shot"><a href="img/intranet-web-ftp-12.webp"><img src="img/intranet-web-ftp-12.webp" alt="FileZilla connecté à 172.18.70.5, dossier distant /var/www/html." width="1171" height="925" loading="lazy"></a><figcaption><b>Fig. 12</b> Connexion au serveur avec FileZilla (volet local masqué).</figcaption></figure>
+<figure class="shot"><a href="img/intranet-web-ftp-13.webp"><img src="img/intranet-web-ftp-13.webp" alt="Le site de l&#x27;intranet affiché dans le navigateur, et la demande d&#x27;identifiants dans une fenêtre privée." width="1388" height="701" loading="lazy"></a><figcaption><b>Fig. 13</b> Le site transféré, protégé par l'authentification.</figcaption></figure>
+</div>
+<div class="part" id="partie-8">
+<h2><span class="n">08</span>Sécurisation du serveur FTP</h2>
+<p>Les développeurs ne doivent accéder qu'aux fichiers du site. Le groupe devs devient propriétaire du dossier du site et reçoit les droits de lecture et d'écriture :</p>
+<pre class="cmd"><code>sudo chown -R root:devs /var/www/html
+sudo chmod -R 775 /var/www/html</code></pre>
+<p>Un fichier <span class="k">vsftpd.allowed_users</span> liste les utilisateurs autorisés à se connecter en FTP : les développeurs et l'administrateur. La configuration de vsftpd refuse tous les autres.</p>
+<figure class="shot"><a href="img/intranet-web-ftp-14.webp"><img src="img/intranet-web-ftp-14.webp" alt="Fichier vsftpd.conf : chroot_local_user, userlist_enable, userlist_deny=NO et userlist_file." width="854" height="306" loading="lazy"></a><figcaption><b>Fig. 14</b> Restriction des utilisateurs dans vsftpd.conf.</figcaption></figure>
+<p>Le compte administrateur accède à tous les dossiers du serveur.</p>
+<figure class="shot"><a href="img/intranet-web-ftp-15.webp"><img src="img/intranet-web-ftp-15.webp" alt="FileZilla connecté avec le compte administrateur : arborescence complète du serveur." width="1400" height="750" loading="lazy"></a><figcaption><b>Fig. 15</b> Accès de l'administrateur (volet local masqué).</figcaption></figure>
+<p>Les développeurs n'accèdent qu'au dossier du site web.</p>
+<figure class="shot"><a href="img/intranet-web-ftp-16.webp"><img src="img/intranet-web-ftp-16.webp" alt="FileZilla connecté avec le compte dev1 : seuls les dossiers du site sont visibles." width="1203" height="595" loading="lazy"></a><figcaption><b>Fig. 16</b> Accès d'un développeur, limité au dossier du site (volet local masqué).</figcaption></figure>
+</div>
+<div class="part" id="partie-9">
+<h2><span class="n">09</span>Validation du service FTP</h2>
+<p>Nous testons la connexion au serveur FTP, l'envoi et la suppression de fichiers, puis nous vérifions les droits sur le dossier du site.</p>
+<figure class="shot"><a href="img/intranet-web-ftp-17.webp"><img src="img/intranet-web-ftp-17.webp" alt="Sortie de ls -l dans /var/www/html : fichiers appartenant au groupe devs." width="627" height="210" loading="lazy"></a><figcaption><b>Fig. 17</b> Droits des fichiers du site : groupe devs.</figcaption></figure>
+</div>
+<div class="part" id="partie-10">
+<h2><span class="n">10</span>Résolution de noms</h2>
+<p>Pour que le serveur soit joignable par un nom plutôt que par son adresse IP, nous ajoutons l'hôte « visiteurs » dans la zone DNS du contrôleur de domaine Windows Server (mdl.local), vers l'adresse 172.18.70.5.</p>
+<figure class="shot"><a href="img/intranet-web-ftp-18.webp"><img src="img/intranet-web-ftp-18.webp" alt="Gestionnaire DNS : hôte visiteurs vers 172.18.70.5 dans la zone MDL.LOCAL." width="1081" height="647" loading="lazy"></a><figcaption><b>Fig. 18</b> Enregistrement DNS « visiteurs ».</figcaption></figure>
+<p>Le poste client utilise le contrôleur de domaine (172.18.70.2) comme serveur DNS.</p>
+<figure class="shot"><a href="img/intranet-web-ftp-19.webp"><img src="img/intranet-web-ftp-19.webp" alt="Propriétés IPv4 du poste client : serveur DNS préféré 172.18.70.2." width="561" height="681" loading="lazy"></a><figcaption><b>Fig. 19</b> Serveur DNS configuré sur le poste client.</figcaption></figure>
+<figure class="shot"><a href="img/intranet-web-ftp-20.webp"><img src="img/intranet-web-ftp-20.webp" alt="Le formulaire d&#x27;authentification du site affiché à l&#x27;adresse visiteurs.mdl.local." width="1385" height="423" loading="lazy"></a><figcaption><b>Fig. 20</b> Le site répond à l'adresse visiteurs.mdl.local.</figcaption></figure>
+</div>
+<div class="part" id="partie-11">
+<h2><span class="n">11</span>Bilan</h2>
+<p>Nous avons répondu aux besoins de GSB en déployant un serveur web et un serveur FTP conformes au cahier des charges. Apache est protégé par une authentification par mot de passe, qui réserve l'accès aux utilisateurs autorisés. Le serveur FTP permet aux développeurs du groupe devs de modifier uniquement les fichiers du site. La résolution de nom simplifie l'accès sur le réseau local. Une série de tests a validé chaque fonction : connexion FTP, authentification web et restrictions.</p>
+</div>
+<nav class="pager" aria-label="Autres comptes rendus"><a href="nextcloud.html"><span>Précédent</span>Cloud interne sécurisé avec Nextcloud</a><a class="next" href="utilisateurs-active-directory.html"><span>Suivant</span>Gestion des utilisateurs avec un contrôleur de domaine</a></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js"></script>
+</body>
+</html>

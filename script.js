@@ -25,6 +25,13 @@
   photo.addEventListener('error', sansPhoto);
   if (photo.complete && photo.naturalWidth === 0) { sansPhoto(); }
 
+  // Badges : libellé de secours si l'image est absente
+  document.querySelectorAll('img[data-secours]').forEach(function (img) {
+    function remplacer() { img.replaceWith(img.getAttribute('data-secours')); }
+    img.addEventListener('error', remplacer);
+    if (img.complete && img.naturalWidth === 0) { remplacer(); }
+  });
+
   // Un lien direct vers une fiche (#projet-..., #veille-...) l'ouvre
   function ouvrirCible() {
     var id = decodeURIComponent(location.hash.slice(1));

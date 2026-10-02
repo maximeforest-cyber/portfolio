@@ -119,6 +119,7 @@ h3 { font-size: 19px; line-height: 1.28; letter-spacing: -.01em; }
 .grid { display: grid; gap: 16px; margin-top: 28px; }
 /* Une fiche ouverte ne doit pas étirer ses voisines */
 .grid:has(details[open]) { align-items: start; }
+.grid.mesure .fiche { display: none; }
 .g2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
 .g3 { grid-template-columns: repeat(3, 1fr); }
 .card { background: var(--sheet); border: 1.5px solid var(--ink); padding: 20px; }

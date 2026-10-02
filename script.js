@@ -44,6 +44,37 @@
   window.addEventListener('hashchange', ouvrirCible);
   ouvrirCible();
 
+  // Fiche ouverte : les cartes voisines gardent la hauteur qu'elles ont quand tout est fermé
+  function egaliser(grille) {
+    var cartes = Array.prototype.slice.call(grille.children);
+    cartes.forEach(function (c) { c.style.minHeight = ''; });
+    if (!grille.querySelector('details[open]')) { return; }
+    grille.classList.add('mesure');
+    var rangs = {};
+    var hauts = cartes.map(function (c) {
+      var y = c.offsetTop;
+      rangs[y] = Math.max(rangs[y] || 0, c.getBoundingClientRect().height);
+      return y;
+    });
+    grille.classList.remove('mesure');
+    cartes.forEach(function (c, i) { c.style.minHeight = rangs[hauts[i]] + 'px'; });
+  }
+  function egaliserTout() {
+    document.querySelectorAll('.grid').forEach(function (g) {
+      if (g.querySelector('details')) { egaliser(g); }
+    });
+  }
+  document.addEventListener('toggle', function (e) {
+    var g = e.target.closest && e.target.closest('.grid');
+    if (g) { egaliser(g); }
+  }, true);
+  var attente;
+  window.addEventListener('resize', function () {
+    clearTimeout(attente);
+    attente = setTimeout(egaliserTout, 120);
+  });
+  egaliserTout();
+
   // Rubrique en cours de lecture, signalée dans le menu
   var liens = {};
   nav.querySelectorAll('a').forEach(function (a) {

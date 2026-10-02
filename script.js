@@ -20,10 +20,12 @@
 
   // Portrait : initiales si la photo est absente
   var fig = document.getElementById('portrait');
-  var photo = fig.querySelector('img');
-  function sansPhoto() { fig.classList.add('sans-photo'); }
-  photo.addEventListener('error', sansPhoto);
-  if (photo.complete && photo.naturalWidth === 0) { sansPhoto(); }
+  if (fig) {
+    var photo = fig.querySelector('img');
+    var sansPhoto = function () { fig.classList.add('sans-photo'); };
+    photo.addEventListener('error', sansPhoto);
+    if (photo.complete && photo.naturalWidth === 0) { sansPhoto(); }
+  }
 
   // Badges : libellé de secours si l'image est absente
   document.querySelectorAll('img[data-secours]').forEach(function (img) {

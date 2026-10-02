@@ -29,7 +29,7 @@
   function ouvrirCible() {
     var id = decodeURIComponent(location.hash.slice(1));
     var cible = id && document.getElementById(id);
-    var fiche = cible && cible.querySelector('details');
+    var fiche = cible && cible.tagName === 'ARTICLE' && cible.querySelector('details');
     if (fiche) { fiche.open = true; }
   }
   window.addEventListener('hashchange', ouvrirCible);

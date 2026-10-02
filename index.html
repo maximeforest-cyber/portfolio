@@ -147,7 +147,7 @@
 <section id="projets">
   <div class="wrap">
     <div class="folio"><span class="n" aria-hidden="true">03</span><div><p class="host">srv-projets · 10.0.20.11</p><h2>Projets et stages</h2></div></div>
-    <p class="sub">Mon stage en entreprise, puis les travaux pratiques et ateliers professionnels menés pendant le BTS. Chaque fiche résume le contexte et ce que j'ai fait.</p>
+    <p class="sub">Mon stage en entreprise, les travaux pratiques et ateliers professionnels menés pendant le BTS, et un projet personnel. Chaque fiche résume le contexte et ce qui a été fait.</p>
 
     <div class="year"><h3>Stage en entreprise</h3><span>Juin – juillet 2025</span></div>
     <div class="grid">
@@ -357,6 +357,38 @@
         <p>Intervention matérielle sur un serveur, dans le rôle d'un technicien informatique.</p>
         <a class="doc" href="projets/serveur.html">Lire le compte rendu</a>
         <ul class="tags"><li>Matériel</li><li>Maintenance</li></ul>
+      </article>
+
+    </div>
+
+    <div class="year"><h3>Projet personnel</h3><span>2026</span></div>
+    <div class="grid">
+
+      <article class="card project wide" id="projet-portfolio">
+        <p class="meta">Projet personnel · octobre 2026</p>
+        <h3>Ce portfolio : hébergement et sécurité</h3>
+        <p>Site statique hébergé sur GitHub Pages et placé derrière Cloudflare. Les mesures de sécurité en place sont publiques et vérifiables par tout visiteur.</p>
+        <details>
+          <summary>Voir la fiche</summary>
+          <div class="fiche">
+            <h4>Contexte</h4>
+            <p>Remplacer un site Wix par un site statique, sans base de données, sans compte utilisateur et sans dépendance externe, puis le durcir comme un service exposé sur Internet.</p>
+            <h4>Mesures en place</h4>
+            <ul>
+              <li>HTTPS imposé : redirection, HSTS d'un an et TLS 1.2 au minimum</li>
+              <li>Politique de sécurité du contenu (CSP) en liste blanche : aucun script ni style en ligne, aucune ressource externe</li>
+              <li>Protection contre l'affichage dans un cadre (clickjacking) et contre la détection automatique du type des fichiers</li>
+              <li>Cloudflare en reverse proxy pour envoyer ces en-têtes, réglé pour ne rien modifier dans les pages</li>
+              <li>Zone DNS signée avec DNSSEC</li>
+              <li>Domaine protégé contre l'usurpation d'adresse e-mail : SPF et DMARC en rejet strict</li>
+              <li>Comptes d'administration protégés par double authentification</li>
+              <li>Aucun cookie, aucun traceur</li>
+            </ul>
+            <h4>Vérifier</h4>
+            <p>Le <a href="https://developer.mozilla.org/en-US/observatory/analyze?host=forestmaxime-pf.fr" rel="noopener">test Mozilla Observatory</a> contrôle les en-têtes de sécurité (note A+), et le <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">code source</a> du site est public.</p>
+          </div>
+        </details>
+        <ul class="tags"><li>GitHub Pages</li><li>Cloudflare</li><li>HTTPS et HSTS</li><li>CSP</li><li>DNSSEC</li><li>SPF et DMARC</li></ul>
       </article>
 
     </div>

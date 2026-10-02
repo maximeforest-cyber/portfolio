@@ -70,7 +70,7 @@ h1 { font-size: clamp(46px, 8vw, 84px); line-height: .94; letter-spacing: -.045e
 
 .fig { width: 178px; }
 .fig .frame { background: var(--sheet); border: 1.5px solid var(--ink); padding: 6px; }
-.fig img, .fig .initials { width: 100%; aspect-ratio: 1; object-fit: cover; filter: grayscale(1) contrast(1.06); }
+.fig img, .fig .initials { width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; filter: grayscale(1) contrast(1.06); }
 .fig .initials { display: none; place-items: center; background: var(--ink); color: var(--paper); font-family: var(--mono); font-size: 46px; font-weight: 700; filter: none; }
 .fig.sans-photo img { display: none; }
 .fig.sans-photo .initials { display: grid; }

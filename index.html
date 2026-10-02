@@ -1,275 +1,560 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>Maxime Forest | Administrateur Système Junior & Étudiant BTS SIO</title>
-
-    <meta name="description" content="Portfolio de Maxime Forest, étudiant en BTS SIO et administrateur système junior. Découvrez mon parcours, mes compétences, mes projets, mes stages et mes certifications.">
-    <meta name="author" content="Maxime Forest">
-    <meta name="robots" content="index, follow, max-image-preview:large">
-
-    <link rel="canonical" href="https://forestmaxime-pf.fr/">
-
-    <link rel="preconnect" href="https://maximeforesttt.wixsite.com">
-    <link rel="dns-prefetch" href="//maximeforesttt.wixsite.com">
-
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://forestmaxime-pf.fr/">
-    <meta property="og:title" content="Maxime Forest | Portfolio Administrateur Système">
-    <meta property="og:description" content="Découvrez mon parcours, mes compétences, mes projets informatiques, mes stages et mes certifications.">
-    <meta property="og:image" content="https://forestmaxime-pf.fr/favicon.png">
-
-    <link rel="icon" type="image/png" href="/favicon.png">
-
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "Person",
-        "name": "Maxime Forest",
-        "jobTitle": "Administrateur Système Junior",
-        "url": "https://forestmaxime-pf.fr/",
-        "description": "Étudiant en BTS SIO spécialisé dans l'administration système, les réseaux et les solutions informatiques.",
-        "hasCredential": {
-            "@type": "EducationalOccupationalCredential",
-            "name": "BTS SIO"
-        }
-    }
-    </script>
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html,
-        body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: #fff;
-            font-family: Arial, sans-serif;
-        }
-
-        /* Desktop */
-        :root {
-            --wix-banner-height: 52px;
-        }
-
-        /* Tablette */
-        @media (pointer: coarse) and (min-width: 768px) and (max-width: 1024px) {
-            :root {
-                --wix-banner-height: 50px;
-            }
-        }
-
-        /* Téléphone */
-        @media (pointer: coarse) and (max-width: 767px) {
-            :root {
-                --wix-banner-height: 48px;
-            }
-        }
-
-        #main-wrapper {
-            position: relative;
-            width: 100%;
-            height: 100dvh;
-            overflow: hidden;
-        }
-
-        #portfolio-iframe {
-            position: absolute;
-
-            top: calc(var(--wix-banner-height) * -1);
-            left: 0;
-
-            width: 100%;
-            height: calc(100% + var(--wix-banner-height));
-
-            border: none;
-
-            opacity: 0;
-            transition: opacity .4s ease;
-        }
-
-        #loader {
-            position: fixed;
-            inset: 0;
-
-            background: #fff;
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            z-index: 9999;
-        }
-
-        .spinner {
-            width: 42px;
-            height: 42px;
-
-            border: 4px solid #e5e5e5;
-            border-top-color: #555555;
-
-            border-radius: 50%;
-
-            animation: spin .8s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .visually-hidden {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            overflow: hidden;
-            clip: rect(0,0,0,0);
-            white-space: nowrap;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maxime Forest | Systèmes, réseaux et cybersécurité – BTS SIO SISR</title>
+<meta name="description" content="Portfolio de Maxime Forest, étudiant en BTS SIO option SISR. Projets systèmes et réseaux, stage, certifications Cisco et veille en cybersécurité.">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#f3eee2">
+<link rel="canonical" href="https://forestmaxime-pf.fr/">
+<link rel="icon" type="image/png" href="favicon.png">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/">
+<meta property="og:title" content="Maxime Forest | Systèmes, réseaux et cybersécurité">
+<meta property="og:description" content="Étudiant en BTS SIO option SISR. Projets, stage, certifications et veille en cybersécurité.">
+<meta property="og:image" content="https://forestmaxime-pf.fr/favicon.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Maxime Forest",
+  "url": "https://forestmaxime-pf.fr/",
+  "jobTitle": "Étudiant en BTS SIO option SISR",
+  "description": "Étudiant en systèmes, réseaux et cybersécurité.",
+  "sameAs": [
+    "https://www.linkedin.com/in/maxime-forest-cyber",
+    "https://github.com/maximeforest-cyber"
+  ]
+}
+</script>
+<link rel="stylesheet" href="style.css">
 </head>
-
 <body>
+<a class="skip" href="#contenu">Aller au contenu</a>
 
-    <!-- SEO -->
-    <main class="visually-hidden">
-        <article>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#accueil"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul>
+        <li><a href="#a-propos">À propos</a></li>
+        <li><a href="#competences">Compétences</a></li>
+        <li><a href="#projets">Projets</a></li>
+        <li><a href="#parcours">Parcours</a></li>
+        <li><a href="#certifications">Certifications</a></li>
+        <li><a href="#veille">Veille</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
 
-            <h1>
-                Portfolio Maxime Forest - Administrateur Système Junior BTS SIO
-            </h1>
+<main id="contenu">
 
-            <section>
-                <h2>Présentation</h2>
-
-                <p>
-                    Maxime Forest est étudiant en BTS Services Informatiques
-                    aux Organisations, spécialisé dans l'administration
-                    système, les réseaux et les solutions informatiques.
-                </p>
-            </section>
-
-            <section>
-                <h2>Compétences</h2>
-
-                <ul>
-                    <li>Administration système</li>
-                    <li>Administration réseau</li>
-                    <li>Windows</li>
-                    <li>Linux</li>
-                    <li>Virtualisation</li>
-                    <li>Cybersécurité</li>
-                    <li>HTML5</li>
-                    <li>CSS3</li>
-                    <li>JavaScript</li>
-                    <li>PHP</li>
-                    <li>SQL</li>
-                    <li>Git</li>
-                    <li>GitHub</li>
-                </ul>
-            </section>
-
-            <section>
-                <h2>Projets informatiques</h2>
-
-                <p>
-                    Découvrez les projets informatiques, les travaux réalisés
-                    durant le BTS SIO ainsi que les expériences professionnelles
-                    de Maxime Forest.
-                </p>
-            </section>
-
-            <section>
-                <h2>Veilles technologiques</h2>
-
-                <p>
-                    Retrouvez les différentes veilles technologiques
-                    réalisées dans le cadre du BTS SIO.
-                </p>
-            </section>
-
-            <section>
-                <h2>Stages</h2>
-
-                <p>
-                    Découvrez les expériences et stages réalisés par
-                    Maxime Forest dans le domaine informatique.
-                </p>
-            </section>
-
-            <section>
-                <h2>Certifications</h2>
-
-                <p>
-                    Retrouvez les certifications et formations obtenues
-                    par Maxime Forest.
-                </p>
-            </section>
-
-            <section>
-                <h2>Contact</h2>
-
-                <p>
-                    Retrouvez les informations permettant de contacter
-                    Maxime Forest pour une opportunité professionnelle,
-                    un stage ou une alternance.
-                </p>
-            </section>
-
-        </article>
-    </main>
-
-    <!-- Loader -->
-    <div id="loader">
-        <div class="spinner"></div>
+<div class="hero" id="accueil">
+  <div class="wrap">
+    <div class="intro">
+      <div>
+        <p class="kicker">BTS SIO · option SISR · <b>Vernon</b></p>
+        <h1>Maxime Forest</h1>
+        <p class="lead">Systèmes, réseaux et <u>cybersécurité</u></p>
+        <p class="note"><b>NOTE</b> Je recherche un stage du 4 janvier au 19 février 2027, puis une alternance en cybersécurité à partir de septembre 2027.</p>
+        <div class="actions">
+          <a class="btn main" href="#contact">Me contacter</a>
+          <a class="btn" href="https://www.linkedin.com/in/maxime-forest-cyber" rel="noopener">LinkedIn</a>
+          <a class="btn" href="https://github.com/maximeforest-cyber" rel="noopener">GitHub</a>
+        </div>
+      </div>
+      <figure class="fig" id="portrait">
+        <div class="frame">
+          <img src="photo.jpg" alt="Portrait de Maxime Forest" width="178" height="178">
+          <div class="initials" aria-hidden="true">MF</div>
+        </div>
+        <figcaption>Fig. 1 — L'administrateur</figcaption>
+      </figure>
     </div>
 
-    <!-- Portfolio -->
-    <div id="main-wrapper">
+    <nav class="plan" aria-label="Plan du site sous forme de schéma réseau">
+      <div class="sheet">
+<svg class="desktop" viewBox="0 0 1040 400" xmlns="http://www.w3.org/2000/svg"><text class="figt" x="20" y="34">FIG. 2 — PLAN DU SITE</text><text class="figs" x="20" y="56">Cliquez sur un équipement pour ouvrir sa rubrique.</text><rect class="zone" x="520" y="14" width="505" height="176"/><text class="z" x="532" y="33">VLAN 10 · PROFIL · 10.0.10.0/24</text><rect class="zone" x="520" y="210" width="505" height="176"/><text class="z" x="532" y="229">VLAN 20 · RÉALISATIONS · 10.0.20.0/24</text><path class="lk" d="M96 200H213M257 200H369M421 200H480M480 52V248M480 52H950M480 248H950M600 52V84M600 248V280M775 52V84M775 248V280M950 52V84M950 248V280"/><rect class="pkt" x="-3.5" y="-3.5" width="7" height="7"><animateMotion dur="7s" begin="-0.00s" repeatCount="indefinite" path="M96 200H480V52H600V84"/></rect><rect class="pkt" x="-3.5" y="-3.5" width="7" height="7"><animateMotion dur="7s" begin="-1.17s" repeatCount="indefinite" path="M96 200H480V248H600V280"/></rect><rect class="pkt" x="-3.5" y="-3.5" width="7" height="7"><animateMotion dur="7s" begin="-2.33s" repeatCount="indefinite" path="M96 200H480V52H775V84"/></rect><rect class="pkt" x="-3.5" y="-3.5" width="7" height="7"><animateMotion dur="7s" begin="-3.50s" repeatCount="indefinite" path="M96 200H480V248H775V280"/></rect><rect class="pkt" x="-3.5" y="-3.5" width="7" height="7"><animateMotion dur="7s" begin="-4.67s" repeatCount="indefinite" path="M96 200H480V52H950V84"/></rect><rect class="pkt" x="-3.5" y="-3.5" width="7" height="7"><animateMotion dur="7s" begin="-5.83s" repeatCount="indefinite" path="M96 200H480V248H950V280"/></rect><g><g class="ico" transform="translate(75 200)"><path d="M-21 13H19A11 11 0 0 0 21-8A15 15 0 0 0-8-14A12.5 12.5 0 0 0-21 13Z"/></g><text class="h" x="75" y="242" text-anchor="middle">wan</text><text class="t" x="75" y="261" text-anchor="middle">Vous êtes ici</text></g><a href="#contact" aria-label="Contact"><path class="route" d="M96 200H213"/><rect class="hit" x="169" y="170" width="132" height="100"/><g class="ico" transform="translate(235 200)"><rect x="-22" y="-18" width="44" height="36"/><path class="nf" d="M-22-6H22M-22 6H22M-7-18V-6M8-18V-6M-14-6V6M1-6V6M15-6V6M-7 6V18M8 6V18"/></g><text class="h" x="235" y="242" text-anchor="middle">fw-contact</text><text class="t" x="235" y="261" text-anchor="middle">Contact</text></a><g><g class="ico" transform="translate(395 200)"><rect x="-26" y="-14" width="52" height="28"/><path class="nf" d="M-15-5H5M0-9L5-5L0-1M15 5H-5M0 1L-5 5L0 9"/></g><text class="h" x="395" y="238" text-anchor="middle">sw-coeur</text></g><a href="#a-propos" aria-label="À propos"><path class="route" d="M421 200H480V52H600V84"/><rect class="hit" x="534" y="75" width="132" height="100"/><g class="ico" transform="translate(600 105)"><rect x="-21" y="-19" width="42" height="28"/><path class="nf" d="M-9 16H9M0 9V16M-13-11L-8-7L-13-3M-4-3H4"/></g><text class="h" x="600" y="146" text-anchor="middle">pc-maxime</text><text class="t" x="600" y="165" text-anchor="middle">À propos</text></a><a href="#competences" aria-label="Compétences"><path class="route" d="M421 200H480V52H775V84"/><rect class="hit" x="709" y="75" width="132" height="100"/><g class="ico" transform="translate(775 105)"><rect x="-17" y="-21" width="34" height="42"/><path class="nf" d="M-17-7H17M-17 7H17M-3-14H10M-3 0H10M-3 14H10"/><circle class="led" cx="-10" cy="-14" r="2"/><circle class="led" cx="-10" cy="0" r="2"/><circle class="led" cx="-10" cy="14" r="2"/></g><text class="h" x="775" y="146" text-anchor="middle">srv-competences</text><text class="t" x="775" y="165" text-anchor="middle">Compétences</text></a><a href="#parcours" aria-label="Parcours"><path class="route" d="M421 200H480V52H950V84"/><rect class="hit" x="884" y="75" width="132" height="100"/><g class="ico" transform="translate(950 105)"><path d="M-18-13V13A18 6 0 0 0 18 13V-13"/><ellipse cx="0" cy="-13" rx="18" ry="6"/><path class="nf" d="M-18 0A18 6 0 0 0 18 0"/></g><text class="h" x="950" y="146" text-anchor="middle">nas-parcours</text><text class="t" x="950" y="165" text-anchor="middle">Parcours</text></a><a href="#projets" aria-label="Projets"><path class="route" d="M421 200H480V248H600V280"/><rect class="hit" x="534" y="271" width="132" height="100"/><g class="ico" transform="translate(600 301)"><rect x="-23" y="-21" width="46" height="42"/><path class="nf" d="M-23-10.5H23M-23 0H23M-23 10.5H23M-6-15.8H16M-6-5.3H16M-6 5.3H16M-6 15.8H16"/><circle class="led" cx="-15" cy="-15.8" r="1.9"/><circle class="led" cx="-15" cy="-5.3" r="1.9"/><circle class="led" cx="-15" cy="5.3" r="1.9"/><circle class="led" cx="-15" cy="15.8" r="1.9"/></g><text class="h" x="600" y="342" text-anchor="middle">srv-projets</text><text class="t" x="600" y="361" text-anchor="middle">Projets</text></a><a href="#certifications" aria-label="Certifications"><path class="route" d="M421 200H480V248H775V280"/><rect class="hit" x="709" y="271" width="132" height="100"/><g class="ico" transform="translate(775 301)"><rect x="-16" y="-21" width="32" height="42"/><path class="nf" d="M-9-12H9M-9-5H9M-9 2H-2"/><path d="M3 12L1 20L6.5 17L12 20L10 12"/><circle cx="6.5" cy="9" r="6"/></g><text class="h" x="775" y="342" text-anchor="middle">pki-certifs</text><text class="t" x="775" y="361" text-anchor="middle">Certifications</text></a><a href="#veille" aria-label="Veille"><path class="route" d="M421 200H480V248H950V280"/><rect class="hit" x="884" y="271" width="132" height="100"/><g class="ico" transform="translate(950 301)"><circle cx="0" cy="0" r="20"/><circle class="nf" cx="0" cy="0" r="11"/><path class="nf" d="M0 0L14-14M-20 0H-15M15 0H20M0-20V-15M0 15V20"/><circle class="led" cx="-7" cy="6" r="2.4"/></g><text class="h" x="950" y="342" text-anchor="middle">ids-veille</text><text class="t" x="950" y="361" text-anchor="middle">Veille</text></a><rect class="cart" x="20" y="300" width="440" height="84"/><path class="lk" style="stroke-width:1.2" d="M20 328H460M20 356H460M118 300V384"/><text class="c" x="30" y="318">PROJET</text><text class="cv" x="130" y="319">Portfolio · forestmaxime-pf.fr</text><text class="c" x="30" y="346">AUTEUR</text><text class="cv" x="130" y="347">Maxime Forest</text><text class="c" x="30" y="374">RÉVISION</text><text class="cv" x="130" y="375">Octobre 2026</text></svg>
+<svg class="mobile" viewBox="0 0 360 516" xmlns="http://www.w3.org/2000/svg"><rect class="zone" x="8" y="138" width="344" height="178"/><text class="z" x="18" y="157">VLAN 10 · PROFIL</text><rect class="zone" x="8" y="328" width="344" height="178"/><text class="z" x="18" y="347">VLAN 20 · RÉALISATIONS</text><path class="lk" d="M69 64H146M190 64H262M314 64H338V362M338 172H58M338 362H58M58 172V196M58 362V386M170 172V196M170 362V386M282 172V196M282 362V386"/><rect class="pkt" x="-3.5" y="-3.5" width="7" height="7"><animateMotion dur="7s" begin="-0.00s" repeatCount="indefinite" path="M69 64H338V172H282V196"/></rect><rect class="pkt" x="-3.5" y="-3.5" width="7" height="7"><animateMotion dur="7s" begin="-1.17s" repeatCount="indefinite" path="M69 64H338V362H282V386"/></rect><rect class="pkt" x="-3.5" y="-3.5" width="7" height="7"><animateMotion dur="7s" begin="-2.33s" repeatCount="indefinite" path="M69 64H338V172H170V196"/></rect><rect class="pkt" x="-3.5" y="-3.5" width="7" height="7"><animateMotion dur="7s" begin="-3.50s" repeatCount="indefinite" path="M69 64H338V362H170V386"/></rect><rect class="pkt" x="-3.5" y="-3.5" width="7" height="7"><animateMotion dur="7s" begin="-4.67s" repeatCount="indefinite" path="M69 64H338V172H58V196"/></rect><rect class="pkt" x="-3.5" y="-3.5" width="7" height="7"><animateMotion dur="7s" begin="-5.83s" repeatCount="indefinite" path="M69 64H338V362H58V386"/></rect><g><g class="ico" transform="translate(48 64)"><path d="M-21 13H19A11 11 0 0 0 21-8A15 15 0 0 0-8-14A12.5 12.5 0 0 0-21 13Z"/></g><text class="h" x="48" y="104" text-anchor="middle">wan</text><text class="t" x="48" y="121" text-anchor="middle">Vous</text></g><a href="#contact" aria-label="Contact"><path class="route" d="M69 64H146"/><rect class="hit" x="112" y="34" width="112" height="96"/><g class="ico" transform="translate(168 64)"><rect x="-22" y="-18" width="44" height="36"/><path class="nf" d="M-22-6H22M-22 6H22M-7-18V-6M8-18V-6M-14-6V6M1-6V6M15-6V6M-7 6V18M8 6V18"/></g><text class="h" x="168" y="104" text-anchor="middle">fw-contact</text><text class="t" x="168" y="121" text-anchor="middle">Contact</text></a><g><g class="ico" transform="translate(288 64)"><rect x="-26" y="-14" width="52" height="28"/><path class="nf" d="M-15-5H5M0-9L5-5L0-1M15 5H-5M0 1L-5 5L0 9"/></g><text class="h" x="288" y="100" text-anchor="middle">sw-coeur</text></g><a href="#a-propos" aria-label="À propos"><path class="route" d="M314 64H338V172H58V196"/><rect class="hit" x="2" y="189" width="112" height="94"/><g class="ico" transform="translate(58 217)"><rect x="-21" y="-19" width="42" height="28"/><path class="nf" d="M-9 16H9M0 9V16M-13-11L-8-7L-13-3M-4-3H4"/></g><text class="h" x="58" y="257" text-anchor="middle">pc-maxime</text><text class="t" x="58" y="274" text-anchor="middle">À propos</text></a><a href="#competences" aria-label="Compétences"><path class="route" d="M314 64H338V172H170V196"/><rect class="hit" x="114" y="189" width="112" height="94"/><g class="ico" transform="translate(170 217)"><rect x="-17" y="-21" width="34" height="42"/><path class="nf" d="M-17-7H17M-17 7H17M-3-14H10M-3 0H10M-3 14H10"/><circle class="led" cx="-10" cy="-14" r="2"/><circle class="led" cx="-10" cy="0" r="2"/><circle class="led" cx="-10" cy="14" r="2"/></g><text class="h" x="170" y="257" text-anchor="middle">srv-competences</text><text class="t" x="170" y="274" text-anchor="middle">Compétences</text></a><a href="#parcours" aria-label="Parcours"><path class="route" d="M314 64H338V172H282V196"/><rect class="hit" x="226" y="189" width="112" height="94"/><g class="ico" transform="translate(282 217)"><path d="M-18-13V13A18 6 0 0 0 18 13V-13"/><ellipse cx="0" cy="-13" rx="18" ry="6"/><path class="nf" d="M-18 0A18 6 0 0 0 18 0"/></g><text class="h" x="282" y="257" text-anchor="middle">nas-parcours</text><text class="t" x="282" y="274" text-anchor="middle">Parcours</text></a><a href="#projets" aria-label="Projets"><path class="route" d="M314 64H338V362H58V386"/><rect class="hit" x="2" y="379" width="112" height="94"/><g class="ico" transform="translate(58 407)"><rect x="-23" y="-21" width="46" height="42"/><path class="nf" d="M-23-10.5H23M-23 0H23M-23 10.5H23M-6-15.8H16M-6-5.3H16M-6 5.3H16M-6 15.8H16"/><circle class="led" cx="-15" cy="-15.8" r="1.9"/><circle class="led" cx="-15" cy="-5.3" r="1.9"/><circle class="led" cx="-15" cy="5.3" r="1.9"/><circle class="led" cx="-15" cy="15.8" r="1.9"/></g><text class="h" x="58" y="447" text-anchor="middle">srv-projets</text><text class="t" x="58" y="464" text-anchor="middle">Projets</text></a><a href="#certifications" aria-label="Certifications"><path class="route" d="M314 64H338V362H170V386"/><rect class="hit" x="114" y="379" width="112" height="94"/><g class="ico" transform="translate(170 407)"><rect x="-16" y="-21" width="32" height="42"/><path class="nf" d="M-9-12H9M-9-5H9M-9 2H-2"/><path d="M3 12L1 20L6.5 17L12 20L10 12"/><circle cx="6.5" cy="9" r="6"/></g><text class="h" x="170" y="447" text-anchor="middle">pki-certifs</text><text class="t" x="170" y="464" text-anchor="middle">Certifications</text></a><a href="#veille" aria-label="Veille"><path class="route" d="M314 64H338V362H282V386"/><rect class="hit" x="226" y="379" width="112" height="94"/><g class="ico" transform="translate(282 407)"><circle cx="0" cy="0" r="20"/><circle class="nf" cx="0" cy="0" r="11"/><path class="nf" d="M0 0L14-14M-20 0H-15M15 0H20M0-20V-15M0 15V20"/><circle class="led" cx="-7" cy="6" r="2.4"/></g><text class="h" x="282" y="447" text-anchor="middle">ids-veille</text><text class="t" x="282" y="464" text-anchor="middle">Veille</text></a></svg>
+      </div>
+      <p class="caption">Fig. 2 — Plan du site. Chaque équipement mène à une rubrique.</p>
+    </nav>
+  </div>
+</div>
 
-        <iframe
-            id="portfolio-iframe"
-            src="https://maximeforesttt.wixsite.com/portfolio-maxime-for"
-            title="Portfolio Maxime Forest"
-            loading="eager"
-            allowfullscreen
-            referrerpolicy="strict-origin-when-cross-origin">
-        </iframe>
+<section id="a-propos">
+  <div class="wrap">
+    <div class="folio"><span class="n" aria-hidden="true">01</span><div><p class="host">pc-maxime · 10.0.10.11</p><h2>À propos</h2></div></div>
+    <div class="about">
+      <div>
+        <p>Après une année de classe préparatoire intégrée à l'ESIEE Paris, où j'ai découvert la programmation, j'ai choisi le BTS SIO option SISR pour me spécialiser dans l'administration des systèmes et des réseaux.</p>
+        <p>En formation comme en stage, j'aime comprendre comment une infrastructure fonctionne, la mettre en place proprement, puis la documenter pour que d'autres puissent la reprendre. Mon stage au service informatique de Pyroalliance, dans un environnement à fortes exigences de sécurité, a confirmé mon envie de m'orienter vers la cybersécurité.</p>
+        <p>Je souhaite poursuivre en Bachelor puis en Master spécialisé en cybersécurité, en alternance. En dehors des cours, je joue au basketball en club et je m'entraîne en salle de sport.</p>
+      </div>
+      <dl class="facts">
+        <div><dt>Formation</dt><dd>BTS SIO option SISR, 2<sup>e</sup> année</dd></div>
+        <div><dt>Lieu</dt><dd>Vernon (Eure), mobile en Île-de-France</dd></div>
+        <div><dt>Langues</dt><dd>Français natif, anglais très bon niveau</dd></div>
+        <div><dt>Recherche</dt><dd>Stage janv.–fév. 2027, alternance sept. 2027</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<section id="competences">
+  <div class="wrap">
+    <div class="folio"><span class="n" aria-hidden="true">02</span><div><p class="host">srv-competences · 10.0.10.12</p><h2>Compétences</h2></div></div>
+    <p class="sub">Des compétences pratiquées en projet ou en entreprise, regroupées par domaine.</p>
+    <div class="grid g3">
+      <div class="card skill">
+        <h3>Systèmes</h3>
+        <ul class="tags"><li>Windows Server</li><li>Active Directory</li><li>Stratégies de groupe (GPO)</li><li>Windows 10 / 11</li><li>Linux · Ubuntu Server</li></ul>
+      </div>
+      <div class="card skill">
+        <h3>Réseaux et sécurité</h3>
+        <ul class="tags"><li>TCP/IP</li><li>DHCP</li><li>DNS</li><li>DMZ</li><li>Pare-feu</li><li>Wireshark</li><li>Chiffrement des postes</li></ul>
+      </div>
+      <div class="card skill">
+        <h3>Virtualisation et cloud</h3>
+        <ul class="tags"><li>Hyper-V</li><li>Microsoft Azure</li><li>Nextcloud</li></ul>
+      </div>
+      <div class="card skill">
+        <h3>Gestion de parc et support</h3>
+        <ul class="tags"><li>GLPI</li><li>FusionInventory</li><li>Masterisation de postes</li><li>Flotte mobile</li><li>Rédaction de procédures</li></ul>
+      </div>
+      <div class="card skill">
+        <h3>Développement</h3>
+        <ul class="tags"><li>C#</li><li>HTML</li><li>CSS</li><li>Scripts d'automatisation</li></ul>
+      </div>
+      <div class="card skill">
+        <h3>Savoir-être</h3>
+        <ul class="tags"><li>Autonomie</li><li>Rigueur</li><li>Travail en équipe</li><li>Sens de l'écoute</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="projets">
+  <div class="wrap">
+    <div class="folio"><span class="n" aria-hidden="true">03</span><div><p class="host">srv-projets · 10.0.20.11</p><h2>Projets</h2></div></div>
+    <p class="sub">Les travaux pratiques et ateliers professionnels menés pendant le BTS. Chaque fiche résume le contexte et ce que j'ai fait.</p>
+
+    <div class="year"><h3>Deuxième année</h3><span>2026 – 2027</span></div>
+    <div class="grid g2">
+
+      <article class="card project" id="projet-infra-windows">
+        <p class="meta">Travaux pratiques · 2026</p>
+        <h3>Infrastructure Windows Server virtualisée</h3>
+        <p>Mise en place de l'infrastructure de base d'une entreprise : hyperviseur, contrôleur de domaine et postes clients.</p>
+        <details>
+          <summary>Voir la fiche</summary>
+          <div class="fiche">
+            <h4>Contexte</h4>
+            <p>Trois missions enchaînées : créer l'hyperviseur principal du réseau local, y déployer un contrôleur de domaine, puis intégrer les postes des utilisateurs.</p>
+            <h4>Ce que j'ai fait</h4>
+            <ul>
+              <li>Installation de Windows Server et du rôle Hyper-V sur un serveur physique</li>
+              <li>Création d'une machine virtuelle, promue contrôleur de domaine Active Directory</li>
+              <li>Adressage des postes clients en DHCP et jonction au domaine</li>
+            </ul>
+          </div>
+        </details>
+        <ul class="tags"><li>Windows Server</li><li>Hyper-V</li><li>Active Directory</li><li>DHCP</li></ul>
+      </article>
+
+      <article class="card project" id="projet-glpi">
+        <p class="meta">Travaux pratiques · 2026</p>
+        <h3>Gestion de parc avec GLPI, sur site et dans Azure</h3>
+        <p>Inventaire automatisé d'un parc informatique, puis déploiement d'un serveur GLPI dans le cloud.</p>
+        <details>
+          <summary>Voir la fiche</summary>
+          <div class="fiche">
+            <h4>Contexte</h4>
+            <p>Un prestataire de services informatiques doit connaître précisément le parc de son client pour en assurer la gestion des configurations.</p>
+            <h4>Ce que j'ai fait</h4>
+            <ul>
+              <li>Inventaire automatisé du parc avec GLPI et FusionInventory</li>
+              <li>Déploiement d'un serveur GLPI sur une machine virtuelle Linux dans Microsoft Azure, avec un poste client Windows</li>
+              <li>Rédaction de la procédure d'installation et de configuration</li>
+            </ul>
+          </div>
+        </details>
+        <ul class="tags"><li>GLPI</li><li>FusionInventory</li><li>Microsoft Azure</li><li>Linux</li></ul>
+      </article>
+
+      <article class="card project" id="projet-infra-site">
+        <p class="meta">Atelier professionnel · en cours</p>
+        <h3>Infra-Site : DMZ et pare-feu</h3>
+        <p>Sécurisation d'un réseau d'entreprise par une zone démilitarisée et un pare-feu, en équipe.</p>
+        <details>
+          <summary>Voir la fiche</summary>
+          <div class="fiche">
+            <h4>Contexte</h4>
+            <p>Projet mené en groupe, à la suite d'une première phase de maquettage du réseau de l'entreprise.</p>
+            <h4>Ce que j'ai fait</h4>
+            <ul>
+              <li>Mise en place d'une zone DMZ entre le réseau interne et Internet</li>
+              <li>Installation et configuration d'un pare-feu</li>
+              <li>Définition des règles de filtrage entre les zones</li>
+            </ul>
+          </div>
+        </details>
+        <ul class="tags"><li>DMZ</li><li>Pare-feu</li><li>Sécurité réseau</li><li>Travail en équipe</li></ul>
+      </article>
 
     </div>
 
-    <script>
-        const iframe = document.getElementById("portfolio-iframe");
-        const loader = document.getElementById("loader");
+    <div class="year"><h3>Première année</h3><span>2024 – 2025</span></div>
+    <div class="grid g2">
 
-        iframe.addEventListener("load", () => {
+      <article class="card project" id="projet-nextcloud">
+        <p class="meta">Atelier professionnel</p>
+        <h3>Cloud privé sécurisé avec Nextcloud</h3>
+        <p>Déploiement d'une solution de stockage cloud interne, dans le rôle d'un administrateur système.</p>
+        <details>
+          <summary>Voir la fiche</summary>
+          <div class="fiche">
+            <h4>Ce que j'ai fait</h4>
+            <ul>
+              <li>Installation et configuration d'un serveur Ubuntu Server 22.04</li>
+              <li>Déploiement de Nextcloud comme solution de stockage interne</li>
+              <li>Mise en œuvre de mesures de sécurité adaptées au contexte</li>
+            </ul>
+            <a class="doc" href="https://b5eae537-b376-410f-b637-c1e9b1d03664.filesusr.com/ugd/d76e7b_28a7ad5ace0b4cba8322508777fa9ea5.docx">Télécharger le compte rendu (Word)</a>
+          </div>
+        </details>
+        <ul class="tags"><li>Nextcloud</li><li>Ubuntu Server</li><li>Sécurité</li></ul>
+      </article>
 
-            iframe.style.opacity = "1";
+      <article class="card project" id="projet-web-ftp">
+        <p class="meta">Atelier professionnel</p>
+        <h3>Intranet web et FTP à accès restreints</h3>
+        <p>Déploiement d'un intranet sécurisé, avec serveur web et serveur FTP, pour le laboratoire fictif GSB.</p>
+        <details>
+          <summary>Voir la fiche</summary>
+          <div class="fiche">
+            <h4>Ce que j'ai fait</h4>
+            <ul>
+              <li>Installation d'un serveur web et d'un serveur FTP sous Linux</li>
+              <li>Accès restreints par authentification et permissions ciblées</li>
+              <li>Configuration de la résolution DNS</li>
+            </ul>
+            <a class="doc" href="https://b5eae537-b376-410f-b637-c1e9b1d03664.filesusr.com/ugd/d76e7b_cdeeed3523d54900b159c391afba389e.docx">Télécharger le compte rendu (Word)</a>
+          </div>
+        </details>
+        <ul class="tags"><li>Linux</li><li>Serveur web</li><li>FTP</li><li>DNS</li><li>Habilitations</li></ul>
+      </article>
 
-            if (loader) {
-                loader.remove();
-            }
+      <article class="card project" id="projet-utilisateurs-ad">
+        <p class="meta">Travaux pratiques</p>
+        <h3>Gestion des utilisateurs avec un contrôleur de domaine</h3>
+        <p>Gestion des comptes et des droits des utilisateurs d'une entreprise depuis un contrôleur de domaine.</p>
+        <details>
+          <summary>Voir la fiche</summary>
+          <div class="fiche">
+            <h4>Ce que j'ai fait</h4>
+            <ul>
+              <li>Mise en place du contrôleur de domaine</li>
+              <li>Création et organisation des utilisateurs selon différents critères</li>
+            </ul>
+            <a class="doc" href="https://b5eae537-b376-410f-b637-c1e9b1d03664.filesusr.com/ugd/d76e7b_1c3efd80d37f4860afc8c85d717744e5.docx">Télécharger le compte rendu (Word)</a>
+          </div>
+        </details>
+        <ul class="tags"><li>Active Directory</li><li>Windows Server</li></ul>
+      </article>
 
-        });
+      <article class="card project" id="projet-scripts-gpo">
+        <p class="meta">Travaux pratiques</p>
+        <h3>Automatisation par scripts et GPO</h3>
+        <p>Mise en place d'un nouveau service en automatisant les tâches d'administration.</p>
+        <details>
+          <summary>Voir la fiche</summary>
+          <div class="fiche">
+            <h4>Ce que j'ai fait</h4>
+            <ul>
+              <li>Écriture de scripts d'automatisation</li>
+              <li>Déploiement de stratégies de groupe (GPO)</li>
+            </ul>
+            <a class="doc" href="https://b5eae537-b376-410f-b637-c1e9b1d03664.filesusr.com/ugd/d76e7b_30f2a66ad6cc46f9901434dc4848a709.docx">Télécharger le compte rendu (Word)</a>
+          </div>
+        </details>
+        <ul class="tags"><li>Scripts</li><li>GPO</li><li>Windows Server</li></ul>
+      </article>
 
-        setTimeout(() => {
+      <article class="card project" id="projet-calcul-ip">
+        <p class="meta">Travaux pratiques</p>
+        <h3>Calculateur d'adressage IP en C#</h3>
+        <p>Application de bureau (WinForms) qui réalise différents calculs d'adressage IP.</p>
+        <a class="doc" href="https://b5eae537-b376-410f-b637-c1e9b1d03664.filesusr.com/archives/d76e7b_4a84dcac02bd4a1c87db7f4a8e98fc4a.zip">Télécharger le projet (zip)</a>
+        <ul class="tags"><li>C#</li><li>WinForms</li><li>Adressage IP</li></ul>
+      </article>
 
-            iframe.style.opacity = "1";
+      <article class="card project" id="projet-medicaments">
+        <p class="meta">Travaux pratiques</p>
+        <h3>Gestion de médicaments en C#</h3>
+        <p>Application console de gestion des médicaments d'un laboratoire.</p>
+        <a class="doc" href="https://b5eae537-b376-410f-b637-c1e9b1d03664.filesusr.com/archives/d76e7b_44258351a50f4339ad6c9f7c91480cfd.zip">Télécharger le projet (zip)</a>
+        <ul class="tags"><li>C#</li><li>Application console</li></ul>
+      </article>
 
-            if (loader) {
-                loader.remove();
-            }
+      <article class="card project" id="projet-centrecall">
+        <p class="meta">Travaux pratiques</p>
+        <h3>Site vitrine « CentreCall »</h3>
+        <p>Site vitrine en HTML et CSS pour une entreprise fictive.</p>
+        <a class="doc" href="https://b5eae537-b376-410f-b637-c1e9b1d03664.filesusr.com/archives/d76e7b_ef465c1086f1447a9b2551da48189d80.zip">Télécharger le projet (zip)</a>
+        <ul class="tags"><li>HTML</li><li>CSS</li></ul>
+      </article>
 
-        }, 5000);
-    </script>
+      <article class="card project" id="projet-serveur">
+        <p class="meta">Travaux pratiques</p>
+        <h3>Démontage et remontage d'un serveur</h3>
+        <p>Intervention matérielle sur un serveur, dans le rôle d'un technicien informatique.</p>
+        <a class="doc" href="https://b5eae537-b376-410f-b637-c1e9b1d03664.filesusr.com/ugd/d76e7b_5988eb0d424344b4a6625ed918dc8d7d.docx">Télécharger le compte rendu (Word)</a>
+        <ul class="tags"><li>Matériel</li><li>Maintenance</li></ul>
+      </article>
 
+    </div>
+  </div>
+</section>
+
+<section id="parcours">
+  <div class="wrap">
+    <div class="folio"><span class="n" aria-hidden="true">04</span><div><p class="host">nas-parcours · 10.0.10.13</p><h2>Parcours</h2></div></div>
+    <div class="cols">
+      <div>
+        <h3>Expérience</h3>
+        <ul class="line">
+          <li class="now">
+            <p class="when">Janvier – février 2027</p>
+            <h4>Stage de 2<sup>e</sup> année</h4>
+            <p class="where">En recherche d'une entreprise d'accueil</p>
+          </li>
+          <li>
+            <p class="when">Juin – juillet 2025</p>
+            <h4>Stagiaire au service informatique</h4>
+            <p class="where">Pyroalliance (groupe ArianeGroup), Les Mureaux</p>
+            <ul>
+              <li>Masterisation et déploiement de postes Windows : image système, intégration au domaine Active Directory, chiffrement des disques</li>
+              <li>Enrôlement et configuration de smartphones professionnels</li>
+              <li>Rédaction de procédures techniques pour les techniciens et les utilisateurs</li>
+              <li>Interventions sur le terrain : installation de postes, équipement des nouveaux arrivants, assistance aux utilisateurs</li>
+            </ul>
+          </li>
+          <li>
+            <p class="when">Étés 2023 et 2024</p>
+            <h4>Emplois d'été</h4>
+            <p class="where">CARMF, Caisse de retraite des médecins de France</p>
+            <ul>
+              <li>Traitement du courrier entrant et sortant</li>
+              <li>Traitement de dossiers physiques et informatiques</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h3>Formation</h3>
+        <ul class="line">
+          <li class="now">
+            <p class="when">2024 – 2027</p>
+            <h4>BTS SIO, option SISR</h4>
+            <p class="where">Lycée Saint-Adjutor, Campus Carlo Acutis, Vernon</p>
+            <ul><li>Services informatiques aux organisations, solutions d'infrastructure, systèmes et réseaux</li><li>Année de césure en 2025-2026</li></ul>
+          </li>
+          <li>
+            <p class="when">2023 – 2024</p>
+            <h4>Cycle préparatoire intégré</h4>
+            <p class="where">ESIEE Paris, école d'ingénieurs, Noisy-le-Grand</p>
+          </li>
+          <li>
+            <p class="when">2023</p>
+            <h4>Baccalauréat général</h4>
+            <p class="where">Lycée Georges Dumézil, Vernon</p>
+            <ul><li>Spécialités mathématiques et physique-chimie, mention assez bien</li></ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="certifications">
+  <div class="wrap">
+    <div class="folio"><span class="n" aria-hidden="true">05</span><div><p class="host">pki-certifs · 10.0.20.12</p><h2>Certifications</h2></div></div>
+    <div class="grid g2">
+      <div class="card cert">
+        <div class="badge"><img src="badge-cisco-intro.png" alt="" width="96" height="96" onerror="this.replaceWith('CISCO')"></div>
+        <div>
+          <h3>Introduction to Cybersecurity</h3>
+          <dl class="x509">
+            <div><dt>Émis par</dt><dd>Cisco Networking Academy</dd></div>
+            <div><dt>Délivré à</dt><dd>Maxime Forest</dd></div>
+            <div><dt>Objet</dt><dd>Les bases de la cybersécurité : menaces, attaques et bonnes pratiques de protection</dd></div>
+          </dl>
+        </div>
+      </div>
+      <div class="card cert">
+        <div class="badge"><img src="badge-cisco-junior.png" alt="" width="96" height="96" onerror="this.replaceWith('CISCO')"></div>
+        <div>
+          <h3>Junior Cybersecurity Analyst Career Path</h3>
+          <dl class="x509">
+            <div><dt>Émis par</dt><dd>Cisco Networking Academy</dd></div>
+            <div><dt>Délivré à</dt><dd>Maxime Forest</dd></div>
+            <div><dt>Objet</dt><dd>Parcours complet préparant au métier d'analyste en cybersécurité débutant</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="veille">
+  <div class="wrap">
+    <div class="folio"><span class="n" aria-hidden="true">06</span><div><p class="host">ids-veille · 10.0.20.13</p><h2>Veille : le piratage informatique</h2></div></div>
+    <p class="sub">Dans un monde hyperconnecté, où chaque clic peut ouvrir une porte aux cyberattaques, comprendre les mécanismes du piratage n'est plus une option. J'ai choisi ce thème en lien avec mon projet de travailler dans la cybersécurité.</p>
+    <div class="grid g3">
+
+      <article class="card" id="veille-iot">
+        <p class="meta">Sujet 1 · janvier 2025</p>
+        <h3>Les objets connectés (IoT)</h3>
+        <p>Pourquoi les objets connectés sont une cible privilégiée, et l'exemple du malware BadBox.</p>
+        <details>
+          <summary>Lire la veille</summary>
+          <div class="fiche">
+            <h4>Qu'est-ce qu'un objet connecté ?</h4>
+            <p>Un objet IoT (Internet of Things) est un dispositif relié à Internet ou à un réseau local, capable de collecter, de traiter et de transmettre des données avec peu ou pas d'intervention humaine. Il embarque des capteurs, un logiciel et une connectivité réseau.</p>
+            <h4>Pourquoi en parler ?</h4>
+            <p>Ces objets se multiplient très vite, collectent des données sensibles et sont souvent mal sécurisés. Ils peuvent servir de porte d'entrée dans un réseau, de point de départ pour des attaques plus larges ou de source de vol de données.</p>
+            <h4>Les attaques les plus courantes</h4>
+            <ul>
+              <li>Attaques ciblées : piratage de systèmes industriels (IIoT) pour perturber des infrastructures ou s'infiltrer dans des réseaux</li>
+              <li>Hameçonnage par IoT : exploitation des assistants vocaux ou d'autres appareils d'écoute pour obtenir des informations confidentielles</li>
+              <li>Cryptojacking : utilisation des appareils pour miner des cryptomonnaies en arrière-plan</li>
+            </ul>
+            <h4>Cas récent</h4>
+            <p>En décembre 2024, plus de 30 000 appareils Android ont été découverts en Allemagne avec un malware préinstallé, BadBox. Intégré dès la fabrication, il s'active à la première connexion à Internet pour installer d'autres malwares. Il permet des fraudes publicitaires, contourne l'authentification à deux facteurs et enrôle les appareils dans un botnet utilisé pour des attaques DDoS.</p>
+            <p>Ce cas illustre les risques des appareils non sécurisés dès leur conception.</p>
+            <h4>Sources</h4>
+            <ul class="sources">
+              <li><a href="https://www.pcmag.com/news/30000-android-devices-found-preinstalled-with-malware-in-germany" rel="noopener">pcmag.com</a></li>
+              <li><a href="https://www.fortinet.com/fr/resources/cyberglossary/iot-device-vulnerabilities" rel="noopener">fortinet.com</a></li>
+              <li><a href="https://www.hubone.fr/oneblog/iot-quelles-sont-les-principales-failles-securitaires/" rel="noopener">hubone.fr</a></li>
+              <li><a href="https://www.lemondeinformatique.fr/actualites/lire-les-attaques-des-assistants-vocaux-par-ultrasons-se-perfectionnent-89963.html" rel="noopener">lemondeinformatique.fr</a></li>
+            </ul>
+          </div>
+        </details>
+      </article>
+
+      <article class="card" id="veille-black-basta">
+        <p class="meta">Sujet 2 · mars 2025</p>
+        <h3>Le ransomware Black Basta</h3>
+        <p>Un groupe qui pratique la double extorsion, et l'attaque du réseau hospitalier Ascension.</p>
+        <details>
+          <summary>Lire la veille</summary>
+          <div class="fiche">
+            <h4>Qu'est-ce que Black Basta ?</h4>
+            <p>Black Basta est à la fois un ransomware et le groupe qui l'exploite. Il pratique la double extorsion : chiffrement des données et vol de fichiers sensibles, avec menace de publication sur un site dédié. Le groupe fonctionne en Ransomware-as-a-Service (RaaS) : des affiliés utilisent ses outils en échange d'une part des gains.</p>
+            <h4>Méthodes d'attaque</h4>
+            <p>L'accès initial passe surtout par des campagnes d'hameçonnage très ciblées, qui imitent des courriels de fournisseurs ou de services RH. Les attaquants déploient ensuite des scripts PowerShell pour désactiver les antivirus, puis chiffrent les données avec un algorithme hybride (ChaCha20 et RSA). Ils utilisent aussi de faux logiciels de sécurité pour tromper les équipes informatiques et effacent les journaux système pour compliquer les enquêtes.</p>
+            <h4>Cas récent</h4>
+            <p>En mai 2024, le réseau de santé américain Ascension, qui regroupe environ 140 hôpitaux, a été touché par Black Basta. Des milliers de postes ont été chiffrés, ce qui a paralysé des services comme la radiologie, les laboratoires et les pharmacies. Le retour à la normale a pris plusieurs semaines.</p>
+            <h4>Comment se protéger ?</h4>
+            <ul>
+              <li>Appliquer rapidement les correctifs, en priorité sur les VPN et les services cloud</li>
+              <li>Imposer l'authentification multifacteur sur tous les accès critiques</li>
+              <li>Isoler et chiffrer des sauvegardes hors ligne</li>
+              <li>Surveiller les activités suspectes, comme les connexions RDP inhabituelles</li>
+              <li>S'entraîner avec des simulations de crise ransomware</li>
+            </ul>
+            <h4>Sources</h4>
+            <ul class="sources">
+              <li><a href="https://www.cisa.gov/news-events/cybersecurity-advisories/aa24-131a" rel="noopener">cisa.gov</a></li>
+              <li><a href="https://fr.vectra.ai/threat-actors/blackbasta" rel="noopener">vectra.ai</a></li>
+              <li><a href="https://www.skyhighsecurity.com/fr/industry-perspectives/black-basta-ransomware-attack-on-microsoft-teams.html" rel="noopener">skyhighsecurity.com</a></li>
+              <li><a href="https://www.ace-si.com/black-basta-ce-quil-faut-savoir-sur-le-nouveau-ransomware/" rel="noopener">ace-si.com</a></li>
+            </ul>
+          </div>
+        </details>
+      </article>
+
+      <article class="card" id="veille-edr-killer">
+        <p class="meta">Sujet 3 · mai 2025</p>
+        <h3>Les « EDR killers »</h3>
+        <p>Des outils conçus pour neutraliser les solutions de sécurité avant une attaque.</p>
+        <details>
+          <summary>Lire la veille</summary>
+          <div class="fiche">
+            <h4>Qu'est-ce qu'un EDR killer ?</h4>
+            <p>Un EDR (Endpoint Detection and Response) surveille en temps réel les postes et les serveurs pour détecter et bloquer les menaces, en analysant les comportements suspects et pas seulement les fichiers. Un EDR killer est un logiciel ou une technique qui désactive, contourne ou corrompt cette protection, pour que l'attaquant puisse agir sans être vu.</p>
+            <h4>Méthodes d'attaque</h4>
+            <ul>
+              <li>BYOVD : chargement d'un pilote légitime mais vulnérable pour obtenir des privilèges élevés et désactiver l'EDR</li>
+              <li>Signatures numériques falsifiées ou volées pour faire passer des composants malveillants</li>
+              <li>Attaques en espace noyau, qui interceptent des fonctions critiques du système ou masquent l'activité malveillante</li>
+            </ul>
+            <h4>Cas récent</h4>
+            <p>Le groupe Medusa a déployé un pilote malveillant nommé ABYSSWORKER, repéré pour la première fois en août 2024. Il imite un pilote légitime de CrowdStrike Falcon et il est signé avec des certificats révoqués. Une fois chargé, il manipule le noyau Windows pour supprimer les notifications dont dépendent les EDR, ce qui les rend aveugles avant le déploiement du ransomware.</p>
+            <h4>Comment se protéger ?</h4>
+            <ul>
+              <li>Activer la protection contre l'altération (tamper protection) de l'EDR</li>
+              <li>Maintenir les pilotes et les systèmes à jour</li>
+              <li>Surveiller le chargement de pilotes non autorisés</li>
+              <li>Limiter les privilèges administrateur et former les équipes à l'hameçonnage</li>
+              <li>Compléter l'EDR par une solution XDR pour garder de la visibilité</li>
+            </ul>
+            <h4>Sources</h4>
+            <ul class="sources">
+              <li><a href="https://www.elastic.co/security-labs/abyssworker" rel="noopener">elastic.co</a></li>
+              <li><a href="https://www.cybersecuritydive.com/news/medusa-ransomware-malicious-driver-edr-killer/743181/" rel="noopener">cybersecuritydive.com</a></li>
+              <li><a href="https://www.crowdstrike.com/en-us/cybersecurity-101/endpoint-security/endpoint-detection-and-response-edr/" rel="noopener">crowdstrike.com</a></li>
+              <li><a href="https://www.sentinelone.com/cybersecurity-101/endpoint-security/what-is-endpoint-detection-and-response-edr/" rel="noopener">sentinelone.com</a></li>
+            </ul>
+          </div>
+        </details>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="wrap">
+    <div class="folio"><span class="n" aria-hidden="true">07</span><div><p class="host">fw-contact · port 25 ouvert</p><h2>Contact</h2></div></div>
+    <p class="sub">Vous avez un stage ou une alternance à proposer, ou une question sur mon parcours ? Écrivez-moi, je réponds rapidement.</p>
+    <table class="rules">
+      <caption># Règles de filtrage du pare-feu fw-contact</caption>
+      <thead>
+        <tr><th scope="col">Action</th><th scope="col" class="opt">Source</th><th scope="col">Destination</th><th scope="col" class="opt">Service</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="ok">ALLOW</span></td><td class="opt">recruteurs, tuteurs</td><td><a href="mailto:maxime.foresttt@gmail.com">maxime.foresttt@gmail.com</a></td><td class="opt">SMTP · 25</td></tr>
+        <tr><td><span class="ok">ALLOW</span></td><td class="opt">tout le monde</td><td><a href="https://www.linkedin.com/in/maxime-forest-cyber" rel="noopener">linkedin.com/in/maxime-forest-cyber</a></td><td class="opt">HTTPS · 443</td></tr>
+        <tr><td><span class="ok">ALLOW</span></td><td class="opt">tout le monde</td><td><a href="https://github.com/maximeforest-cyber" rel="noopener">github.com/maximeforest-cyber</a></td><td class="opt">HTTPS · 443</td></tr>
+        <tr><td><span class="ko">DENY</span></td><td class="opt">démarchage</td><td>toutes</td><td class="opt">tous</td></tr>
+      </tbody>
+    </table>
+    <div class="actions">
+      <a class="btn main" href="mailto:maxime.foresttt@gmail.com">M'écrire un e-mail</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="script.js"></script>
 </body>
 </html>

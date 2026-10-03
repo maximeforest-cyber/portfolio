@@ -168,6 +168,21 @@ summary:hover { color: var(--cable-text); }
 .fiche li::before { content: ""; position: absolute; left: 1px; top: .62em; width: 7px; height: 7px; background: var(--cable); }
 .doc { display: inline-block; margin-top: 14px; font-size: 15px; font-weight: 700; }
 
+/* CV consultable dans la page */
+.cvcard { scroll-margin-top: 86px; }
+.cv { margin-top: 14px; max-width: 860px; background: #fff; border: 1.5px solid var(--ink); padding: 28px 32px; font-size: 15px; line-height: 1.45; }
+.cv-tete { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+.cv-nom { font-size: 28px; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; text-transform: uppercase; }
+.cv-titre { margin-top: 6px; color: var(--cable-text); font-weight: 700; }
+.cv-contact { margin-top: 4px; color: var(--soft); font-size: 14px; overflow-wrap: anywhere; }
+.cv-photo { flex: none; width: 92px; height: 92px; object-fit: cover; border: 1.5px solid var(--ink); }
+.cv h4 { margin-top: 20px; padding-bottom: 3px; border-bottom: 1.5px solid var(--cable); color: var(--cable-text); font-family: var(--mono); font-size: 12.5px; letter-spacing: 1.3px; text-transform: uppercase; }
+.cv h4 ~ p, .cv ul { margin-top: 5px; }
+.cv .cv-l { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 16px; margin-top: 9px; }
+.cv-l .d { margin-left: auto; color: var(--soft); font-size: 14px; white-space: nowrap; }
+.cv li { position: relative; margin-top: 3px; padding-left: 16px; }
+.cv li::before { content: ""; position: absolute; left: 1px; top: .6em; width: 6px; height: 6px; background: var(--cable); }
+
 /* Parcours */
 .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; margin-top: 30px; }
 .cols h3 { font-size: 23px; letter-spacing: -.02em; margin-bottom: 18px; }
@@ -291,6 +306,9 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 6px 22px; justify-content: s
 }
 @media (max-width: 560px) {
   .g3 { grid-template-columns: 1fr; }
+  .cv { padding: 18px 16px; font-size: 14.5px; }
+  .cv-nom { font-size: 22px; }
+  .cv-photo { width: 64px; height: 64px; }
 }
 @media (max-width: 560px) {
   .pager { grid-template-columns: 1fr; }
@@ -309,5 +327,5 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 6px 22px; justify-content: s
   .top, .burger, .actions, .pkt, .toc, .pager, .crumb { display: none; }
   .report .wrap { display: block; }
   body { background: #fff; }
-  details > .fiche { display: block; }
+  details > .fiche, details > .cv { display: block; }
 }

@@ -152,7 +152,7 @@
             </ul>
             <h4>Projets de formation</h4>
             <ul>
-              <li><b>Infrastructure Windows Server</b> : Hyper-V, contrôleur de domaine Active Directory, DHCP</li>
+              <li><b>Maquette du réseau RIOCA</b> : VLAN, routage inter-VLAN, DHCP, Hyper-V, Active Directory</li>
               <li><b>Gestion de parc avec GLPI</b> : serveur GLPI 12 sur Azure, inventaire automatique (GLPI Agent)</li>
               <li><b>Infra-Site, chef de projet en binôme</b> : DMZ, pare-feu Zyxel, routage RIP v2, NAT, SSH, sauvegardes TFTP</li>
               <li><b>ArchiSite</b> (en cours) : serveur web HTTPS, base de données et FTPS dans la DMZ</li>
@@ -256,24 +256,27 @@
     <div class="year"><h3>Deuxième année</h3><span>2026 – 2027</span></div>
     <div class="grid g2">
 
-      <article class="card project" id="projet-infra-windows">
-        <p class="meta">Travaux pratiques · 2026</p>
-        <h3>Infrastructure Windows Server virtualisée</h3>
-        <p>Mise en place de l'infrastructure de base d'une entreprise : hyperviseur, contrôleur de domaine et postes clients.</p>
+      <article class="card project" id="projet-maquette">
+        <p class="meta">Atelier de démarrage · 2026 · en binôme</p>
+        <h3>Maquette du réseau RIOCA : LAN et infrastructure Windows</h3>
+        <p>Construction du réseau de base d'une entreprise, socle des projets Infra-Site et ArchiSite : switchs Cisco, VLAN, routage inter-VLAN, DHCP, Hyper-V et Active Directory.</p>
         <details>
           <summary>Voir la fiche</summary>
           <div class="fiche">
             <h4>Contexte</h4>
-            <p>Trois missions enchaînées : créer l'hyperviseur principal du réseau local, y déployer un contrôleur de domaine, puis intégrer les postes des utilisateurs.</p>
+            <p>Premier atelier de 2<sup>e</sup> année, non noté : construire avec du matériel réel le réseau local de l'entreprise RIOCA, sur lequel se sont ensuite greffés les ateliers suivants.</p>
             <h4>Ce que j'ai fait</h4>
             <ul>
-              <li>Installation de Windows Server et du rôle Hyper-V sur un serveur physique</li>
-              <li>Création d'une machine virtuelle, promue contrôleur de domaine Active Directory</li>
-              <li>Adressage des postes clients en DHCP et jonction au domaine</li>
+              <li>Schéma réseau, montage de la baie, câblage et repérage des ports</li>
+              <li>4 switchs Cisco : VTP, 9 VLAN, trunks, adresses de gestion</li>
+              <li>Routage inter-VLAN et DHCP par VLAN sur le switch cœur</li>
+              <li>Administration centralisée avec mRemoteNG et sauvegarde des configurations en TFTP</li>
+              <li>Hyperviseur Hyper-V, contrôleur de domaine Active Directory RIOCA.LOCAL, postes joints au domaine</li>
             </ul>
           </div>
         </details>
-        <ul class="tags"><li>Windows Server</li><li>Hyper-V</li><li>Active Directory</li><li>DHCP</li></ul>
+        <a class="doc" href="projets/maquette-rioca.html">Lire le compte rendu</a>
+        <ul class="tags"><li>Cisco</li><li>VLAN</li><li>DHCP</li><li>Hyper-V</li><li>Active Directory</li></ul>
       </article>
 
       <article class="card project" id="projet-glpi">

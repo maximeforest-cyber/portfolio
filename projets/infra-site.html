@@ -56,7 +56,7 @@
     <article>
 <div class="part" id="partie-1">
 <h2><span class="n">01</span>Contexte et rôle</h2>
-<p>RIOCA a déjà cloisonné ses services en VLAN. Pour préparer la mise en production d'un serveur web sécurisé, la DSI veut ajouter au réseau local une zone DMZ et une zone Internet, tout en gardant le réseau aussi sûr que possible.</p>
+<p>RIOCA a déjà cloisonné ses services en VLAN, lors de la <a href="maquette-rioca.html">maquette du réseau</a> construite en début d'année. Pour préparer la mise en production d'un serveur web sécurisé, la DSI veut ajouter au réseau local une zone DMZ et une zone Internet, tout en gardant le réseau aussi sûr que possible.</p>
 <p>Le cahier des charges impose notamment :</p>
 <ul class="b"><li>le protocole de routage RIP v2 ;</li><li>l'accès à Internet pour le réseau local et la DMZ, sans pouvoir configurer le routeur de sortie du laboratoire (192.168.4.254) ;</li><li>un serveur web de la DMZ joignable depuis le réseau local et depuis l'extérieur, avec un accès à la DMZ limité au strict nécessaire ;</li><li>des services qui accèdent au contrôleur de domaine mais ne communiquent pas entre eux ;</li><li>une administration des équipements réservée au service IT, depuis le réseau local et l'extérieur, avec contrôle d'accès et message d'avertissement ;</li><li>une sauvegarde automatique de toutes les configurations.</li></ul>
 <p>J'étais chef de projet, en binôme. Nous avons construit ensemble le diagramme de Gantt : 21 tâches pour 27 heures prévues. J'ai ensuite organisé le tableau Trello, où nous suivions l'avancement et les temps réels. Le projet a été terminé en un peu moins de 23 heures.</p>

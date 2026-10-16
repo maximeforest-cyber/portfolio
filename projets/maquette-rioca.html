@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette du réseau RIOCA : LAN et infrastructure Windows | Maxime Forest</title>
+<meta name="description" content="Compte rendu : construction de la maquette du réseau de l&#x27;entreprise RIOCA (baie, switchs Cisco, VLAN, routage inter-VLAN, DHCP sur le switch cœur, administration centralisée, sauvegardes) et de son infrastructure Windows (Hyper-V, Active Directory).">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#efe9df">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/maquette-rioca.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/maquette-rioca.html">
+<meta property="og:title" content="Maquette du réseau RIOCA : LAN et infrastructure Windows | Maxime Forest">
+<meta property="og:description" content="Compte rendu : construction de la maquette du réseau de l&#x27;entreprise RIOCA (baie, switchs Cisco, VLAN, routage inter-VLAN, DHCP sur le switch cœur, administration centralisée, sauvegardes) et de son infrastructure Windows (Hyper-V, Active Directory).">
+<meta property="og:image" content="https://forestmaxime-pf.fr/favicon.png">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="../#projet-maquette">← Projets et stages</a></p>
+    <p class="kicker">Atelier de démarrage · <b>septembre 2026</b> · en binôme</p>
+    <h1>Maquette du réseau RIOCA : LAN et infrastructure Windows</h1>
+    <p class="lead">Construction du réseau de base de l'entreprise RIOCA, de la baie aux postes clients : switchs Cisco, VLAN par service, routage inter-VLAN et DHCP sur le switch cœur, administration centralisée, sauvegardes, puis hyperviseur Hyper-V et domaine Active Directory.</p>
+    <dl class="facts"><div><dt>Contexte</dt><dd>RIOCA (entreprise fictive) : un réseau local à construire pour ses services, répartis sur trois étages</dd></div><div><dt>Cadre</dt><dd>Premier atelier de 2<sup>e</sup> année de BTS SIO, non noté, en binôme : il sert de socle aux projets Infra-Site puis ArchiSite</dd></div><div><dt>Matériel</dt><dd>Switch cœur Cisco Catalyst 3650 (niveau 3), trois switchs Cisco Catalyst 2960, serveur physique sous Windows Server</dd></div><div><dt>Points clés</dt><dd>VTP, 9 VLAN, trunks, routage inter-VLAN, DHCP, mRemoteNG, TFTP, Hyper-V, Active Directory</dd></div></dl>
+    <ul class="tags"><li>Cisco IOS</li><li>VLAN</li><li>Routage inter-VLAN</li><li>DHCP</li><li>Hyper-V</li><li>Active Directory</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Contexte</a></li><li><a href="#partie-2"><span>02</span>Schéma réseau</a></li><li><a href="#partie-3"><span>03</span>Baie et câblage</a></li><li><a href="#partie-4"><span>04</span>VTP, VLAN et trunks</a></li><li><a href="#partie-5"><span>05</span>Routage inter-VLAN et DHCP</a></li><li><a href="#partie-6"><span>06</span>Administration centralisée</a></li><li><a href="#partie-7"><span>07</span>Sauvegarde des configurations</a></li><li><a href="#partie-8"><span>08</span>Infrastructure Windows</a></li><li><a href="#partie-9"><span>09</span>Bilan</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Contexte</h2>
+<p>Ce premier atelier de 2<sup>e</sup> année n'était pas noté, mais il a posé toutes les fondations des projets suivants : construire, à partir de matériel réel, la maquette du réseau local de l'entreprise fictive RIOCA. Les ateliers Infra-Site (DMZ et pare-feu) puis ArchiSite (serveur web sécurisé) se sont ensuite greffés sur ce réseau.</p>
+<p>Le travail s'est fait en binôme et a été suivi sur un tableau Trello, une carte par étape de la lettre de mission :</p>
+<ul class="b"><li>schéma réseau ;</li><li>récupération et réinitialisation des quatre switchs ;</li><li>montage de la baie, câblage et repérage des ports ;</li><li>configuration de la zone LAN ;</li><li>administration à distance centralisée ;</li><li>sauvegarde des configurations.</li></ul>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>Schéma réseau</h2>
+<p>Le schéma logique, réalisé sous Packet Tracer, place un switch cœur au centre, relié en fibre à un switch par étage. Chaque service dispose de son VLAN, avec un réseau en 172.19.x.0/24 :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">VLAN</th><th scope="col">Service</th><th scope="col">Réseau</th><th scope="col">Switch</th></tr></thead><tbody><tr><td>10</td><td>Comptabilité</td><td>172.19.10.0/24</td><td>1<sup>er</sup> étage</td></tr><tr><td>20</td><td>Fabrication</td><td>172.19.20.0/24</td><td>Rez-de-chaussée</td></tr><tr><td>30</td><td>Garage</td><td>172.19.30.0/24</td><td>Rez-de-chaussée</td></tr><tr><td>40</td><td>Livraison</td><td>172.19.40.0/24</td><td>Rez-de-chaussée</td></tr><tr><td>50</td><td>Recherche et développement</td><td>172.19.50.0/24</td><td>1<sup>er</sup> étage</td></tr><tr><td>60</td><td>IT</td><td>172.19.60.0/24</td><td>1<sup>er</sup> étage</td></tr><tr><td>70</td><td>Administration des équipements</td><td>172.19.70.0/24</td><td>Tous</td></tr><tr><td>80</td><td>Direction et RH</td><td>172.19.80.0/24</td><td>1<sup>er</sup> étage</td></tr><tr><td>100</td><td>Serveurs</td><td>172.19.100.0/24</td><td>2<sup>e</sup> étage</td></tr></tbody></table></div>
+<figure class="shot"><a href="img/maquette-01.webp"><img src="img/maquette-01.webp" alt="Schéma Packet Tracer de la zone LAN : switch cœur relié en fibre aux switchs du 2e étage (serveurs), du 1er étage et du rez-de-chaussée, avec les VLAN et l'affectation des ports." width="1270" height="717" loading="lazy"></a><figcaption><b>Fig. 1</b> Schéma logique de la zone LAN.</figcaption></figure>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>Baie et câblage</h2>
+<p>Les quatre switchs ont d'abord été récupérés et remis à zéro en suivant la documentation fournie, pour repartir de configurations vierges. Ils ont ensuite été fixés dans la baie avec une tablette coulissante.</p>
+<p>Le montage a pris plus de temps que prévu : l'étagère a dû être déplacée plusieurs fois pour trouver un emplacement stable au switch cœur, avec peu d'outils et des vis abîmées.</p>
+<p>Chaque équipement a été étiqueté selon le plan de nommage (switch cœur, 2<sup>e</sup> étage serveurs, 1<sup>er</sup> étage, rez-de-chaussée), et les ports ont été repérés dans un document pour savoir quel câble relie quoi.</p>
+<figure class="shot"><a href="img/infra-site-01.webp"><img src="img/infra-site-01.webp" alt="Baie de la maquette avec les switchs Cisco montés et câblés." width="520" height="693" loading="lazy"></a><figcaption><b>Fig. 2</b> La maquette montée en baie (photo prise plus tard, avec les équipements d'Infra-Site ajoutés).</figcaption></figure>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>VTP, VLAN et trunks</h2>
+<p>Chaque switch reçoit un nom et un mot de passe sur le port console, pour qu'on ne puisse pas le configurer simplement en s'y branchant.</p>
+<p>Pour ne pas créer les VLAN quatre fois, nous avons utilisé VTP : le switch cœur est serveur du domaine RIOCA, les trois autres sont clients et reçoivent automatiquement les VLAN qu'il crée.</p>
+<pre class="cmd"><code>! Switch cœur
+vtp domain RIOCA
+vtp mode server
+vlan 10
+ name compta
+! ... même logique pour les VLAN 20 à 100
+
+! Switchs d'étage
+vtp domain RIOCA
+vtp mode client</code></pre>
+<p>Les liaisons entre le switch cœur et les switchs d'étage passent en trunk 802.1Q, pour transporter tous les VLAN sur un seul câble :</p>
+<figure class="shot"><a href="img/maquette-02.webp"><img src="img/maquette-02.webp" alt="show int trunk sur SW_COEUR_GRP3 : trois ports d'interconnexion en mode trunk 802.1q." width="753" height="141" loading="lazy"></a><figcaption><b>Fig. 3</b> Les trois liaisons du switch cœur en trunk.</figcaption></figure>
+<figure class="shot"><a href="img/maquette-03.webp"><img src="img/maquette-03.webp" alt="show vlan brief : VLAN 10 compta, 20 Fabric, 30 GARAGE, 40 LIVR, 50 RD, 60 IT, 70 ADM, 80 DIRRH et 100 SRV actifs." width="488" height="316" loading="lazy"></a><figcaption><b>Fig. 4</b> Les neuf VLAN créés sur le switch cœur.</figcaption></figure>
+<p>Les ports des postes sont ensuite affectés au VLAN de leur service, en mode accès. Exemple pour la comptabilité au 1<sup>er</sup> étage ; la même logique a été appliquée aux autres services :</p>
+<pre class="cmd"><code>interface range GigabitEthernet1/0/1-4
+ switchport mode access
+ switchport access vlan 10</code></pre>
+<p>Enfin, chaque switch a une adresse d'administration dans le VLAN 70 (172.19.70.1 pour le switch cœur, puis les suivantes pour les switchs d'étage), pour pouvoir le gérer à distance.</p>
+</div>
+<div class="part" id="partie-5">
+<h2><span class="n">05</span>Routage inter-VLAN et DHCP</h2>
+<p>Le switch cœur est un switch de niveau 3 : il route lui-même entre les VLAN. Chaque VLAN a une interface virtuelle (SVI) en 172.19.x.254, qui sert de passerelle aux postes du service.</p>
+<pre class="cmd"><code>ip routing
+interface vlan 10
+ ip address 172.19.10.254 255.255.255.0
+! ... même logique pour les autres VLAN</code></pre>
+<figure class="shot"><a href="img/maquette-04.webp"><img src="img/maquette-04.webp" alt="show ip int brief sur le switch cœur : une interface par VLAN, en 172.19.x.254, et 172.19.70.1 pour le VLAN 70." width="800" height="233" loading="lazy"></a><figcaption><b>Fig. 5</b> Les passerelles des VLAN sur le switch cœur.</figcaption></figure>
+<p>Le switch cœur distribue aussi les adresses des postes : un pool DHCP par VLAN client (les serveurs du VLAN 100 restent en adresses fixes).</p>
+<pre class="cmd"><code>ip dhcp pool COMPTA
+ network 172.19.10.0 255.255.255.0
+ default-router 172.19.10.254
+! ... même logique pour les autres VLAN clients</code></pre>
+<figure class="shot"><a href="img/maquette-05.webp"><img src="img/maquette-05.webp" alt="show ip dhcp pool : pools COMPTA et FABRIC, une adresse déjà attribuée dans chacun." width="800" height="392" loading="lazy"></a><figcaption><b>Fig. 6</b> Les pools DHCP du switch cœur, avec des adresses déjà attribuées.</figcaption></figure>
+<p>Test : un poste du VLAN IT reçoit son adresse (172.19.60.2, passerelle 172.19.60.254) et joint un poste du VLAN Recherche et développement.</p>
+<figure class="shot"><a href="img/maquette-06.webp"><img src="img/maquette-06.webp" alt="ipconfig sur un poste du VLAN IT : adresse 172.19.60.2 reçue par DHCP, puis ping réussi vers 172.19.50.1." width="800" height="629" loading="lazy"></a><figcaption><b>Fig. 7</b> Adresse reçue par DHCP et ping entre deux VLAN.</figcaption></figure>
+</div>
+<div class="part" id="partie-6">
+<h2><span class="n">06</span>Administration centralisée</h2>
+<p>Pour gérer les quatre switchs depuis le poste IT sans se brancher sur chacun, nous avons comparé plusieurs outils et retenu mRemoteNG, gratuit et capable de regrouper toutes les connexions au même endroit.</p>
+<ul class="b"><li>Sur chaque switch, les lignes VTY demandent un mot de passe (<span class="k">login</span>) et acceptent les connexions à distance.</li><li>Dans mRemoteNG, un dossier RIOCA regroupe une connexion par switch, vers son adresse du VLAN 70.</li></ul>
+<figure class="shot"><a href="img/maquette-07.webp"><img src="img/maquette-07.webp" alt="mRemoteNG : dossier RIOCA contenant les connexions SWCoeur, SWRC, SW1ER et SW2ER." width="301" height="310" loading="lazy"></a><figcaption><b>Fig. 8</b> Les quatre switchs regroupés dans mRemoteNG.</figcaption></figure>
+<p>À ce stade les connexions se faisaient en Telnet, qui circule en clair. Le projet Infra-Site les a ensuite passées en SSH, avec un accès réservé au service IT.</p>
+</div>
+<div class="part" id="partie-7">
+<h2><span class="n">07</span>Sauvegarde des configurations</h2>
+<p>Un serveur TFTP (PumpKIN) tourne sur le poste d'administration. Depuis chaque switch, la commande <span class="k">copy running-config tftp</span> lui envoie la configuration en cours.</p>
+<figure class="shot"><a href="img/maquette-08.webp"><img src="img/maquette-08.webp" alt="Terminal du switch du rez-de-chaussée lançant copy running-config tftp, et fenêtre PumpKIN demandant de confirmer la réception du fichier sw_rc_grp3-confg." width="800" height="395" loading="lazy"></a><figcaption><b>Fig. 9</b> Envoi de la configuration d'un switch vers le serveur TFTP.</figcaption></figure>
+<figure class="shot"><a href="img/maquette-09.webp"><img src="img/maquette-09.webp" alt="Dossier de PumpKIN contenant les fichiers de configuration des quatre switchs." width="700" height="360" loading="lazy"></a><figcaption><b>Fig. 10</b> Les configurations des quatre switchs sauvegardées.</figcaption></figure>
+<p>Les sauvegardes étaient alors lancées à la main ; Infra-Site les a automatisées à horaires fixes.</p>
+</div>
+<div class="part" id="partie-8">
+<h2><span class="n">08</span>Infrastructure Windows</h2>
+<p>Sur ce réseau, trois missions ont mis en place les serveurs du VLAN 100 et les postes des utilisateurs :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Élément</th><th scope="col">Réalisation</th></tr></thead><tbody><tr><td>Hyperviseur</td><td>Windows Server et le rôle Hyper-V sur un serveur physique (AMD Ryzen 5, 32 Go de RAM) : système sur un SSD, machines virtuelles sur un second SSD dédié, commutateur virtuel externe relié à la maquette. Adresse 172.19.100.1.</td></tr><tr><td>Contrôleur de domaine</td><td>Machine virtuelle Windows Server promue contrôleur de domaine Active Directory et serveur DNS du domaine RIOCA.LOCAL. Adresse 172.19.100.2.</td></tr><tr><td>Postes clients</td><td>Poste Windows d'un VLAN utilisateurs : adresse reçue du switch cœur par DHCP, puis jonction au domaine RIOCA.LOCAL.</td></tr></tbody></table></div>
+</div>
+<div class="part" id="partie-9">
+<h2><span class="n">09</span>Bilan</h2>
+<p>À la fin de l'atelier, le réseau local de RIOCA était fonctionnel : services cloisonnés dans leurs VLAN, routage et adresses gérés par le switch cœur, switchs administrables à distance et sauvegardés, domaine Active Directory en place.</p>
+<p>C'est sur cette base qu'Infra-Site a ajouté une DMZ, une zone Internet et un pare-feu, en durcissant au passage ce qui avait été posé ici : SSH à la place de Telnet, ACL entre les services, sauvegardes automatiques.</p>
+</div>
+<nav class="pager" aria-label="Autres comptes rendus"><span></span><a class="next" href="glpi.html"><span>Suivant</span>Serveur GLPI dans Microsoft Azure</a></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js"></script>
+</body>
+</html>

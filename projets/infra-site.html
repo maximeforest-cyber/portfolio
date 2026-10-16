@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Infra-Site : DMZ, pare-feu et routage | Maxime Forest</title>
+<meta name="description" content="Compte rendu du projet Infra-Site : ajout d&#x27;une zone DMZ et d&#x27;une zone Internet au réseau de l&#x27;entreprise RIOCA, pare-feu Zyxel, routage RIP v2, NAT, administration SSH et sauvegardes automatiques.">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#efe9df">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/infra-site.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/infra-site.html">
+<meta property="og:title" content="Infra-Site : DMZ, pare-feu et routage | Maxime Forest">
+<meta property="og:description" content="Compte rendu du projet Infra-Site : ajout d&#x27;une zone DMZ et d&#x27;une zone Internet au réseau de l&#x27;entreprise RIOCA, pare-feu Zyxel, routage RIP v2, NAT, administration SSH et sauvegardes automatiques.">
+<meta property="og:image" content="https://forestmaxime-pf.fr/favicon.png">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="../#projet-infra-site">← Projets et stages</a></p>
+    <p class="kicker">Atelier professionnel · <b>septembre – octobre 2026</b> · chef de projet, en binôme</p>
+    <h1>Infra-Site : DMZ, pare-feu et routage</h1>
+    <p class="lead">Ajout d'une zone DMZ et d'une zone Internet au réseau de l'entreprise RIOCA, derrière un pare-feu Zyxel : routage RIP v2, NAT vers Internet, administration en SSH réservée au service IT et sauvegarde automatique des configurations.</p>
+    <dl class="facts"><div><dt>Contexte</dt><dd>RIOCA (entreprise fictive), dont le réseau local est déjà découpé en VLAN par service</dd></div><div><dt>Cadre</dt><dd>Atelier professionnel de 2<sup>e</sup> année de BTS SIO, 4 semaines, en binôme : chef de projet</dd></div><div><dt>Matériel</dt><dd>Switchs Cisco Catalyst 2960 et 3650, routeur Cisco 2900, pare-feu Zyxel USG Flex 500, serveur Ubuntu</dd></div><div><dt>Points clés</dt><dd>RIP v2, NAT/PAT, règles de pare-feu, ACL, SSH, sauvegardes planifiées</dd></div></dl>
+    <ul class="tags"><li>Cisco IOS</li><li>Zyxel</li><li>RIP v2</li><li>NAT</li><li>Pare-feu</li><li>SSH</li><li>Gestion de projet</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Contexte et rôle</a></li><li><a href="#partie-2"><span>02</span>Architecture</a></li><li><a href="#partie-3"><span>03</span>Switchs DMZ et Internet</a></li><li><a href="#partie-4"><span>04</span>Routeur Internet et NAT</a></li><li><a href="#partie-5"><span>05</span>Pare-feu Zyxel</a></li><li><a href="#partie-6"><span>06</span>Routage RIP v2</a></li><li><a href="#partie-7"><span>07</span>Administration à distance</a></li><li><a href="#partie-8"><span>08</span>Sauvegardes automatiques</a></li><li><a href="#partie-9"><span>09</span>Règles du pare-feu</a></li><li><a href="#partie-10"><span>10</span>ACL du réseau local</a></li><li><a href="#partie-11"><span>11</span>Tests et bilan</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Contexte et rôle</h2>
+<p>RIOCA a déjà cloisonné ses services en VLAN. Pour préparer la mise en production d'un serveur web sécurisé, la DSI veut ajouter au réseau local une zone DMZ et une zone Internet, tout en gardant le réseau aussi sûr que possible.</p>
+<p>Le cahier des charges impose notamment :</p>
+<ul class="b"><li>le protocole de routage RIP v2 ;</li><li>l'accès à Internet pour le réseau local et la DMZ, sans pouvoir configurer le routeur de sortie du laboratoire (192.168.4.254) ;</li><li>un serveur web de la DMZ joignable depuis le réseau local et depuis l'extérieur, avec un accès à la DMZ limité au strict nécessaire ;</li><li>des services qui accèdent au contrôleur de domaine mais ne communiquent pas entre eux ;</li><li>une administration des équipements réservée au service IT, depuis le réseau local et l'extérieur, avec contrôle d'accès et message d'avertissement ;</li><li>une sauvegarde automatique de toutes les configurations.</li></ul>
+<p>J'étais chef de projet, en binôme. Nous avons construit ensemble le diagramme de Gantt : 21 tâches pour 27 heures prévues. J'ai ensuite organisé le tableau Trello, où nous suivions l'avancement et les temps réels. Le projet a été terminé en un peu moins de 23 heures.</p>
+<div class="tw"><table class="t duo"><thead><tr><th scope="col">Moi</th><th scope="col">Mon binôme</th></tr></thead><tbody><tr><td>Organisation du Trello et nommage des équipements</td><td>Mise à jour du schéma réseau et installation des équipements dans la baie</td></tr><tr><td>Configuration de base des switchs DMZ et Internet, et des zones du pare-feu</td><td>Configuration de base du routeur Internet</td></tr><tr><td>Routage RIP v2 et NAT</td><td>Administration à distance en SSH, messages d'avertissement et contrôle d'accès</td></tr><tr><td>Règles du pare-feu (flux hors réseau local)</td><td>ACL du réseau local (cloisonnement des services)</td></tr><tr><td>Sauvegardes automatiques vers le serveur TFTP</td><td>Rapport de tests</td></tr><tr><td>Documentation technique</td><td>Mise à jour des documents (schéma, adressage, comptes)</td></tr></tbody></table></div>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>Architecture</h2>
+<p>Le pare-feu sépare trois zones. La zone Internet de la maquette est reliée au réseau du campus, qui joue le rôle d'Internet.</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Zone</th><th scope="col">Réseau</th><th scope="col">Éléments</th></tr></thead><tbody><tr><td>LAN</td><td>172.19.0.0/16, un /24 par VLAN</td><td>Postes des services, VLAN IT (172.19.60.0/24), serveurs du VLAN 100 (contrôleur de domaine, serveur de sauvegarde 172.19.100.5). Routage inter-VLAN par le switch cœur.</td></tr><tr><td>DMZ</td><td>10.3.0.0/16</td><td>Serveurs web 10.3.10.1 et 10.3.10.2, switch SwDmz 10.3.10.253, pare-feu 10.3.10.254</td></tr><tr><td>Internet</td><td>192.168.3.248/29</td><td>Routeur RNET 192.168.3.251, pare-feu 192.168.3.253, switch SwNET 192.168.3.254</td></tr><tr><td>Campus</td><td>192.168.4.0/24</td><td>Interface de RNET 192.168.4.31, routeur du laboratoire 192.168.4.254 (non administrable)</td></tr></tbody></table></div>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Équipement</th><th scope="col">Matériel</th><th scope="col">Rôle</th></tr></thead><tbody><tr><td>SwDmz_Grp3</td><td>Cisco Catalyst 2960</td><td>Raccorde les serveurs web de la DMZ au pare-feu</td></tr><tr><td>SwNET_Grp3</td><td>Cisco Catalyst 2960-X</td><td>Relie le pare-feu au routeur Internet</td></tr><tr><td>RNET_GRP3</td><td>Cisco 2900</td><td>Sortie vers le campus, NAT</td></tr><tr><td>RParefeu</td><td>Zyxel USG Flex 500</td><td>Contrôle les flux entre LAN, DMZ et Internet</td></tr><tr><td>SW_COEUR_GRP3</td><td>Cisco Catalyst 3650</td><td>Routage inter-VLAN, RIP v2, ACL du réseau local</td></tr></tbody></table></div>
+<figure class="shot"><a href="img/infra-site-11.webp"><img src="img/infra-site-11.webp" alt="Schéma réseau du groupe 3 : zone LAN avec ses VLAN, zone DMZ, zone Internet, pare-feu et adressage." width="1201" height="677" loading="lazy"></a><figcaption><b>Fig. 1</b> Schéma réseau du groupe 3.</figcaption></figure>
+<figure class="shot"><a href="img/infra-site-01.webp"><img src="img/infra-site-01.webp" alt="Baie de la maquette : switchs d'étage, switch cœur, pare-feu Zyxel, switchs DMZ et Internet, routeurs Cisco." width="520" height="693" loading="lazy"></a><figcaption><b>Fig. 2</b> La maquette montée en baie.</figcaption></figure>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>Switchs DMZ et Internet</h2>
+<p>SwDmz contenait une ancienne configuration. Elle a été effacée depuis le bootloader, en supprimant aussi les copies <span class="k">.renamed</span> : sans cela, l'ancienne configuration revient au redémarrage.</p>
+<pre class="cmd"><code>switch: flash_init
+switch: del flash:config.text
+switch: del flash:config.text.renamed
+switch: del flash:vlan.dat
+switch: del flash:vlan.dat.renamed
+switch: boot</code></pre>
+<p>Configuration de base de SwDmz (mots de passe masqués) :</p>
+<pre class="cmd"><code>hostname SwDmz_Grp3
+enable secret ********
+interface vlan 1
+ ip address 10.3.10.253 255.255.0.0
+ip default-gateway 10.3.10.254
+vtp domain RIOCA
+vtp mode client</code></pre>
+<ul class="b"><li><span class="k">enable secret</span> protège le mode privilégié, avec un mot de passe stocké chiffré.</li><li>L'interface VLAN 1 donne au switch son adresse d'administration ; sa passerelle est l'interface DMZ du pare-feu.</li><li>En mode client VTP, le switch reçoit les VLAN du domaine RIOCA sans pouvoir les modifier.</li></ul>
+<p>SwNET suit la même logique, avec l'adresse 192.168.3.254/29 et le pare-feu (192.168.3.253) comme passerelle.</p>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>Routeur Internet et NAT</h2>
+<p>Le routeur du laboratoire n'étant pas administrable, il ne connaît pas les réseaux de la maquette. RNET_GRP3 traduit donc les adresses du réseau local et de la DMZ derrière sa propre adresse côté campus (NAT overload), et publie le serveur web.</p>
+<pre class="cmd"><code>interface GigabitEthernet0/0
+ ip address 192.168.3.251 255.255.255.248
+ ip nat inside
+interface GigabitEthernet0/1
+ ip address 192.168.4.31 255.255.255.0
+ ip nat outside
+access-list 1 permit 172.19.0.0 0.0.255.255
+access-list 1 permit host 10.3.10.1
+access-list 1 permit host 10.3.10.2
+ip nat inside source list 1 interface GigabitEthernet0/1 overload
+ip nat inside source static tcp 10.3.10.1 80 interface GigabitEthernet0/1 80
+ip nat inside source static tcp 10.3.10.1 443 interface GigabitEthernet0/1 443
+ip route 0.0.0.0 0.0.0.0 192.168.4.254</code></pre>
+<ul class="b"><li>L'ACL 1 désigne les adresses à traduire : le réseau local et les deux serveurs web.</li><li><span class="k">overload</span> fait sortir toutes ces adresses derrière l'IP 192.168.4.31, en distinguant les connexions par leur port.</li><li>Les deux règles <span class="k">static tcp</span> publient le serveur web 10.3.10.1 sur les ports 80 et 443.</li><li>La route par défaut envoie le trafic vers le routeur du laboratoire.</li></ul>
+<figure class="shot"><a href="img/infra-site-02.webp"><img src="img/infra-site-02.webp" alt="Ping vers 8.8.8.8 depuis un serveur du réseau local : délais dépassés avant le NAT, réponses après." width="591" height="699" loading="lazy"></a><figcaption><b>Fig. 3</b> Ping vers 8.8.8.8 depuis un serveur du réseau local : en échec avant le NAT, réussi après.</figcaption></figure>
+</div>
+<div class="part" id="partie-5">
+<h2><span class="n">05</span>Pare-feu Zyxel</h2>
+<p>RParefeu, un Zyxel USG Flex 500, se configure depuis son interface web : assistant d'installation, changement du mot de passe administrateur, puis une adresse IP et une zone par interface. Il devient le point de passage unique entre les trois zones.</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Interface</th><th scope="col">Zone</th><th scope="col">Adresse</th><th scope="col">Reliée à</th></tr></thead><tbody><tr><td>sfp (P1)</td><td>LAN1</td><td>192.168.2.2/30</td><td>Switch cœur</td></tr><tr><td>dmz (P7)</td><td>DMZ</td><td>10.3.10.254/16</td><td>SwDmz</td></tr><tr><td>wan1 (P2)</td><td>WAN</td><td>192.168.3.253/29</td><td>SwNET</td></tr></tbody></table></div>
+<figure class="shot"><a href="img/infra-site-03.webp"><img src="img/infra-site-03.webp" alt="Affectation des ports physiques P1 à P8 du Zyxel à ses interfaces et zones." width="1222" height="598" loading="lazy"></a><figcaption><b>Fig. 4</b> Affectation des ports physiques aux interfaces et aux zones.</figcaption></figure>
+</div>
+<div class="part" id="partie-6">
+<h2><span class="n">06</span>Routage RIP v2</h2>
+<p>RIP v2 tourne sur le switch cœur, le pare-feu et RNET : chacun apprend automatiquement les réseaux des autres zones, et RNET diffuse sa route par défaut vers Internet.</p>
+<pre class="cmd"><code>! Switch cœur
+router rip
+ version 2
+ passive-interface Vlan70
+ network 172.19.0.0
+ network 192.168.2.0
+ no auto-summary
+! RNET
+router rip
+ version 2
+ network 192.168.3.0
+ network 192.168.4.0
+ default-information originate
+ no auto-summary</code></pre>
+<ul class="b"><li><span class="k">no auto-summary</span> conserve les vrais masques au lieu de résumer par classe d'adresses.</li><li><span class="k">passive-interface</span> évite d'envoyer des annonces RIP dans le VLAN d'administration.</li><li><span class="k">default-information originate</span> diffuse la route par défaut de RNET au reste de la maquette.</li><li>Sur le Zyxel, RIP se déclare par nom d'interface (sfp, dmz, wan1), et une règle de pare-feu autorise ces échanges.</li></ul>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Problème rencontré</th><th scope="col">Cause</th><th scope="col">Correction</th></tr></thead><tbody><tr><td>Lien switch cœur – pare-feu</td><td>Le pare-feu avait la même IP que le switch cœur</td><td>Une IP distincte de chaque côté du lien</td></tr><tr><td>Lien pare-feu – RNET</td><td>Les deux côtés du lien étaient dans des VLAN différents</td><td>Même VLAN des deux côtés</td></tr></tbody></table></div>
+<figure class="shot"><a href="img/infra-site-04.webp"><img src="img/infra-site-04.webp" alt="show ip route sur RNET : routes du réseau local et de la DMZ apprises en RIP (lettre R) via le pare-feu." width="1096" height="811" loading="lazy"></a><figcaption><b>Fig. 5</b> Sur RNET, les réseaux du LAN et de la DMZ sont appris en RIP via le pare-feu.</figcaption></figure>
+</div>
+<div class="part" id="partie-7">
+<h2><span class="n">07</span>Administration à distance</h2>
+<p>Les huit équipements réseau s'administrent en SSH version 2 uniquement, avec un compte d'administration du service IT. Telnet est refusé sur les seize lignes VTY (mot de passe masqué) :</p>
+<pre class="cmd"><code>line vty 0 4
+ password ********
+ login
+ transport input ssh
+line vty 5 15
+ login
+ transport input ssh</code></pre>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Où</th><th scope="col">Contrôle d'accès</th></tr></thead><tbody><tr><td>Switch cœur</td><td>ACL qui n'autorise que le VLAN IT et le VLAN d'administration externe ; SSH vers le réseau local autorisé depuis le VLAN IT uniquement</td></tr><tr><td>Pare-feu</td><td>Règles qui réservent l'administration de SwDmz, SwNET, RNET et du pare-feu au VLAN IT, plus une règle pour l'adresse externe du service IT</td></tr></tbody></table></div>
+<p>Une bannière s'affiche à chaque connexion sur les équipements Cisco :</p>
+<pre class="cmd"><code>ATTENTION - ACCES RESTREINT ET RESERVE AU SERVICE IT RIOCA
+Toute tentative d'acces non autorisee est interdite,
+journalisee et fera l'objet de poursuites judiciaires.</code></pre>
+<figure class="shot"><a href="img/infra-site-05.webp"><img src="img/infra-site-05.webp" alt="show ip ssh sur SwNET : SSH version 2, clé RSA 2048 bits, chiffrement AES-CTR." width="982" height="417" loading="lazy"></a><figcaption><b>Fig. 6</b> SSH version 2 actif, avec une clé RSA de 2048 bits.</figcaption></figure>
+<figure class="shot"><a href="img/infra-site-06.webp"><img src="img/infra-site-06.webp" alt="mRemoteNG : session SSH vers SwNET avec la bannière, et la liste des huit équipements administrés." width="1291" height="689" loading="lazy"></a><figcaption><b>Fig. 7</b> Les huit équipements dans mRemoteNG, ici une session vers SwNET.</figcaption></figure>
+</div>
+<div class="part" id="partie-8">
+<h2><span class="n">08</span>Sauvegardes automatiques</h2>
+<p>Les configurations partent vers un serveur TFTP Ubuntu (172.19.100.5, VLAN 100), le mardi et le jeudi à 17h30 et le vendredi à 11h30 : les fins de séances, validées avec la professeure.</p>
+<pre class="cmd"><code>TFTP_DIRECTORY="/srv/tftp"
+TFTP_ADDRESS=":69"
+TFTP_OPTIONS="--secure --create"</code></pre>
+<p><span class="k">--secure</span> enferme le service dans son dossier, et <span class="k">--create</span> autorise le dépôt de nouveaux fichiers. Chaque équipement Cisco envoie lui-même sa configuration avec une tâche planifiée <span class="k">kron</span> ; exemple sur SwDmz :</p>
+<pre class="cmd"><code>kron policy-list SAUVEGARDE_TFTP
+ cli copy running-config tftp://172.19.100.5/SwDmz-confg
+kron occurrence DEBUT_MAR at 17:30 Tue recurring
+ policy-list SAUVEGARDE_TFTP
+kron occurrence DEBUT_JEU at 17:30 Thu recurring
+ policy-list SAUVEGARDE_TFTP
+kron occurrence DEBUT_VEN at 11:30 Fri recurring
+ policy-list SAUVEGARDE_TFTP</code></pre>
+<p>La même configuration est reprise sur les autres équipements, seul le nom du fichier change. Sur trois switchs, la sauvegarde passe par des applets EEM aux mêmes horaires. Le Zyxel ne sait pas planifier ce type de tâche : c'est le serveur qui va chercher sa configuration en FTP, avec un script lancé par <span class="k">cron</span>.</p>
+<div class="shots"><figure class="shot"><a href="img/infra-site-07.webp"><img src="img/infra-site-07.webp" alt="Configuration kron sur SwDmz : trois occurrences hebdomadaires et la commande de copie vers le serveur TFTP." width="697" height="273" loading="lazy"></a><figcaption><b>Fig. 8</b> Les tâches kron sur SwDmz.</figcaption></figure><figure class="shot"><a href="img/infra-site-08.webp"><img src="img/infra-site-08.webp" alt="Contenu du dossier /srv/tftp : configurations du Zyxel et des équipements Cisco." width="624" height="480" loading="lazy"></a><figcaption><b>Fig. 9</b> Les configurations reçues dans /srv/tftp.</figcaption></figure></div>
+</div>
+<div class="part" id="partie-9">
+<h2><span class="n">09</span>Règles du pare-feu</h2>
+<p>Onze règles ouvrent les seuls flux nécessaires. Le pare-feu applique la première qui correspond, toutes journalisent le trafic, et le filtrage est à état : les réponses aux connexions autorisées passent automatiquement.</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">N°</th><th scope="col">Règle</th><th scope="col">Flux</th><th scope="col">Action</th></tr></thead><tbody><tr><td>1</td><td>Admin_IT_Externe</td><td>Administration du pare-feu depuis l'adresse externe du service IT</td><td>Autoriser</td></tr><tr><td>2</td><td>Admin_IT_Local</td><td>VLAN IT vers les équipements hors LAN (SSH, HTTP, HTTPS)</td><td>Autoriser</td></tr><tr><td>3</td><td>Admin_IT_Distant</td><td>VLAN IT vers le pare-feu lui-même</td><td>Autoriser</td></tr><tr><td>4</td><td>Allow_RIPv2</td><td>Annonces RIP vers le pare-feu (UDP 520)</td><td>Autoriser</td></tr><tr><td>5</td><td>Allow_TFTP_Backups</td><td>SwDmz, SwNET et RNET vers le serveur de sauvegarde (UDP 69)</td><td>Autoriser</td></tr><tr><td>6</td><td>Internet_to_WebServ</td><td>Internet vers les serveurs web (HTTP, HTTPS)</td><td>Autoriser</td></tr><tr><td>7</td><td>LAN_to_WebServ</td><td>Réseau local vers les serveurs web (HTTP, HTTPS)</td><td>Autoriser</td></tr><tr><td>8</td><td>LAN_to_Internet</td><td>Réseau local vers Internet (HTTP, HTTPS, DNS, ICMP)</td><td>Autoriser</td></tr><tr><td>9</td><td>DMZ_to_Internet</td><td>DMZ vers Internet, pour les mises à jour</td><td>Autoriser</td></tr><tr><td>10</td><td>Isolation_DMZ_LAN</td><td>DMZ vers réseau local : un serveur compromis ne doit pas ouvrir le réseau interne</td><td>Refuser</td></tr><tr><td>11</td><td>LAN1_Outgoing</td><td>Tout autre flux sortant du réseau local</td><td>Refuser</td></tr></tbody></table></div>
+<p>Les règles par défaut du Zyxel placées en dessous ont été passées en refus, la règle finale en dernier, après avoir vérifié l'accès à l'interface d'administration : tout flux qui n'est pas explicitement autorisé est refusé.</p>
+<figure class="shot"><a href="img/infra-site-09.webp"><img src="img/infra-site-09.webp" alt="Liste des règles dans Policy Control du Zyxel, avec zones, objets, services, actions et journalisation." width="1400" height="718" loading="lazy"></a><figcaption><b>Fig. 10</b> Les règles dans Policy Control, dans leur ordre d'évaluation.</figcaption></figure>
+</div>
+<div class="part" id="partie-10">
+<h2><span class="n">10</span>ACL du réseau local</h2>
+<p>Le pare-feu ne voit pas les échanges entre VLAN, qui passent par le switch cœur. Une ACL étendue, appliquée en entrée de chaque interface VLAN de service, autorise les flux communs puis interdit toute communication entre services :</p>
+<pre class="cmd"><code>ip access-list extended ACL_INTER_VLAN
+ 10 permit ip 172.19.0.0 0.0.255.255 host 172.19.100.1
+ 40 permit tcp 172.19.0.0 0.0.255.255 any eq www
+ 50 permit tcp 172.19.0.0 0.0.255.255 any eq 443
+ 60 permit tcp 172.19.60.0 0.0.0.255 172.19.0.0 0.0.255.255 eq 22
+ 70 permit tcp 172.19.0.0 0.0.255.255 eq 22 172.19.60.0 0.0.0.255
+ 80 deny ip 172.19.0.0 0.0.255.255 172.19.0.0 0.0.255.255
+ 90 permit ip any any
+interface Vlan10
+ ip access-group ACL_INTER_VLAN in</code></pre>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Lignes</th><th scope="col">Effet</th></tr></thead><tbody><tr><td>10</td><td>Tout le réseau local joint le serveur 172.19.100.1, hôte Hyper-V du contrôleur de domaine</td></tr><tr><td>40, 50</td><td>HTTP et HTTPS autorisés</td></tr><tr><td>60, 70</td><td>SSH depuis le VLAN IT vers le réseau local, et ses réponses</td></tr><tr><td>80</td><td>Tout autre flux entre deux VLAN est refusé : les services ne communiquent pas entre eux</td></tr><tr><td>90</td><td>Le reste (DMZ, Internet) passe, puis est filtré par le pare-feu</td></tr></tbody></table></div>
+<p>L'extrait omet les lignes propres au serveur de sauvegarde. La même commande <span class="k">ip access-group</span> est appliquée sur chaque VLAN de service.</p>
+<figure class="shot"><a href="img/infra-site-10.webp"><img src="img/infra-site-10.webp" alt="Les ACL ACL_ADMIN_IT et ACL_INTER_VLAN dans la configuration du switch cœur." width="828" height="369" loading="lazy"></a><figcaption><b>Fig. 11</b> Les ACL dans la configuration du switch cœur.</figcaption></figure>
+</div>
+<div class="part" id="partie-11">
+<h2><span class="n">11</span>Tests et bilan</h2>
+<p>Les tests ont été menés en deux temps, avant puis après la pose des restrictions, et consignés dans un rapport de tests :</p>
+<ul class="b"><li>sortie vers Internet du réseau local à travers le pare-feu, et traductions visibles avec <span class="k">show ip nat translations</span> ;</li><li>routes RIP apprises sur chaque équipement et routage dans les deux sens ;</li><li>accès au contrôleur de domaine depuis les services, et ping refusé entre deux services différents ;</li><li>connexion SSH à chaque équipement depuis le VLAN IT ;</li><li>fichiers de configuration reçus sur le serveur de sauvegarde aux horaires prévus.</li></ul>
+<p>Comme chef de projet, j'ai fait tester chaque tâche au fil de l'eau, grâce à une colonne « à tester » sur Trello, plutôt que de tout tester en fin de projet. Les règles les plus restrictives ont été posées en dernier, une fois les accès validés, pour ne pas perdre la main sur les équipements.</p>
+<p>Le projet se poursuit avec ArchiSite, en cours : l'installation dans cette DMZ d'un serveur web sécurisé en HTTPS, d'une base de données et d'un serveur FTPS.</p>
+</div>
+<nav class="pager" aria-label="Autres comptes rendus"><span></span><a class="next" href="nextcloud.html"><span>Suivant</span>Cloud interne sécurisé avec Nextcloud</a></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js"></script>
+</body>
+</html>

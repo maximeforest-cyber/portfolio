@@ -78,6 +78,7 @@
           <img src="photo.jpg" alt="Portrait de Maxime Forest" width="178" height="178">
           <div class="initials" aria-hidden="true">MF</div>
         </div>
+        <figcaption>L'administrateur</figcaption>
       </figure>
     </div>
 
@@ -153,12 +154,13 @@
             <ul>
               <li><b>Infrastructure Windows Server</b> : Hyper-V, contrôleur de domaine Active Directory, DHCP</li>
               <li><b>Gestion de parc avec GLPI</b> : inventaire depuis la console ; installation dans Azure en cours</li>
-              <li><b>Infra-Site, en équipe</b> (en cours) : zone DMZ, pare-feu et règles de filtrage</li>
+              <li><b>Infra-Site, chef de projet en binôme</b> : DMZ, pare-feu Zyxel, routage RIP v2, NAT, SSH, sauvegardes TFTP</li>
+              <li><b>ArchiSite</b> (en cours) : serveur web HTTPS, base de données et FTPS dans la DMZ</li>
               <li><b>Cloud privé Nextcloud et intranet web / FTP</b> sous Linux, à accès restreints</li>
             </ul>
             <h4>Compétences techniques</h4>
             <p><b>Systèmes :</b> Windows Server, Active Directory, GPO, Windows 10 / 11, Linux (Ubuntu Server)</p>
-            <p><b>Réseaux et sécurité :</b> TCP/IP, DHCP, DNS, DMZ, pare-feu, Wireshark, chiffrement des postes</p>
+            <p><b>Réseaux et sécurité :</b> TCP/IP, VLAN, RIP v2, NAT, DHCP, DNS, DMZ, pare-feu, ACL, SSH, Wireshark</p>
             <p><b>Virtualisation et parc :</b> Hyper-V, GLPI, masterisation de postes, enrôlement de smartphones</p>
             <p><b>Développement (bases) :</b> C#, Python, Java, SQL, HTML / CSS</p>
             <h4>Certifications</h4>
@@ -187,7 +189,7 @@
       </div>
       <div class="card skill">
         <h3>Réseaux et sécurité</h3>
-        <ul class="tags"><li>TCP/IP</li><li>DHCP</li><li>DNS</li><li>DMZ</li><li>Pare-feu</li><li>Wireshark</li><li>Chiffrement des postes</li></ul>
+        <ul class="tags"><li>TCP/IP</li><li>VLAN</li><li>Routage RIP v2</li><li>NAT</li><li>DHCP</li><li>DNS</li><li>DMZ</li><li>Pare-feu</li><li>ACL</li><li>SSH</li><li>Wireshark</li><li>Chiffrement des postes</li></ul>
       </div>
       <div class="card skill">
         <h3>Virtualisation et cloud</h3>
@@ -298,23 +300,46 @@
       </article>
 
       <article class="card project" id="projet-infra-site">
-        <p class="meta">Atelier professionnel · en cours</p>
-        <h3>Infra-Site : DMZ et pare-feu</h3>
-        <p>Sécurisation d'un réseau d'entreprise par une zone démilitarisée et un pare-feu, en équipe.</p>
+        <p class="meta">Atelier professionnel · 2026 · chef de projet</p>
+        <h3>Infra-Site : DMZ, pare-feu et routage</h3>
+        <p>Ajout d'une zone DMZ et d'une zone Internet au réseau d'une entreprise, derrière un pare-feu Zyxel, en binôme.</p>
         <details>
           <summary>Voir la fiche</summary>
           <div class="fiche">
             <h4>Contexte</h4>
-            <p>Projet mené en groupe, à la suite d'une première phase de maquettage du réseau de l'entreprise.</p>
+            <p>Suite du maquettage du réseau de l'entreprise RIOCA : préparer l'infrastructure qui accueillera un serveur web sécurisé, tout en isolant le réseau interne.</p>
             <h4>Ce que j'ai fait</h4>
             <ul>
-              <li>Mise en place d'une zone DMZ entre le réseau interne et Internet</li>
-              <li>Installation et configuration d'un pare-feu</li>
-              <li>Définition des règles de filtrage entre les zones</li>
+              <li>Pilotage du projet : Gantt, 21 tâches réparties et suivies sur Trello</li>
+              <li>Pare-feu Zyxel : zones, onze règles de filtrage, règles par défaut durcies</li>
+              <li>Routage RIP v2, NAT vers Internet et publication du serveur web</li>
+              <li>Administration SSH réservée au service IT, ACL entre les services</li>
+              <li>Sauvegarde automatique des configurations sur un serveur TFTP</li>
             </ul>
           </div>
         </details>
-        <ul class="tags"><li>DMZ</li><li>Pare-feu</li><li>Sécurité réseau</li><li>Travail en équipe</li></ul>
+        <a class="doc" href="projets/infra-site.html">Lire le compte rendu</a>
+        <ul class="tags"><li>Cisco</li><li>Zyxel</li><li>RIP v2</li><li>NAT</li><li>SSH</li><li>Gestion de projet</li></ul>
+      </article>
+
+      <article class="card project" id="projet-archisite">
+        <p class="meta">Atelier professionnel · en cours</p>
+        <h3>ArchiSite : site web sécurisé dans la DMZ</h3>
+        <p>Mise en ligne d'un site web interne en HTTPS, avec base de données et serveur FTPS, dans la DMZ créée par Infra-Site.</p>
+        <details>
+          <summary>Voir la fiche</summary>
+          <div class="fiche">
+            <h4>Contexte</h4>
+            <p>RIOCA veut héberger elle-même un site web réservé à ses salariés, en suivant les recommandations de l'ANSSI sur la répartition des services entre les zones du réseau.</p>
+            <h4>En cours</h4>
+            <ul>
+              <li>Serveurs web, base de données et FTPS sous Linux</li>
+              <li>Autorité de certification interne et HTTPS</li>
+              <li>Serveur DNS dans la DMZ et nouvelles règles de pare-feu</li>
+            </ul>
+          </div>
+        </details>
+        <ul class="tags"><li>Linux</li><li>HTTPS</li><li>Certificats</li><li>FTPS</li><li>DNS</li></ul>
       </article>
 
     </div>

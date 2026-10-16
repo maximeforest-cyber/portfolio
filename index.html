@@ -153,7 +153,7 @@
             <h4>Projets de formation</h4>
             <ul>
               <li><b>Infrastructure Windows Server</b> : Hyper-V, contrôleur de domaine Active Directory, DHCP</li>
-              <li><b>Gestion de parc avec GLPI</b> : inventaire depuis la console ; installation dans Azure en cours</li>
+              <li><b>Gestion de parc avec GLPI</b> : serveur GLPI 12 sur Azure, inventaire automatique (GLPI Agent)</li>
               <li><b>Infra-Site, chef de projet en binôme</b> : DMZ, pare-feu Zyxel, routage RIP v2, NAT, SSH, sauvegardes TFTP</li>
               <li><b>ArchiSite</b> (en cours) : serveur web HTTPS, base de données et FTPS dans la DMZ</li>
               <li><b>Cloud privé Nextcloud et intranet web / FTP</b> sous Linux, à accès restreints</li>
@@ -277,26 +277,26 @@
       </article>
 
       <article class="card project" id="projet-glpi">
-        <p class="meta">Travaux pratiques · 2026</p>
+        <p class="meta">Travaux pratiques · 2026 · en binôme</p>
         <h3>Gestion de parc avec GLPI</h3>
-        <p>Inventaire d'un parc informatique depuis la console GLPI, puis installation d'un serveur GLPI dans Azure (en cours).</p>
+        <p>Inventaire d'un parc depuis la console GLPI, puis installation d'un serveur GLPI dans Microsoft Azure avec remontée automatique de l'inventaire d'un poste Windows.</p>
         <details>
           <summary>Voir la fiche</summary>
           <div class="fiche">
             <h4>Contexte</h4>
-            <p>Un prestataire de services informatiques doit connaître précisément le parc de son client pour en assurer la gestion des configurations.</p>
+            <p>La Région Normandie veut un serveur GLPI pour gérer les demandes d'intervention de ses lycées et connaître précisément leur parc.</p>
             <h4>Ce que j'ai fait</h4>
             <ul>
               <li>Inventaire matériel et logiciel d'un parc depuis la console GLPI</li>
-            </ul>
-            <h4>En cours</h4>
-            <ul>
-              <li>Installation d'un serveur GLPI sur une machine virtuelle Linux dans Microsoft Azure, avec un poste client Windows</li>
-              <li>Rédaction de la procédure d'installation et de configuration</li>
+              <li>Machine virtuelle Ubuntu sur Azure : taille, région, IP publique statique, connexion SSH par clé</li>
+              <li>Installation de GLPI 12 (Apache, MariaDB, PHP) et sécurisation des comptes</li>
+              <li>Inventaire activé avec authentification des agents ; poste Windows 11 remonté par GLPI Agent</li>
+              <li>Procédure d'installation et de configuration rédigée en binôme</li>
             </ul>
           </div>
         </details>
-        <ul class="tags"><li>GLPI</li><li>Microsoft Azure</li><li>Linux</li></ul>
+        <a class="doc" href="projets/glpi.html">Lire le compte rendu</a>
+        <ul class="tags"><li>GLPI</li><li>Microsoft Azure</li><li>Linux</li><li>Apache</li></ul>
       </article>
 
       <article class="card project" id="projet-infra-site">
@@ -313,7 +313,7 @@
               <li>Pilotage du projet : Gantt, 21 tâches réparties et suivies sur Trello</li>
               <li>Pare-feu Zyxel : zones, onze règles de filtrage, règles par défaut durcies</li>
               <li>Routage RIP v2, NAT vers Internet et publication du serveur web</li>
-              <li>Administration SSH réservée au service IT, ACL entre les services</li>
+              <li>Rédaction de la documentation technique</li>
               <li>Sauvegarde automatique des configurations sur un serveur TFTP</li>
             </ul>
           </div>

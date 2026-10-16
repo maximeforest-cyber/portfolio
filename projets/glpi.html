@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Serveur GLPI dans Microsoft Azure | Maxime Forest</title>
+<meta name="description" content="Compte rendu : installation d&#x27;un serveur GLPI 12 sur une machine virtuelle Ubuntu dans Microsoft Azure, puis remontée de l&#x27;inventaire d&#x27;un poste Windows 11 avec GLPI Agent.">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#efe9df">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/glpi.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/glpi.html">
+<meta property="og:title" content="Serveur GLPI dans Microsoft Azure | Maxime Forest">
+<meta property="og:description" content="Compte rendu : installation d&#x27;un serveur GLPI 12 sur une machine virtuelle Ubuntu dans Microsoft Azure, puis remontée de l&#x27;inventaire d&#x27;un poste Windows 11 avec GLPI Agent.">
+<meta property="og:image" content="https://forestmaxime-pf.fr/favicon.png">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="../#projet-glpi">← Projets et stages</a></p>
+    <p class="kicker">Travaux pratiques · <b>octobre 2026</b> · en binôme</p>
+    <h1>Serveur GLPI dans Microsoft Azure</h1>
+    <p class="lead">Installation d'un serveur GLPI sur une machine virtuelle Ubuntu dans Microsoft Azure, puis remontée automatique de l'inventaire d'un poste Windows 11 grâce à GLPI Agent.</p>
+    <dl class="facts"><div><dt>Contexte</dt><dd>La Région Normandie veut un outil pour gérer les demandes d'intervention de ses lycées</dd></div><div><dt>Cadre</dt><dd>Travaux pratiques de 2<sup>e</sup> année de BTS SIO, en binôme</dd></div><div><dt>Environnement</dt><dd>Microsoft Azure (Azure for Students), Ubuntu Server 24.04, GLPI 12, Windows 11 Pro, GLPI Agent 1.21</dd></div><div><dt>Compétence</dt><dd>B1.1 – Gérer le patrimoine informatique</dd></div></dl>
+    <ul class="tags"><li>GLPI</li><li>Microsoft Azure</li><li>Linux</li><li>Apache</li><li>MariaDB</li><li>Inventaire</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Contexte et rôle</a></li><li><a href="#partie-2"><span>02</span>Machine virtuelle sur Azure</a></li><li><a href="#partie-3"><span>03</span>Installation de GLPI</a></li><li><a href="#partie-4"><span>04</span>Sécurisation et inventaire</a></li><li><a href="#partie-5"><span>05</span>Poste client et GLPI Agent</a></li><li><a href="#partie-6"><span>06</span>Vérification</a></li><li><a href="#partie-7"><span>07</span>Difficultés et bilan</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Contexte et rôle</h2>
+<p>La Région Normandie souhaite un serveur GLPI pour suivre les demandes d'intervention de ses lycées. La mission consistait à l'installer sur Microsoft Azure, puis à vérifier que l'inventaire d'un poste client Windows remonte automatiquement dans GLPI.</p>
+<p>Le sujet prévoyait le plugin FusionInventory, mais il n'est plus compatible depuis GLPI 10 : l'inventaire est désormais intégré à GLPI, et l'agent FusionInventory a été remplacé par GLPI Agent.</p>
+<p>J'ai pris en charge le serveur : création de la machine virtuelle, installation et sécurisation de GLPI, activation de l'inventaire. Mon binôme s'est occupé de la machine virtuelle Windows et de la vérification de l'inventaire. Nous avons rédigé ensemble la procédure d'installation et de configuration.</p>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>Machine virtuelle sur Azure</h2>
+<p>Dans le portail Azure, un groupe de ressources <span class="k">rg-glpi</span> regroupe tout ce qui concerne le serveur. La machine virtuelle <span class="k">vm-glpi</span> y est créée :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Paramètre</th><th scope="col">Valeur</th></tr></thead><tbody><tr><td>Image</td><td>Ubuntu Server 24.04 LTS (x64)</td></tr><tr><td>Taille</td><td>Standard_B2s_v2 : 2 vCPU, 8 Go de RAM, disque de 30 Go</td></tr><tr><td>Région</td><td>Poland Central</td></tr><tr><td>Authentification</td><td>Clé SSH, utilisateur azureuser</td></tr><tr><td>Ports entrants</td><td>22 (SSH), 80 (HTTP), 443 (HTTPS)</td></tr><tr><td>Adresses</td><td>IP privée 172.16.0.4, IP publique statique</td></tr></tbody></table></div>
+<figure class="shot"><a href="img/glpi-01.webp"><img src="img/glpi-01.webp" alt="Formulaire de création de la machine virtuelle vm-glpi : abonnement Azure for Students, groupe rg-glpi, région Poland Central, image Ubuntu Server 24.04 LTS." width="556" height="412" loading="lazy"></a><figcaption><b>Fig. 1</b> Création de la machine virtuelle vm-glpi.</figcaption></figure>
+<p>L'adresse IP publique est passée en statique : elle ne change plus au redémarrage, ce qui compte car les agents d'inventaire l'utilisent pour joindre le serveur.</p>
+<figure class="shot"><a href="img/glpi-02.webp"><img src="img/glpi-02.webp" alt="Vue d'ensemble de vm-glpi : en cours d'exécution, Poland Central, Ubuntu 24.04, taille Standard B2s v2. L'adresse IP publique est masquée." width="1110" height="440" loading="lazy"></a><figcaption><b>Fig. 2</b> Vue d'ensemble de la machine virtuelle (IP publique masquée).</figcaption></figure>
+<p>La connexion se fait en SSH avec la clé privée téléchargée lors du déploiement, puis le système est mis à jour :</p>
+<pre class="cmd"><code>ssh -i vm-glpi_key.pem azureuser@&lt;IP publique&gt;
+sudo apt update &amp;&amp; sudo apt upgrade -y
+sudo reboot</code></pre>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>Installation de GLPI</h2>
+<p>GLPI a besoin d'un serveur web, d'une base de données et de PHP. Nous installons Apache, MariaDB et les modules PHP demandés par GLPI :</p>
+<pre class="cmd"><code>sudo apt install -y apache2 mariadb-server php php-mysql php-curl php-gd \
+  php-intl php-mbstring php-xml php-zip php-bz2 php-ldap php-apcu \
+  php-cli php-bcmath php-opcache libapache2-mod-php</code></pre>
+<figure class="shot"><a href="img/glpi-03.webp"><img src="img/glpi-03.webp" alt="Terminal : Apache 2.4.58, MariaDB 10.11.14 et PHP 8.3.6 installés." width="1240" height="247" loading="lazy"></a><figcaption><b>Fig. 3</b> Versions installées d'Apache, MariaDB et PHP.</figcaption></figure>
+<p>Après <span class="k">mysql_secure_installation</span> (mot de passe root, suppression des comptes anonymes et de la base de test, pas de connexion root à distance), nous créons une base et un utilisateur réservés à GLPI (mot de passe masqué) :</p>
+<pre class="cmd"><code>CREATE DATABASE glpi CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'glpi_user'@'localhost' IDENTIFIED BY '********';
+GRANT ALL PRIVILEGES ON glpi.* TO 'glpi_user'@'localhost';
+FLUSH PRIVILEGES;</code></pre>
+<p>L'archive de GLPI 12.0.0 est extraite dans <span class="k">/var/www/glpi</span>, puis confiée à l'utilisateur d'Apache, <span class="k">www-data</span>. Le site Apache pointe vers le dossier <span class="k">public</span> de GLPI, comme le recommande sa documentation, pour que les fichiers internes ne soient pas accessibles depuis le web :</p>
+<pre class="cmd"><code>&lt;VirtualHost *:80&gt;
+    DocumentRoot /var/www/glpi/public
+    &lt;Directory /var/www/glpi/public&gt;
+        Require all granted
+        RewriteEngine On
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteRule ^(.*)$ index.php [QSA,L]
+    &lt;/Directory&gt;
+&lt;/VirtualHost&gt;</code></pre>
+<pre class="cmd"><code>sudo a2enmod rewrite
+sudo a2dissite 000-default
+sudo a2ensite glpi
+sudo systemctl restart apache2</code></pre>
+<p>L'assistant d'installation, dans le navigateur, vérifie les prérequis (tous validés), se connecte à la base <span class="k">glpi</span> avec <span class="k">glpi_user</span> et crée les tables.</p>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>Sécurisation et inventaire</h2>
+<ul class="b"><li>Mot de passe du compte administrateur <span class="k">glpi</span> changé.</li><li>Comptes par défaut <span class="k">post-only</span>, <span class="k">tech</span> et <span class="k">normal</span> supprimés.</li><li>Fichier <span class="k">install/install.php</span> supprimé, pour qu'on ne puisse pas relancer l'installation.</li><li>Un compte administrateur nominatif créé pour mon binôme.</li></ul>
+<p>Dans Administration &gt; Inventaire, l'inventaire est activé avec une authentification basique : un agent qui n'a pas l'identifiant <span class="k">glpi_inventaire</span> et son mot de passe ne peut pas envoyer d'inventaire.</p>
+<figure class="shot"><a href="img/glpi-04.webp"><img src="img/glpi-04.webp" alt="Configuration de l'inventaire dans GLPI : inventaire activé, authentification basique des agents avec l'identifiant glpi_inventaire." width="1400" height="480" loading="lazy"></a><figcaption><b>Fig. 4</b> Inventaire activé, avec authentification des agents.</figcaption></figure>
+</div>
+<div class="part" id="partie-5">
+<h2><span class="n">05</span>Poste client et GLPI Agent</h2>
+<p>Le poste client est une machine virtuelle Windows 11 Pro (taille Standard_B2als_v2, port RDP ouvert), à laquelle on se connecte en bureau à distance. GLPI Agent 1.21 y est installé, avec l'adresse du serveur dans <b>Remote Targets</b>. L'agent tourne ensuite comme un service Windows.</p>
+<figure class="shot"><a href="img/glpi-05.webp"><img src="img/glpi-05.webp" alt="Installation de GLPI Agent 1.21 : écran Choose Targets, adresse du serveur GLPI dans Remote Targets (masquée)." width="465" height="364" loading="lazy"></a><figcaption><b>Fig. 5</b> Adresse du serveur dans l'installation de l'agent (masquée).</figcaption></figure>
+<p>L'installation rapide ne demande pas les identifiants de l'agent. Nous les ajoutons dans le registre en PowerShell (administrateur), puis nous redémarrons le service :</p>
+<pre class="cmd"><code>Set-ItemProperty -Path "HKLM:\SOFTWARE\GLPI-Agent" -Name user -Value "glpi_inventaire"
+Set-ItemProperty -Path "HKLM:\SOFTWARE\GLPI-Agent" -Name password -Value "********"
+Restart-Service -DisplayName "GLPI Agent"</code></pre>
+<p>La page locale de l'agent (<span class="k">http://127.0.0.1:62354</span>) permet ensuite de forcer un inventaire immédiat avec <b>Force an inventory</b>.</p>
+</div>
+<div class="part" id="partie-6">
+<h2><span class="n">06</span>Vérification</h2>
+<p>L'agent apparaît dans Administration &gt; Inventaire &gt; Agents, et le poste a été créé automatiquement dans Parc &gt; Ordinateurs.</p>
+<figure class="shot"><a href="img/glpi-06.webp"><img src="img/glpi-06.webp" alt="Liste des agents dans GLPI : agent VM-CLIENT-BLOC3, GLPI-Agent version 1.21, dernier contact le 16 octobre 2026." width="1400" height="245" loading="lazy"></a><figcaption><b>Fig. 6</b> L'agent du poste client, connu de GLPI.</figcaption></figure>
+<figure class="shot"><a href="img/glpi-07.webp"><img src="img/glpi-07.webp" alt="Parc, Ordinateurs : VM-CLIENT-BLOC3, machine virtuelle Hyper-V sous Windows 11 Pro, processeur AMD EPYC 7763." width="1400" height="380" loading="lazy"></a><figcaption><b>Fig. 7</b> Le poste créé automatiquement dans le parc.</figcaption></figure>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Point de contrôle</th><th scope="col">Résultat</th></tr></thead><tbody><tr><td>Agent visible dans GLPI</td><td>Oui, VM-CLIENT-BLOC3, GLPI Agent 1.21</td></tr><tr><td>Poste présent dans le parc</td><td>Oui, sous Windows 11 Pro</td></tr><tr><td>Composants renseignés</td><td>Oui : processeur AMD EPYC 7763, environ 4 Go de RAM, disque de 136 Go, carte réseau</td></tr><tr><td>Logiciels remontés</td><td>Oui, 119 logiciels</td></tr><tr><td>Date du dernier inventaire</td><td>16/10/2026, 14 h 02 (heure française)</td></tr></tbody></table></div>
+<figure class="shot"><a href="img/glpi-08.webp"><img src="img/glpi-08.webp" alt="Fiche du poste dans GLPI, onglet Composants : carte réseau, carte graphique, BIOS, processeur, mémoire et disque, tous remontés par l'inventaire automatique." width="1263" height="660" loading="lazy"></a><figcaption><b>Fig. 8</b> Les composants du poste, remontés par l'agent.</figcaption></figure>
+</div>
+<div class="part" id="partie-7">
+<h2><span class="n">07</span>Difficultés et bilan</h2>
+<p>Les principales difficultés venaient des limites de l'abonnement Azure for Students :</p>
+<ul class="b"><li>plusieurs tailles de VM indisponibles en France Central, et la région Austria East refusée par une stratégie de l'abonnement : nous sommes passés en Poland Central ;</li><li>une taille sans aucun quota : la commande <span class="k">az vm list-usage --location polandcentral -o table</span> a montré que la série B en avait ;</li><li>une connexion SSH refusée, faute du bon nom d'utilisateur (<span class="k">azureuser</span>) ;</li><li>un poste qui n'apparaissait pas dans GLPI : les logs d'Apache montraient une erreur 401, car l'agent n'avait pas les identifiants de l'authentification basique. Les ajouter dans le registre a réglé le problème.</li></ul>
+<p>Avant une mise en production, il faudrait :</p>
+<ul class="b"><li>passer GLPI en HTTPS avec un certificat, car les mots de passe et les inventaires circulent aujourd'hui en clair ;</li><li>réserver SSH et RDP aux adresses des administrateurs, et l'accès à GLPI aux adresses des lycées ;</li><li>utiliser des comptes nominatifs, ou une connexion à l'Active Directory ;</li><li>sauvegarder la base et les fichiers de GLPI, et appliquer les mises à jour régulièrement.</li></ul>
+</div>
+<nav class="pager" aria-label="Autres comptes rendus"><span></span><a class="next" href="infra-site.html"><span>Suivant</span>Infra-Site : DMZ, pare-feu et routage</a></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js"></script>
+</body>
+</html>

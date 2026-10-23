@@ -1,0 +1,4 @@
+# GitHub Pages : fichiers de travail à ne pas publier sur le site
+exclude:
+  - CLAUDE.md
+  - A-PUBLIER.md

@@ -26,7 +26,7 @@ La fiche complète, avec les tests et les problèmes rencontrés : https://fores
 
 ## 2026-10-25 : Lancement du homelab et étape 1 : installer Ubuntu Server sur un ancien PC
 
-- Statut : à relire
+- Statut : publié
 - Lien : https://forestmaxime-pf.fr/projets/homelab.html
 - Image proposée : projets/img/homelab-etape-1-07.webp
 

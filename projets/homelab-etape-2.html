@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Homelab, étape 2 : le socle logiciel | Maxime Forest</title>
+<meta name="description" content="Homelab, étape 2 : pare-feu ufw, mises à jour de sécurité automatiques, Docker, dépôt Git privé avec clé de déploiement et Claude Code sur le serveur Ubuntu.">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#efe9df">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/homelab-etape-2.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/homelab-etape-2.html">
+<meta property="og:title" content="Homelab, étape 2 : le socle logiciel | Maxime Forest">
+<meta property="og:description" content="Homelab, étape 2 : pare-feu ufw, mises à jour de sécurité automatiques, Docker, dépôt Git privé avec clé de déploiement et Claude Code sur le serveur Ubuntu.">
+<meta property="og:image" content="https://forestmaxime-pf.fr/favicon.png">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="homelab.html#etapes">← Homelab : toutes les étapes</a></p>
+    <p class="kicker">Projet personnel · <b>Homelab, étape 2 sur 10</b> · validée le 24/10/2026</p>
+    <h1>Le socle logiciel du serveur</h1>
+    <p class="lead">Protéger le serveur installé à l'étape 1 (pare-feu, mises à jour automatiques), installer les outils du projet et le relier à un dépôt Git privé.</p>
+    <dl class="facts"><div><dt>Projet</dt><dd><a href="homelab.html">Homelab</a> au service de ma micro-entreprise Site de Poche</dd></div><div><dt>Période</dt><dd>24 octobre 2026</dd></div><div><dt>Machine</dt><dd>Tour « labo », Ubuntu Server 24.04 LTS (<a href="homelab-etape-1.html">étape 1</a>)</dd></div><div><dt>Points clés</dt><dd>ufw, unattended-upgrades, Docker Engine, Git, clé de déploiement GitHub, Claude Code</dd></div></dl>
+    <ul class="tags"><li>Pare-feu ufw</li><li>Mises à jour automatiques</li><li>Docker</li><li>Git et GitHub</li><li>Moindre privilège</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Objectif</a></li><li><a href="#partie-2"><span>02</span>Schéma et technologies</a></li><li><a href="#partie-3"><span>03</span>Configuration</a></li><li><a href="#partie-4"><span>04</span>Tests réussis</a></li><li><a href="#partie-5"><span>05</span>Problèmes rencontrés</a></li><li><a href="#partie-6"><span>06</span>Ce que j'en retiens</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Objectif</h2>
+<p>Préparer le serveur <span class="k">labo</span> (installé à l'<a href="homelab-etape-1.html">étape 1</a>) pour la suite du projet :</p>
+<ul class="b"><li>le <strong>protéger</strong> : pare-feu, mises à jour de sécurité automatiques ;</li><li>installer les <strong>outils</strong> : Python 3, Git, Docker ;</li><li>mettre le projet dans un <strong>dépôt Git privé</strong>, pour le travailler aussi bien depuis mon PC portable que depuis le serveur ;</li><li>installer <strong>Claude Code</strong> sur le serveur, pour être assisté directement sur la machine dans les étapes suivantes.</li></ul>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>Schéma et technologies</h2>
+<pre class="cmd schema" role="img" aria-label="Schéma : le PC portable sous WSL2 (192.168.1.58) se connecte en SSH sur le port 22 à la tour labo (192.168.1.49), dont le pare-feu ufw n'autorise que le port 22 depuis le réseau local 192.168.1.0/24. Les deux machines utilisent le dépôt privé GitHub homelab : le portable avec la clé de mon compte, protégée par une phrase de passe, et la tour avec une clé de déploiement limitée à ce seul dépôt."><code>                ┌──────────────────────────────┐
+                │  GitHub : dépôt PRIVÉ homelab│
+                └───▲──────────────────────▲───┘
+     clé du compte  │                      │  clé de déploiement
+     (avec phrase   │ push / pull          │  (ce dépôt seulement)
+      de passe)     │                      │ clone / pull / push
+     ┌──────────────┴────┐          ┌──────┴────────────────────┐
+     │ PC portable (WSL2)│   SSH    │ Tour « labo » 192.168.1.49│
+     │ 192.168.1.58      ├─────────►│ ufw : seul le port 22     │
+     └───────────────────┘  port 22 │  depuis 192.168.1.0/24    │
+                                    │ Docker, Python, Git,      │
+                                    │ Claude Code, ~/homelab    │
+                                    └───────────────────────────┘</code></pre>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Rôle</th><th scope="col">Technologie</th></tr></thead><tbody><tr><td>Pare-feu</td><td><span class="k">ufw</span> 0.36 (interface simple pour le pare-feu du noyau Linux)</td></tr><tr><td>Mises à jour de sécurité</td><td><span class="k">unattended-upgrades</span> 2.9</td></tr><tr><td>Langage des scripts d'audit</td><td>Python 3.12.3</td></tr><tr><td>Gestion de versions</td><td>Git 2.43, dépôt privé GitHub</td></tr><tr><td>Conteneurs</td><td>Docker Engine 29.9.2 et Docker Compose v5.6.1 (dépôt officiel de Docker)</td></tr><tr><td>Assistant</td><td>Claude Code 2.1.310 (installeur officiel, sans droits administrateur)</td></tr></tbody></table></div>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>Configuration</h2>
+<h3>Pare-feu</h3>
+<pre class="cmd"><code>sudo ufw default deny incoming     # tout ce qui entre est bloqué
+sudo ufw default allow outgoing    # le serveur peut sortir (mises à jour)
+sudo ufw allow from 192.168.1.0/24 to any port 22 proto tcp comment 'SSH depuis le reseau local'
+sudo ufw show added                # vérifier la règle AVANT d'activer
+sudo ufw enable</code></pre>
+<p>La règle SSH est ajoutée et vérifiée <strong>avant</strong> l'activation : sinon, le pare-feu coupe ma propre connexion et le serveur, sans écran, devient inaccessible. La règle n'accepte que mon réseau local ; le réseau du VPN de la Freebox sera ajouté à l'étape 3.</p>
+<h3>Mises à jour de sécurité automatiques</h3>
+<p><span class="k">unattended-upgrades</span> était déjà actif à l'installation. J'ai vérifié :</p>
+<ul class="b"><li>les origines autorisées : <span class="k">noble-security</span> et les correctifs ESM d'Ubuntu ;</li><li>le minuteur quotidien (<span class="k">systemctl list-timers apt-daily*</span>) : comme il est « persistant », une vérification manquée pendant que le serveur est éteint est faite au démarrage suivant ;</li><li>le journal <span class="k">/var/log/unattended-upgrades/</span> et un essai à blanc (<span class="k">--dry-run</span>).</li></ul>
+<p>Le redémarrage automatique reste désactivé : le serveur est souvent éteint, et le nouveau noyau est pris en compte au démarrage suivant.</p>
+<h3>Docker Engine</h3>
+<p>Installation depuis le dépôt officiel de Docker (et non Docker Desktop, ni le paquet <span class="k">docker.io</span> d'Ubuntu, moins à jour) :</p>
+<pre class="cmd"><code>sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu noble stable" | sudo tee /etc/apt/sources.list.d/docker.list
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin</code></pre>
+<p>La clé de signature garantit que les paquets viennent bien de Docker. Mon utilisateur n'est <strong>pas</strong> dans le groupe <span class="k">docker</span> : ce groupe donne en pratique les mêmes droits que root, donc les commandes Docker passent par <span class="k">sudo</span>.</p>
+<h3>Dépôt Git privé</h3>
+<ul class="b"><li><span class="k">.gitignore</span> écrit <strong>avant</strong> le premier commit : secrets (<span class="k">.env</span>, clés, fichier Wi-Fi), données des prospects (RGPD), bases SQLite et sauvegardes.</li><li>Relecture des fichiers avant l'envoi : aucun mot de passe, aucune clé, aucune adresse IP publique.</li><li>Dépôt créé en <strong>privé</strong> sur GitHub, envoyé depuis le portable avec la clé SSH de mon compte.</li></ul>
+<h3>Accès du serveur au dépôt : clé de déploiement</h3>
+<p>Sur le serveur, une clé SSH dédiée (<span class="k">~/.ssh/github_homelab</span>) est enregistrée sur GitHub comme <strong>clé de déploiement</strong> : elle ne donne accès qu'à ce dépôt, pas à mon compte entier (<strong>principe du moindre privilège</strong>). Si le serveur était compromis, je n'aurais qu'à supprimer cette clé sur GitHub, sans toucher à mes autres dépôts.</p>
+<p><span class="k">~/.ssh/config</span> sur le serveur :</p>
+<pre class="cmd"><code>Host github.com
+    IdentityFile ~/.ssh/github_homelab
+    IdentitiesOnly yes</code></pre>
+<p>L'empreinte du serveur GitHub enregistrée sur la tour a été comparée à celle que GitHub publie dans sa documentation (<span class="k">SHA256:+DiY3wvv…</span>).</p>
+<h3>Claude Code sur le serveur</h3>
+<p>Installeur officiel, dans le dossier de l'utilisateur (<span class="k">~/.local/bin</span>), sans <span class="k">sudo</span>. Le serveur n'a pas d'écran : la connexion au compte se fait par un lien ouvert dans le navigateur du portable, puis un code recopié dans le terminal SSH.</p>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>Tests réussis</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Test</th><th scope="col">Résultat attendu</th><th scope="col">Résultat obtenu</th><th scope="col">Preuve</th></tr></thead><tbody><tr><td>Pare-feu actif</td><td><span class="k">Status: active</span>, entrée refusée par défaut, port 22 autorisé depuis le réseau local</td><td>Conforme</td><td><a href="#fig-1">Fig. 1</a></td></tr><tr><td>SSH après activation du pare-feu</td><td>Nouvelle connexion <span class="k">ssh labo</span> acceptée</td><td>Conforme</td><td>—</td></tr><tr><td>Mises à jour automatiques</td><td>Origines de sécurité chargées, essai à blanc sans erreur</td><td>Conforme</td><td><a href="#fig-2">Fig. 2</a></td></tr><tr><td>Docker</td><td>Message <span class="k">Hello from Docker!</span></td><td>Conforme</td><td><a href="#fig-3">Fig. 3</a></td></tr><tr><td>Clé de déploiement</td><td>Clé « labo (tour) » en lecture/écriture, même empreinte que sur le serveur</td><td>Conforme : <span class="k">SHA256:dHy3cC0/…</span></td><td><a href="#fig-4">Fig. 4</a></td></tr><tr><td>Clone sur le serveur</td><td>GitHub reconnaît <span class="k">maximeforest-cyber/homelab</span>, même commit que sur le portable</td><td>Conforme</td><td>—</td></tr><tr><td>Droit d'écriture du serveur</td><td><span class="k">git push --dry-run</span> accepté</td><td>Conforme</td><td>—</td></tr><tr><td>Claude Code sur le serveur</td><td>Lancé dans <span class="k">~/homelab</span>, il confirme tourner sur <span class="k">labo</span></td><td>Conforme</td><td><a href="#fig-5">Fig. 5</a>, <a href="#fig-6">6</a></td></tr></tbody></table></div>
+<figure class="shot" id="fig-1"><a href="img/homelab-etape-2-01.webp"><img src="img/homelab-etape-2-01.webp" alt="Terminal : ufw status verbose affiche Status: active, entrée refusée par défaut, et une seule règle : 22/tcp autorisé depuis 192.168.1.0/24." width="1044" height="235" loading="lazy"></a><figcaption><b>Fig. 1</b> Pare-feu actif : seul le SSH depuis le réseau local est autorisé.</figcaption></figure>
+<figure class="shot" id="fig-2"><a href="img/homelab-etape-2-02.webp"><img src="img/homelab-etape-2-02.webp" alt="Terminal : unattended-upgrade --dry-run liste les origines autorisées, dont noble-security et les correctifs ESM, et se termine sans erreur." width="1327" height="192" loading="lazy"></a><figcaption><b>Fig. 2</b> Essai à blanc des mises à jour automatiques.</figcaption></figure>
+<figure class="shot" id="fig-3"><a href="img/homelab-etape-2-03.webp"><img src="img/homelab-etape-2-03.webp" alt="Terminal : sudo docker run hello-world télécharge l'image et affiche Hello from Docker!" width="916" height="685" loading="lazy"></a><figcaption><b>Fig. 3</b> Docker Engine fonctionne.</figcaption></figure>
+<figure class="shot" id="fig-4"><a href="img/homelab-etape-2-04.webp"><img src="img/homelab-etape-2-04.webp" alt="GitHub, réglages du dépôt privé homelab : une clé de déploiement « labo (tour) » en lecture/écriture (fin de l'empreinte floutée)." width="1255" height="1174" loading="lazy"></a><figcaption><b>Fig. 4</b> Clé de déploiement limitée au dépôt homelab (fin de l'empreinte floutée).</figcaption></figure>
+<figure class="shot" id="fig-5"><a href="img/homelab-etape-2-05.webp"><img src="img/homelab-etape-2-05.webp" alt="Terminal sur labo : Claude Code 2.1.310 lancé dans ~/homelab, avec la question « Sur quelle machine es-tu ? »." width="1294" height="582" loading="lazy"></a><figcaption><b>Fig. 5</b> Claude Code lancé sur le serveur.</figcaption></figure>
+<figure class="shot" id="fig-6"><a href="img/homelab-etape-2-06.webp"><img src="img/homelab-etape-2-06.webp" alt="Réponse de Claude Code : il tourne sur la tour labo, noyau 6.8.0-147-generic, et confirme que le dépôt privé est cloné dans ~/homelab." width="1297" height="321" loading="lazy"></a><figcaption><b>Fig. 6</b> Claude Code confirme qu'il tourne sur <span class="k">labo</span>.</figcaption></figure>
+</div>
+<div class="part" id="partie-5">
+<h2><span class="n">05</span>Problèmes rencontrés et solutions</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Problème</th><th scope="col">Cause</th><th scope="col">Solution</th></tr></thead><tbody><tr><td><span class="k">sudo: a terminal is required to read the password</span></td><td>Commande lancée depuis Claude Code sur le portable, qui n'ouvre pas de vrai terminal : <span class="k">sudo</span> ne peut pas demander le mot de passe</td><td>Les commandes <span class="k">sudo</span> se tapent dans un onglet de terminal à part, connecté en <span class="k">ssh labo</span></td></tr><tr><td>Risque de se bloquer dehors en activant le pare-feu</td><td>Le pare-feu bloque tout par défaut, y compris le SSH</td><td>Règle SSH ajoutée puis vérifiée (<span class="k">ufw show added</span>) avant <span class="k">ufw enable</span>, puis nouvelle connexion testée</td></tr><tr><td>Après l'installation, « <span class="k">~/.local/bin</span> n'est pas dans le PATH »</td><td>L'installation est faite dans une session non interactive ; le dossier n'est ajouté par <span class="k">~/.profile</span> qu'à la connexion</td><td>Rien à modifier : après reconnexion SSH, <span class="k">claude</span> est trouvé</td></tr></tbody></table></div>
+<p><strong>Points de vigilance pour la suite :</strong></p>
+<ul class="b"><li>les ports ouverts par Docker pour un conteneur <strong>passent par-dessus <span class="k">ufw</span></strong> : à l'étape 10, chaque port publié sera limité au strict nécessaire ;</li><li>les paquets Docker ne font pas partie des mises à jour automatiques : ils sont mis à jour avec <span class="k">apt upgrade</span>, à la main ;</li><li>deux machines travaillent sur le même dépôt : faire un <span class="k">git pull</span> avant de commencer, et travailler d'un seul côté à la fois.</li></ul>
+</div>
+<div class="part" id="partie-6">
+<h2><span class="n">06</span>Ce que j'en retiens</h2>
+<ul class="b"><li><strong>Ne jamais se couper l'accès</strong> : autoriser et vérifier le SSH avant d'activer le pare-feu.</li><li><strong>Moindre privilège</strong> : clé de déploiement limitée à un seul dépôt, utilisateur hors du groupe <span class="k">docker</span>.</li><li><strong>Vérifier avant de faire confiance</strong> : clé de signature du dépôt Docker, empreinte du serveur GitHub.</li><li><strong>Les secrets hors de Git dès le départ</strong> : le <span class="k">.gitignore</span> est écrit avant le premier commit, pas après une erreur.</li></ul>
+</div>
+<nav class="pager" aria-label="Autres étapes"><a href="homelab-etape-1.html"><span>Précédent</span>Étape 1 : installer un serveur Ubuntu sur un ancien PC</a><span></span></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js"></script>
+</body>
+</html>

@@ -32,6 +32,15 @@ Les fiches d'étape du homelab sont rédigées dans `~/homelab/portfolio/` (fich
 - Ne publier sur le site **que les fiches et les captures choisies**. Jamais les fichiers bruts : `.txt`, relevés (`docs/releves/`), sorties de commandes, fichiers de configuration.
 - Avant de publier une capture, la regarder et vérifier qu'elle ne montre **aucune adresse IP publique, aucun e-mail, aucune clé (privée, publique ou empreinte complète), aucun jeton, aucun nom de Wi-Fi (SSID)**, ni aucun nom de prospect. Si c'est le cas : la flouter ou la recadrer, ou ne pas la publier, et me le dire. Même vérification sur le texte de la fiche.
 - Une fiche publiée devient une page `projets/*.html` sur le modèle des autres (pas de Markdown en ligne), et les captures sont converties en WebP dans `projets/img/`.
+- Ne jamais publier une fiche qui porte encore la mention « BROUILLON » en haut.
+
+### Ajouter une étape du homelab (une fiche validée)
+
+1. Copier `projets/homelab-etape-2.html` en `projets/homelab-etape-N.html` et adapter : `<title>`, `description`, `canonical`, `og:*`, le kicker (« étape N sur 10 » et la date de validation), les `facts`, les tags, puis les 6 parties (objectif, schéma et technologies, configuration, tests réussis, problèmes rencontrés, ce que j'en retiens). Le schéma ASCII de la fiche va dans `<pre class="cmd schema" role="img" aria-label="…">`, avec une description du schéma dans `aria-label`.
+2. Captures : `projets/img/homelab-etape-N-NN.webp`, numérotées dans l'ordre du tableau des tests (`<figure class="shot" id="fig-N">`, et la colonne « Preuve » renvoie vers `#fig-N`). Conversion avec `ffmpeg` : WebP sans perte pour les captures de terminal, avec perte (`-quality 88`) quand c'est plus léger (captures floutées, photos) ; réduire les captures de téléphone à environ 1 000 px de haut. Flouter par pixellisation, puis regarder le résultat avant de publier.
+3. `projets/homelab.html`, tableau `#etapes` : l'étape passe à `<span class="etat ok">Validée</span> le JJ/MM/AAAA` avec le lien « Lire la fiche », la suivante à `<span class="etat cours">En cours</span>` ; mettre à jour la ligne « Avancement » de l'en-tête.
+4. Navigation `pager` : la fiche N-1 reçoit un lien « Suivant » vers la fiche N ; la fiche N a « Précédent » vers la fiche N-1 et un `<span></span>` à droite.
+5. La carte `#projet-homelab` de `index.html` ne change pas (elle ne donne pas l'avancement). Ajouter l'entrée dans `A-PUBLIER.md`.
 
 ## 4. À chaque nouveauté : une entrée dans `A-PUBLIER.md`
 

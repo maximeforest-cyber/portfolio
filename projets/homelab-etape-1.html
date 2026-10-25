@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Homelab, étape 1 : installer Ubuntu Server | Maxime Forest</title>
+<meta name="description" content="Homelab, étape 1 : un ancien PC de jeu transformé en serveur Ubuntu Server 24.04, sans écran, administré à distance en SSH par clé seulement.">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#efe9df">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/homelab-etape-1.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/homelab-etape-1.html">
+<meta property="og:title" content="Homelab, étape 1 : installer Ubuntu Server | Maxime Forest">
+<meta property="og:description" content="Homelab, étape 1 : un ancien PC de jeu transformé en serveur Ubuntu Server 24.04, sans écran, administré à distance en SSH par clé seulement.">
+<meta property="og:image" content="https://forestmaxime-pf.fr/favicon.png">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="homelab.html#etapes">← Homelab : toutes les étapes</a></p>
+    <p class="kicker">Projet personnel · <b>Homelab, étape 1 sur 10</b> · validée le 24/10/2026</p>
+    <h1>Installer un serveur Ubuntu sur un ancien PC</h1>
+    <p class="lead">Un ancien PC de jeu qui ne servait plus devient un serveur Linux sans écran, administré à distance en SSH, avec une connexion par clé seulement.</p>
+    <dl class="facts"><div><dt>Projet</dt><dd><a href="homelab.html">Homelab</a> au service de ma micro-entreprise Site de Poche</dd></div><div><dt>Période</dt><dd>Du 22 au 24 octobre 2026</dd></div><div><dt>Machine</dt><dd>Tour « labo » : Intel Core i5-7600K, 16 Go de mémoire, disque de 1 To</dd></div><div><dt>Points clés</dt><dd>Ubuntu Server 24.04 LTS, LVM, netplan, bail DHCP statique, SSH par clé ED25519</dd></div></dl>
+    <ul class="tags"><li>Ubuntu Server</li><li>SSH</li><li>netplan</li><li>DHCP</li><li>Diagnostic réseau</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Objectif</a></li><li><a href="#partie-2"><span>02</span>Schéma et technologies</a></li><li><a href="#partie-3"><span>03</span>Configuration</a></li><li><a href="#partie-4"><span>04</span>Tests réussis</a></li><li><a href="#partie-5"><span>05</span>Problèmes rencontrés</a></li><li><a href="#partie-6"><span>06</span>Ce que j'en retiens</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Objectif</h2>
+<p>Transformer un ancien PC de jeu qui ne servait plus en <strong>serveur Linux administré à distance</strong>, sans écran, pour héberger plus tard les outils du projet (audit DNS et HTTPS, base de données, IA locale).</p>
+<p>Contraintes :</p>
+<ul class="b"><li>budget de 0 € : logiciels libres et offres gratuites ;</li><li>le serveur n'est pas allumé en permanence, je l'allume quand j'en ai besoin ;</li><li>sécurité dès le départ : connexion SSH par clé seulement, rien d'ouvert sur internet.</li></ul>
+<p><strong>Pourquoi Ubuntu Server et pas Windows</strong> : Windows 11 n'accepte pas officiellement ce processeur (7<sup>e</sup> génération Intel), et Windows 10 ne reçoit plus de mises à jour de sécurité. Ubuntu Server 24.04 LTS est gratuit et maintenu jusqu'en 2029 (plus longtemps avec Ubuntu Pro, gratuit pour un usage personnel).</p>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>Schéma et technologies</h2>
+<pre class="cmd schema" role="img" aria-label="Schéma : la Freebox (192.168.1.254) distribue les adresses en DHCP avec un bail fixe. Le PC portable sous Windows 11 et WSL2 (192.168.1.58), qui possède deux clés ED25519, se connecte en SSH par Wi-Fi à la tour labo sous Ubuntu Server 24.04 (192.168.1.49, adresse fixe), qui n'accepte que les clés SSH."><code>                         Internet
+                            │
+                  ┌─────────┴─────────┐
+                  │    Freebox Pop    │  192.168.1.254
+                  │  DHCP + bail fixe │
+                  └───┬───────────┬───┘
+               Wi-Fi  │           │  Wi-Fi
+     ┌────────────────┴──┐     ┌──┴─────────────────────┐
+     │ PC portable       │     │ Tour « labo »          │
+     │ Windows 11 + WSL2 │ SSH │ Ubuntu Server 24.04    │
+     │ 192.168.1.58      ├────►│ 192.168.1.49 (fixe)    │
+     │ 2 clés ED25519    │     │ clé SSH seulement      │
+     └───────────────────┘     └────────────────────────┘</code></pre>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Rôle</th><th scope="col">Technologie</th></tr></thead><tbody><tr><td>Système du serveur</td><td>Ubuntu Server 24.04.5 LTS, noyau 6.8</td></tr><tr><td>Disque</td><td>LVM : 100 Go pour <span class="k">/</span>, 828 Go gardés en réserve</td></tr><tr><td>Réseau</td><td>netplan et systemd-networkd, DHCP avec bail statique sur la Freebox</td></tr><tr><td>Wi-Fi</td><td>Pilote Broadcom <span class="k">wl</span> (paquet <span class="k">broadcom-sta-dkms</span>) et wpa_supplicant</td></tr><tr><td>Accès à distance</td><td>OpenSSH 9.6, clés ED25519 protégées par phrase de passe</td></tr><tr><td>Poste d'administration</td><td>PowerShell (client OpenSSH de Windows) et WSL2 Ubuntu</td></tr></tbody></table></div>
+<p>Le matériel :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Élément</th><th scope="col">Détail</th></tr></thead><tbody><tr><td>Carte mère</td><td>ASRock Z270 Pro4</td></tr><tr><td>Processeur</td><td>Intel Core i5-7600K, 4 cœurs, 3,8 GHz (4,4 GHz en pointe)</td></tr><tr><td>Mémoire</td><td>16 Go DDR4 2 667 MT/s (4 × 4 Go)</td></tr><tr><td>Carte graphique</td><td>NVIDIA GTX 1060 6 Go (servira à l'IA locale)</td></tr><tr><td>Disque</td><td>Seagate 1 To, disque dur à plateaux</td></tr><tr><td>Réseau</td><td>Intel I219-V (1 Gbit/s, compatible Wake-on-LAN), Broadcom BCM4360 (Wi-Fi)</td></tr></tbody></table></div>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>Configuration</h2>
+<h3>Installation</h3>
+<ul class="b"><li>Clé USB créée avec Rufus à partir de l'ISO officielle, <strong>empreinte SHA256 vérifiée</strong> avant l'écriture.</li><li>BIOS : virtualisation (VT-x) activée pour plus tard, Fast Boot désactivé.</li><li>Installation sur le disque entier avec LVM, serveur OpenSSH coché.</li><li><strong>Empreinte de la clé SSH du serveur photographiée</strong> à la fin de l'installation, pour la comparer à la première connexion.</li></ul>
+<h3>Réseau</h3>
+<p><span class="k">/etc/netplan/60-ethernet.yaml</span> (prise réseau, prête pour le jour où la tour aura un câble) :</p>
+<pre class="cmd"><code>network:
+  version: 2
+  ethernets:
+    enp0s31f6:
+      dhcp4: true
+      optional: true   # sans câble, le démarrage n'attend pas cette carte</code></pre>
+<p><span class="k">/etc/netplan/61-wifi.yaml</span> (droits <span class="k">600</span> : seul root peut le lire, car il contient la clé du Wi-Fi) :</p>
+<pre class="cmd"><code>network:
+  version: 2
+  wifis:
+    wlp3s0:
+      dhcp4: true
+      access-points:
+        "&lt;nom du réseau&gt;":
+          password: "&lt;masqué&gt;"</code></pre>
+<p>Sur la Freebox : un <strong>bail DHCP statique</strong> associe l'adresse MAC de la carte Wi-Fi à <span class="k">192.168.1.49</span>. Le serveur garde la même adresse, et c'est toujours la box qui distribue les adresses (un seul endroit à gérer).</p>
+<h3>SSH par clé seulement</h3>
+<ol class="b"><li>Création d'une clé ED25519 avec phrase de passe sur le poste d'administration (<span class="k">ssh-keygen -t ed25519</span>), une pour Windows et une pour WSL.</li><li>Ajout des clés publiques dans <span class="k">~/.ssh/authorized_keys</span> sur le serveur.</li><li>Une fois la connexion par clé testée, <strong>et seulement après</strong>, désactivation des mots de passe dans <span class="k">/etc/ssh/sshd_config.d/01-cle-seulement.conf</span> :</li></ol>
+<pre class="cmd"><code>PasswordAuthentication no
+KbdInteractiveAuthentication no
+PermitRootLogin no</code></pre>
+<p>Le fichier commence par <span class="k">01-</span> parce que SSH garde la <strong>première</strong> valeur lue : ce réglage passe avant un autre fichier qui dirait le contraire. Pendant la modification, j'ai gardé une session SSH ouverte en secours.</p>
+<p>Enfin, un raccourci dans <span class="k">~/.ssh/config</span> (WSL) permet de taper simplement <span class="k">ssh labo</span>.</p>
+<h3>Mises à jour</h3>
+<pre class="cmd"><code>sudo apt update &amp;&amp; sudo apt full-upgrade
+sudo timedatectl set-timezone Europe/Paris
+sudo reboot</code></pre>
+<p>107 paquets mis à jour, dont 80 correctifs de sécurité et un nouveau noyau.</p>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>Tests réussis</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Test</th><th scope="col">Résultat attendu</th><th scope="col">Résultat obtenu</th><th scope="col">Preuve</th></tr></thead><tbody><tr><td>Première connexion SSH</td><td>Empreinte identique à la photo de l'installation</td><td>Conforme : <span class="k">SHA256:vVYuE7…</span></td><td>—</td></tr><tr><td>Connexion par mot de passe</td><td>Refusée</td><td>Conforme : <span class="k">Permission denied (publickey)</span></td><td><a href="#fig-1">Fig. 1</a></td></tr><tr><td>Connexion par clé</td><td>Demande la phrase de passe de la clé</td><td>Conforme</td><td><a href="#fig-1">Fig. 1</a></td></tr><tr><td>Réglages SSH appliqués</td><td><span class="k">passwordauthentication no</span>, <span class="k">permitrootlogin no</span></td><td>Conforme</td><td><a href="#fig-2">Fig. 2</a></td></tr><tr><td>Mises à jour</td><td>Nouveau noyau chargé, plus rien d'important à mettre à jour</td><td>Conforme : <span class="k">6.8.0-147-generic</span></td><td><a href="#fig-3">Fig. 3</a></td></tr><tr><td>Carte Wi-Fi reconnue</td><td>Pilote <span class="k">wl</span> chargé, carte <span class="k">wlp3s0</span> présente</td><td>Conforme</td><td><a href="#fig-4">Fig. 4</a></td></tr><tr><td>Adresse fixe</td><td>Bail statique visible dans la Freebox</td><td>Conforme : <span class="k">192.168.1.49</span></td><td><a href="#fig-5">Fig. 5</a></td></tr><tr><td>Adresse fixe après redémarrage, sans câble ni écran</td><td>Le serveur répond sur la même adresse</td><td>Conforme</td><td><a href="#fig-6">Fig. 6</a></td></tr><tr><td>Connexion depuis WSL</td><td><span class="k">ssh labo</span> fonctionne, 2 clés autorisées</td><td>Conforme</td><td><a href="#fig-7">Fig. 7</a>, <a href="#fig-8">8</a></td></tr></tbody></table></div>
+<figure class="shot" id="fig-1"><a href="img/homelab-etape-1-01.webp"><img src="img/homelab-etape-1-01.webp" alt="PowerShell : la connexion SSH par mot de passe est refusée (Permission denied (publickey)), puis la connexion par clé demande la phrase de passe et ouvre une session sur Ubuntu 24.04.5 LTS." width="1341" height="660" loading="lazy"></a><figcaption><b>Fig. 1</b> Mot de passe refusé, connexion par clé acceptée.</figcaption></figure>
+<figure class="shot" id="fig-2"><a href="img/homelab-etape-1-02.webp"><img src="img/homelab-etape-1-02.webp" alt="Terminal : sshd -T affiche permitrootlogin no, passwordauthentication no et kbdinteractiveauthentication no." width="1218" height="123" loading="lazy"></a><figcaption><b>Fig. 2</b> Réglages SSH réellement appliqués par le serveur.</figcaption></figure>
+<figure class="shot" id="fig-3"><a href="img/homelab-etape-1-03.webp"><img src="img/homelab-etape-1-03.webp" alt="Terminal : uname -r affiche le noyau 6.8.0-147-generic ; il ne reste que cloud-init et tmux à mettre à jour." width="1195" height="166" loading="lazy"></a><figcaption><b>Fig. 3</b> Nouveau noyau chargé après les mises à jour.</figcaption></figure>
+<figure class="shot" id="fig-4"><a href="img/homelab-etape-1-04.webp"><img src="img/homelab-etape-1-04.webp" alt="Terminal : le module wl est chargé et la carte wlp3s0 apparaît dans ip -br link (adresses MAC floutées)." width="931" height="187" loading="lazy"></a><figcaption><b>Fig. 4</b> Pilote Wi-Fi Broadcom chargé (adresses MAC floutées).</figcaption></figure>
+<figure class="shot" id="fig-5"><a href="img/homelab-etape-1-05.webp"><img src="img/homelab-etape-1-05.webp" alt="Interface de la Freebox, baux statiques : labo (Wi-Fi) associé à 192.168.1.49 (adresse MAC floutée)." width="963" height="270" loading="lazy"></a><figcaption><b>Fig. 5</b> Bail statique dans la Freebox (adresse MAC floutée).</figcaption></figure>
+<figure class="shot" id="fig-6"><a href="img/homelab-etape-1-06.webp"><img src="img/homelab-etape-1-06.webp" alt="Terminal : ping vers 192.168.1.49, 3 paquets envoyés, 3 reçus, 0 % de perte." width="714" height="220" loading="lazy"></a><figcaption><b>Fig. 6</b> Le serveur répond sur la même adresse après redémarrage.</figcaption></figure>
+<figure class="shot" id="fig-7"><a href="img/homelab-etape-1-07.webp"><img src="img/homelab-etape-1-07.webp" alt="Terminal WSL : ssh labo demande la phrase de passe de la clé puis ouvre une session sur Ubuntu 24.04.5 LTS, noyau 6.8.0-147." width="949" height="597" loading="lazy"></a><figcaption><b>Fig. 7</b> Connexion avec le raccourci <span class="k">ssh labo</span> depuis WSL.</figcaption></figure>
+<figure class="shot" id="fig-8"><a href="img/homelab-etape-1-08.webp"><img src="img/homelab-etape-1-08.webp" alt="Terminal : le fichier authorized_keys contient deux clés ssh-ed25519, portable-maxime et wsl-portable-maxime (clés floutées)." width="1113" height="78" loading="lazy"></a><figcaption><b>Fig. 8</b> Deux clés autorisées sur le serveur (clés floutées).</figcaption></figure>
+</div>
+<div class="part" id="partie-5">
+<h2><span class="n">05</span>Problèmes rencontrés et solutions</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Problème</th><th scope="col">Cause</th><th scope="col">Solution</th></tr></thead><tbody><tr><td>Pas de câble possible entre la tour (à l'étage) et la box (en bas)</td><td>Configuration de la maison</td><td>Installation sans réseau, puis réseau provisoire (voir les lignes suivantes)</td></tr><tr><td>Carte Wi-Fi non reconnue à l'installation</td><td>La Broadcom BCM4360 n'a <strong>pas de pilote libre</strong></td><td>Installée plus tard, une fois internet disponible, avec le pilote propriétaire <span class="k">broadcom-sta-dkms</span> (gratuit mais fermé)</td></tr><tr><td>Partage de connexion de l'iPhone par USB : rien ne se passe</td><td>Le câble ne faisait que charger : rien dans <span class="k">lsusb</span>, et rien non plus sur un autre ordinateur</td><td>Diagnostic par élimination, puis autre solution : partage de connexion du PC portable par câble Ethernet (connexion partagée de Windows, réseau <span class="k">192.168.137.0/24</span>)</td></tr><tr><td>La tour ne reçoit pas d'adresse du portable</td><td>Aucun fichier netplan (installation sans réseau), et partage Windows actif sur la mauvaise carte (<span class="k">169.254.x.x</span> = aucune adresse reçue)</td><td>Création du fichier netplan, partage réactivé sur la bonne carte, vérifié avec <span class="k">ipconfig</span></td></tr><tr><td>Tour joignable depuis Windows mais pas depuis WSL</td><td>Le partage de connexion de Windows et le réseau NAT de WSL2 se gênent</td><td>Connexion par PowerShell en attendant ; problème disparu une fois la tour sur le réseau de la box</td></tr><tr><td>Wi-Fi refusé : <span class="k">4-Way Handshake failed</span>, <span class="k">reason=WRONG_KEY</span></td><td>Faute de frappe dans la clé Wi-Fi</td><td>Lecture du journal (<span class="k">journalctl -u netplan-wpa-wlp3s0</span>) : le réseau était bien trouvé, donc la clé était en cause ; corrigée</td></tr><tr><td>L'adresse du serveur change à chaque redémarrage</td><td>Adresse donnée par DHCP sans réservation</td><td>Bail statique dans la Freebox</td></tr><tr><td>Risque d'attente au démarrage sans câble</td><td>Une carte réglée en DHCP mais débranchée fait attendre le démarrage</td><td><span class="k">optional: true</span> dans netplan</td></tr></tbody></table></div>
+<p class="note"><strong>Limite connue</strong> : le Wake-on-LAN (étape 3) ne fonctionne pas en Wi-Fi. Le serveur devra être relié par câble (boîtier Wi-Fi maillé ou CPL), et le bail statique sera alors refait pour la carte filaire.</p>
+</div>
+<div class="part" id="partie-6">
+<h2><span class="n">06</span>Ce que j'en retiens</h2>
+<ul class="b"><li><strong>Vérifier l'identité avant de faire confiance</strong> : empreinte SHA256 de l'ISO, empreinte SSH du serveur comparée à une photo prise à l'installation.</li><li><strong>Ne jamais se couper l'accès</strong> : tester la connexion par clé avant de supprimer les mots de passe, et garder une session ouverte en secours.</li><li><strong>Diagnostiquer par élimination</strong> : câble testé sur un autre appareil, adresse <span class="k">169.254.x.x</span> comprise comme « personne n'a répondu », lecture des journaux pour distinguer « réseau introuvable » et « clé refusée ».</li><li><strong>Protéger les secrets</strong> : fichier Wi-Fi lisible par root seulement, aucune clé ni aucun mot de passe dans le dépôt Git.</li></ul>
+</div>
+<nav class="pager" aria-label="Autres étapes"><a href="homelab.html"><span>Précédent</span>Homelab : présentation et étapes</a><a class="next" href="homelab-etape-2.html"><span>Suivant</span>Étape 2 : le socle logiciel du serveur</a></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js"></script>
+</body>
+</html>

@@ -216,7 +216,7 @@
 <section id="projets">
   <div class="wrap">
     <div class="folio"><span class="n" aria-hidden="true">03</span><div><p class="host">srv-projets · 10.0.20.11</p><h2>Projets et stages</h2></div></div>
-    <p class="sub">Mon stage en entreprise, les travaux pratiques et ateliers professionnels menés pendant le BTS, et un projet personnel. Chaque fiche résume le contexte et ce qui a été fait.</p>
+    <p class="sub">Mon stage en entreprise, les travaux pratiques et ateliers professionnels menés pendant le BTS, et mes projets personnels. Chaque fiche résume le contexte et ce qui a été fait.</p>
 
     <div class="year"><h3>Stage en entreprise</h3><span>Juin – juillet 2025</span></div>
     <div class="grid">
@@ -459,8 +459,32 @@
 
     </div>
 
-    <div class="year"><h3>Projet personnel</h3><span>2026</span></div>
+    <div class="year"><h3>Projets personnels</h3><span>2026</span></div>
     <div class="grid">
+
+      <article class="card project wide" id="projet-homelab">
+        <p class="meta">Projet personnel · depuis octobre 2026 · en cours</p>
+        <h3>Homelab : un ancien PC devenu serveur</h3>
+        <p>Un ancien PC de jeu transformé en serveur Ubuntu, administré à distance, pour construire un outil d'audit et de surveillance des sites des clients de ma micro-entreprise Site de Poche. Publié étape par étape.</p>
+        <details>
+          <summary>Voir la fiche</summary>
+          <div class="fiche">
+            <h4>Contexte</h4>
+            <p>Projet mené de mon côté, en parallèle de ma 2<sup>e</sup> année de BTS ; il n'est pas demandé par mon établissement. Budget de 0 € : logiciels libres et offres gratuites, sauf un kit CPL pour relier le serveur à la box par câble.</p>
+            <h4>Le but final</h4>
+            <ul>
+              <li>Audit des sites de mes clients : DNS, courrier (SPF, DKIM, DMARC), HTTPS, en-têtes de sécurité</li>
+              <li>Surveillance par un Worker Cloudflare, avec alerte sur mon téléphone</li>
+              <li>Rapports en HTML et en PDF, reformulés en français simple par une IA locale (Ollama)</li>
+              <li>Accès depuis l'extérieur par le VPN de la Freebox seulement, réveil et extinction à distance</li>
+            </ul>
+            <h4>Avancement</h4>
+            <p>10 étapes, chacune validée par des tests et décrite dans une fiche. La page du projet donne l'état de chaque étape.</p>
+          </div>
+        </details>
+        <a class="doc" href="projets/homelab.html">Voir le projet et ses étapes</a>
+        <ul class="tags"><li>Ubuntu Server</li><li>SSH</li><li>Pare-feu</li><li>Docker</li><li>VPN WireGuard</li><li>Python</li></ul>
+      </article>
 
       <article class="card project wide" id="projet-portfolio">
         <p class="meta">Projet personnel · octobre 2026</p>

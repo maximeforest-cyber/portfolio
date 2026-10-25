@@ -280,6 +280,16 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 6px 22px; justify-content: s
 .pager a span { display: block; font-size: 13px; font-weight: 600; color: var(--cable-text); margin-bottom: 4px; }
 .pager a:hover span { color: var(--paper); }
 .pager .next { text-align: right; }
+.report h3 { margin-top: 28px; font-size: 18.5px; line-height: 1.25; }
+ol.b { list-style: decimal; padding-left: 24px; }
+ol.b li { padding-left: 4px; }
+ol.b li::before { display: none; }
+.cmd.schema { font-size: 13px; line-height: 1.3; }
+/* Homelab : état des étapes */
+.etat { display: inline-block; padding: 1px 8px; font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+.etat.ok { background: var(--ink); color: var(--paper); }
+.etat.cours { background: var(--cable); color: #fff; }
+.etat.avenir { border: 1.5px solid var(--ink); padding: 0 7px; }
 
 /* ---------- Petits écrans ---------- */
 @media (max-width: 1080px) {

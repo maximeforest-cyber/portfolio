@@ -32,17 +32,19 @@ La fiche complète, avec les tests et les problèmes rencontrés : https://fores
 
 Je lance un projet personnel, en parallèle de ma 2e année de BTS SIO option SISR : un homelab.
 
-Le point de départ : un ancien PC de jeu qui ne servait plus. Je l'ai transformé en serveur Ubuntu Server 24.04, sans écran, que j'administre à distance en SSH.
+Le point de départ : un ancien PC de jeu qui ne servait plus. Je l'ai transformé en serveur Ubuntu Server 24.04. Un écran pour l'installation, puis plus aucun : je l'administre à distance en SSH.
 
-Le but : construire un outil d'audit et de surveillance des sites des clients de ma micro-entreprise Site de Poche (DNS, courrier, HTTPS, en-têtes de sécurité), avec des rapports et une IA locale qui les explique en français simple. Budget : 0 €, ou presque.
+Le but : un outil d'audit et de surveillance des sites des clients de ma micro-entreprise Site de Poche (DNS, courrier, HTTPS, en-têtes de sécurité), avec des rapports qu'une IA locale explique en français simple. Budget : 0 €, avec des logiciels libres et des offres gratuites.
 
 Le projet compte 10 étapes. La première est validée :
 - Ubuntu Server installé sur le disque entier, avec LVM ;
 - une adresse fixe grâce à un bail DHCP statique sur la box ;
-- la connexion SSH par clé seulement : les mots de passe sont désactivés, après avoir testé la clé ;
-- les mises à jour, dont 80 correctifs de sécurité.
+- la connexion SSH par clé seulement : j'ai testé la clé avant de désactiver les mots de passe ;
+- les mises à jour.
 
-Le plus formateur : au départ, la tour n'avait ni câble réseau ni pilote Wi-Fi libre. J'ai dû chercher par élimination (câble, adresse en 169.254, journaux) avant d'avoir du réseau.
+Le plus formateur : au départ, la tour n'avait ni câble réseau ni pilote libre pour sa carte Wi-Fi. J'ai trouvé les pannes par élimination (câble testé sur un autre appareil, adresse en 169.254 qui veut dire « personne n'a répondu », lecture des journaux) avant d'avoir du réseau.
+
+Un assistant IA (Claude Code) me guide pas à pas, mais je fais les manipulations moi-même et je vérifie chaque résultat.
 
 Je publie chaque étape sur mon portfolio, avec les tests et les problèmes rencontrés : https://forestmaxime-pf.fr/projets/homelab.html
 

@@ -23,7 +23,7 @@ Mon parcours : https://forestmaxime-pf.fr/#parcours
 
 ## 2026-10-26 : Certification Zero Trust Security Essentials (Cato Networks)
 
-- Statut : à relire
+- Statut : programmé le 2026-10-27 à 9 h 30
 - Lien : https://forestmaxime-pf.fr/#certifications
 - Image proposée : badge-cato-zero-trust.png
 

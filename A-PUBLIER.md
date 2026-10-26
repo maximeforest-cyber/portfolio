@@ -2,6 +2,25 @@
 
 Une entrée par nouveauté du site, la plus récente en haut. Les posts sont publiés avec Claude Desktop, après relecture. Format : voir `CLAUDE.md`, partie 4.
 
+## 2026-10-26 : Mise en pratique du Zero Trust pour un client de Site de Poche
+
+- Statut : à relire
+- Lien : https://forestmaxime-pf.fr/#parcours
+- Image proposée : aucune
+
+Après la formation Zero Trust Security Essentials de Cato Networks, je l'ai mise en pratique pour un client de ma micro-entreprise Site de Poche.
+
+L'espace de gestion de son site est maintenant protégé par Cloudflare Access :
+- chaque connexion est vérifiée par un code à usage unique envoyé par e-mail ;
+- seules les adresses autorisées peuvent entrer ;
+- pas de VPN ni de réseau « de confiance » : sans cette vérification, l'espace de gestion n'est pas accessible.
+
+C'est le principe du Zero Trust : ne faire confiance à aucun accès par défaut, et vérifier chaque connexion.
+
+Mon parcours : https://forestmaxime-pf.fr/#parcours
+
+#zerotrust #cybersécurité #cloudflare #btssio
+
 ## 2026-10-26 : Certification Zero Trust Security Essentials (Cato Networks)
 
 - Statut : à relire

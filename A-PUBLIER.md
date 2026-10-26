@@ -29,9 +29,9 @@ Mon parcours : https://forestmaxime-pf.fr/#parcours
 
 Nouvelle certification : Zero Trust Security Essentials, de Cato Networks.
 
-Le principe du Zero Trust : ne faire confiance à aucun accès par défaut, même à l'intérieur du réseau de l'entreprise, et vérifier chaque connexion.
+Le principe du Zero Trust : ne faire confiance à aucun accès par défaut et vérifier chaque connexion.
 
-Elle rejoint mes autres certifications (Cisco et CNIL) dans la rubrique Certifications de mon portfolio : https://forestmaxime-pf.fr/#certifications
+Elle rejoint mes certifications Cisco et ma formation RGPD de la CNIL, dans la rubrique Certifications de mon portfolio : https://forestmaxime-pf.fr/#certifications
 
 #zerotrust #cybersécurité #btssio
 

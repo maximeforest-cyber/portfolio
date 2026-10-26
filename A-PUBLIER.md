@@ -10,7 +10,7 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 
 En suivant la formation Zero Trust Security Essentials de Cato Networks, je me suis rendu compte que j'appliquais déjà ce principe sans le savoir, pour un client de ma micro-entreprise Site de Poche.
 
-Quelques jours plus tôt, j'avais protégé l'espace de gestion de son site avec Cloudflare Access :
+Avant la formation, j'avais protégé l'espace de gestion de son site avec Cloudflare Access :
 - chaque connexion est vérifiée par un code à usage unique envoyé par e-mail ;
 - seules les adresses autorisées peuvent entrer ;
 - pas de VPN ni de réseau « de confiance » : sans cette vérification, l'espace de gestion n'est pas accessible.

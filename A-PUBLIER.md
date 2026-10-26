@@ -2,6 +2,20 @@
 
 Une entrée par nouveauté du site, la plus récente en haut. Les posts sont publiés avec Claude Desktop, après relecture. Format : voir `CLAUDE.md`, partie 4.
 
+## 2026-10-26 : Certification Zero Trust Security Essentials (Cato Networks)
+
+- Statut : à relire
+- Lien : https://forestmaxime-pf.fr/#certifications
+- Image proposée : badge-cato-zero-trust.png
+
+Nouvelle certification : Zero Trust Security Essentials, de Cato Networks.
+
+Le principe du Zero Trust : ne faire confiance à aucun accès par défaut, même à l'intérieur du réseau de l'entreprise, et vérifier chaque connexion.
+
+Elle rejoint mes autres certifications (Cisco et CNIL) dans la rubrique Certifications de mon portfolio : https://forestmaxime-pf.fr/#certifications
+
+#zerotrust #cybersécurité #btssio
+
 ## 2026-10-25 : Homelab, étape 2 : le socle logiciel du serveur
 
 - Statut : à relire

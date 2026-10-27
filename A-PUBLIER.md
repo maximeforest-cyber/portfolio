@@ -7,15 +7,14 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | Date | Post |
 |---|---|
 | mer. 28/10 | Homelab, étape 2 : le socle logiciel |
-| ven. 30/10 | Certification Zero Trust Security Essentials (Cato Networks) |
-| mar. 03/11 | Le Zero Trust, que j'appliquais déjà pour un client |
-| jeu. 05/11 | Homelab, étape 3 : l'accès à distance |
-| mar. 10/11 | Homelab, étape 4 : l'audit DNS et courrier |
-| jeu. 12/11 | Homelab, étape 5 : l'audit web |
+| ven. 30/10 | Le Zero Trust, que j'appliquais déjà pour un client |
+| mar. 03/11 | Homelab, étape 3 : l'accès à distance |
+| jeu. 05/11 | Homelab, étape 4 : l'audit DNS et courrier |
+| mar. 10/11 | Homelab, étape 5 : l'audit web |
 
 ## 2026-10-27 : Homelab, étape 5 : l'audit web d'un site
 
-- Statut : à relire, à programmer le 2026-11-12 à 9 h
+- Statut : à relire, à programmer le 2026-11-10 à 9 h
 - Lien : https://forestmaxime-pf.fr/projets/homelab-etape-5.html
 - Image proposée : projets/img/homelab-etape-5-03.webp
 
@@ -41,7 +40,7 @@ La fiche complète : https://forestmaxime-pf.fr/projets/homelab-etape-5.html
 
 ## 2026-10-27 : Homelab, étape 4 : l'audit DNS et courrier d'un nom de domaine
 
-- Statut : à relire, à programmer le 2026-11-10 à 9 h
+- Statut : à relire, à programmer le 2026-11-05 à 9 h
 - Lien : https://forestmaxime-pf.fr/projets/homelab-etape-4.html
 - Image proposée : projets/img/homelab-etape-4-01.webp
 
@@ -64,7 +63,7 @@ La fiche complète : https://forestmaxime-pf.fr/projets/homelab-etape-4.html
 
 ## 2026-10-27 : Homelab, étape 3 : l'accès à distance au serveur
 
-- Statut : à relire, à programmer le 2026-11-05 à 9 h
+- Statut : à relire, à programmer le 2026-11-03 à 9 h
 - Lien : https://forestmaxime-pf.fr/projets/homelab-etape-3.html
 - Image proposée : projets/img/homelab-etape-3-21.webp
 
@@ -90,7 +89,7 @@ La fiche complète : https://forestmaxime-pf.fr/projets/homelab-etape-3.html
 
 ## 2026-10-26 : Le Zero Trust, que j'appliquais déjà pour un client de Site de Poche
 
-- Statut : à relire, à programmer le 2026-11-03 à 9 h
+- Statut : à relire, à programmer le 2026-10-30 à 9 h
 - Lien : https://forestmaxime-pf.fr/#parcours
 - Image proposée : aucune
 
@@ -109,7 +108,7 @@ Mon parcours : https://forestmaxime-pf.fr/#parcours
 
 ## 2026-10-26 : Certification Zero Trust Security Essentials (Cato Networks)
 
-- Statut : à programmer le 2026-10-30 à 9 h (prévu le 27/10, mais pas encore en ligne)
+- Statut : publié
 - Lien : https://forestmaxime-pf.fr/#certifications
 - Image proposée : badge-cato-zero-trust.png
 

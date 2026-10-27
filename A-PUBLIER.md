@@ -2,12 +2,12 @@
 
 Une entrée par nouveauté du site, la plus récente en haut. Les posts sont publiés avec Claude Desktop, après relecture. Format : voir `CLAUDE.md`, partie 4.
 
-**Calendrier proposé** (2 posts par semaine, à 9 h, du mardi au vendredi) :
+**Calendrier proposé** (2 posts par semaine ; essai à 12 h 30, puisque le post Cato de 9 h n'a fait que 4 impressions) :
 
 | Date | Post |
 |---|---|
-| mer. 28/10 | Homelab, étape 2 : le socle logiciel |
-| ven. 30/10 | Le Zero Trust, que j'appliquais déjà pour un client |
+| mer. 28/10, 12 h 30 | Homelab, étape 2 : le socle logiciel |
+| ven. 30/10, 12 h 30 | Le Zero Trust, que j'appliquais déjà pour un client |
 | mar. 03/11 | Homelab, étape 3 : l'accès à distance |
 | jeu. 05/11 | Homelab, étape 4 : l'audit DNS et courrier |
 | mar. 10/11 | Homelab, étape 5 : l'audit web |
@@ -89,16 +89,16 @@ La fiche complète : https://forestmaxime-pf.fr/projets/homelab-etape-3.html
 
 ## 2026-10-26 : Le Zero Trust, que j'appliquais déjà pour un client de Site de Poche
 
-- Statut : à relire, à programmer le 2026-10-30 à 9 h
+- Statut : à programmer le 2026-10-30 à 12 h 30
 - Lien : https://forestmaxime-pf.fr/#parcours
 - Image proposée : aucune
 
 En suivant la formation Zero Trust Security Essentials de Cato Networks, je me suis rendu compte que j'appliquais déjà ce principe sans le savoir, pour un client de ma micro-entreprise Site de Poche.
 
 Avant la formation, j'avais protégé l'espace de gestion de son site avec Cloudflare Access :
-- chaque connexion est vérifiée par un code à usage unique envoyé par e-mail ;
-- seules les adresses autorisées peuvent entrer ;
-- pas de VPN ni de réseau « de confiance » : sans cette vérification, l'espace de gestion n'est pas accessible.
+• chaque connexion est vérifiée par un code à usage unique envoyé par e-mail ;
+• seules les adresses autorisées peuvent entrer ;
+• pas de VPN ni de réseau « de confiance » : sans cette vérification, l'espace de gestion n'est pas accessible.
 
 Je l'avais fait par bon sens. La formation m'a appris que ça porte un nom : le Zero Trust, ne faire confiance à aucun accès par défaut et vérifier chaque connexion.
 
@@ -122,21 +122,21 @@ Elle rejoint mes certifications Cisco et ma formation RGPD de la CNIL, dans la r
 
 ## 2026-10-25 : Homelab, étape 2 : le socle logiciel du serveur
 
-- Statut : à relire, à programmer le 2026-10-28 à 9 h
+- Statut : à programmer le 2026-10-28 à 12 h 30
 - Lien : https://forestmaxime-pf.fr/projets/homelab-etape-2.html
 - Image proposée : projets/img/homelab-etape-2-01.webp
 
 L'étape 2 de mon homelab est validée : le socle logiciel du serveur.
 
 Au programme :
-- un pare-feu (ufw) qui bloque tout en entrée, sauf le SSH depuis mon réseau local ;
-- les mises à jour de sécurité automatiques, vérifiées par un essai à blanc ;
-- Docker Engine, installé depuis le dépôt officiel de Docker ;
-- le projet dans un dépôt Git privé, avec une clé de déploiement pour le serveur : elle ne donne accès qu'à ce dépôt, pas à tout mon compte GitHub.
+• un pare-feu (ufw) qui bloque tout en entrée, sauf le SSH depuis mon réseau local ;
+• les mises à jour de sécurité automatiques, vérifiées par un essai à blanc ;
+• Docker Engine, installé depuis le dépôt officiel de Docker ;
+• le projet dans un dépôt Git privé, avec une clé de déploiement pour le serveur : elle ne donne accès qu'à ce dépôt, pas à tout mon compte GitHub.
 
 Deux réflexes que je retiens : autoriser et vérifier le SSH avant d'activer le pare-feu, pour ne pas me couper l'accès à un serveur sans écran ; et écrire le .gitignore avant le premier commit, pour qu'aucun secret ne parte dans Git.
 
-Prochaine étape : l'accès à distance au serveur.
+Prochaine étape publiée : l'accès à distance au serveur.
 
 La fiche complète, avec les tests et les problèmes rencontrés : https://forestmaxime-pf.fr/projets/homelab-etape-2.html
 

@@ -2,19 +2,19 @@
 
 Une entrée par nouveauté du site, la plus récente en haut. Les posts sont publiés avec Claude Desktop, après relecture. Format : voir `CLAUDE.md`, partie 4.
 
-**Calendrier proposé** (2 posts par semaine ; essai à 12 h 30, puisque le post Cato de 9 h n'a fait que 4 impressions) :
+**Calendrier proposé** (2 posts par semaine, le soir vers 18 h 30 : le lancement du homelab, posté vers 22-23 h, a fait 80 à 90 impressions, le post Cato de 9 h seulement 4) :
 
 | Date | Post |
 |---|---|
-| mer. 28/10, 12 h 30 | Homelab, étape 2 : le socle logiciel |
-| ven. 30/10, 12 h 30 | Le Zero Trust, que j'appliquais déjà pour un client |
+| mer. 28/10, 18 h 30 | Homelab, étape 2 : le socle logiciel |
+| ven. 30/10, 18 h 30 | Le Zero Trust, que j'appliquais déjà pour un client |
 | mar. 03/11 | Homelab, étape 3 : l'accès à distance |
 | jeu. 05/11 | Homelab, étape 4 : l'audit DNS et courrier |
 | mar. 10/11 | Homelab, étape 5 : l'audit web |
 
 ## 2026-10-27 : Homelab, étape 5 : l'audit web d'un site
 
-- Statut : à relire, à programmer le 2026-11-10 à 9 h
+- Statut : à relire, à programmer le 2026-11-10 à 18 h 30
 - Lien : https://forestmaxime-pf.fr/projets/homelab-etape-5.html
 - Image proposée : projets/img/homelab-etape-5-03.webp
 
@@ -40,7 +40,7 @@ La fiche complète : https://forestmaxime-pf.fr/projets/homelab-etape-5.html
 
 ## 2026-10-27 : Homelab, étape 4 : l'audit DNS et courrier d'un nom de domaine
 
-- Statut : à relire, à programmer le 2026-11-05 à 9 h
+- Statut : à relire, à programmer le 2026-11-05 à 18 h 30
 - Lien : https://forestmaxime-pf.fr/projets/homelab-etape-4.html
 - Image proposée : projets/img/homelab-etape-4-01.webp
 
@@ -63,7 +63,7 @@ La fiche complète : https://forestmaxime-pf.fr/projets/homelab-etape-4.html
 
 ## 2026-10-27 : Homelab, étape 3 : l'accès à distance au serveur
 
-- Statut : à relire, à programmer le 2026-11-03 à 9 h
+- Statut : à relire, à programmer le 2026-11-03 à 18 h 30
 - Lien : https://forestmaxime-pf.fr/projets/homelab-etape-3.html
 - Image proposée : projets/img/homelab-etape-3-21.webp
 
@@ -89,7 +89,7 @@ La fiche complète : https://forestmaxime-pf.fr/projets/homelab-etape-3.html
 
 ## 2026-10-26 : Le Zero Trust, que j'appliquais déjà pour un client de Site de Poche
 
-- Statut : à programmer le 2026-10-30 à 12 h 30
+- Statut : à programmer le 2026-10-30 à 18 h 30
 - Lien : https://forestmaxime-pf.fr/#parcours
 - Image proposée : aucune
 
@@ -122,7 +122,7 @@ Elle rejoint mes certifications Cisco et ma formation RGPD de la CNIL, dans la r
 
 ## 2026-10-25 : Homelab, étape 2 : le socle logiciel du serveur
 
-- Statut : à programmer le 2026-10-28 à 12 h 30
+- Statut : à programmer le 2026-10-28 à 18 h 30
 - Lien : https://forestmaxime-pf.fr/projets/homelab-etape-2.html
 - Image proposée : projets/img/homelab-etape-2-01.webp
 

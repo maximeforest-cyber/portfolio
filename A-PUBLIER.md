@@ -2,9 +2,20 @@
 
 Une entrée par nouveauté du site, la plus récente en haut. Les posts sont publiés avec Claude Desktop, après relecture. Format : voir `CLAUDE.md`, partie 4.
 
+**Calendrier proposé** (2 posts par semaine, à 9 h, du mardi au vendredi) :
+
+| Date | Post |
+|---|---|
+| mer. 28/10 | Homelab, étape 2 : le socle logiciel |
+| ven. 30/10 | Certification Zero Trust Security Essentials (Cato Networks) |
+| mar. 03/11 | Le Zero Trust, que j'appliquais déjà pour un client |
+| jeu. 05/11 | Homelab, étape 3 : l'accès à distance |
+| mar. 10/11 | Homelab, étape 4 : l'audit DNS et courrier |
+| jeu. 12/11 | Homelab, étape 5 : l'audit web |
+
 ## 2026-10-27 : Homelab, étape 5 : l'audit web d'un site
 
-- Statut : à relire
+- Statut : à relire, à programmer le 2026-11-12 à 9 h
 - Lien : https://forestmaxime-pf.fr/projets/homelab-etape-5.html
 - Image proposée : projets/img/homelab-etape-5-03.webp
 
@@ -22,13 +33,15 @@ Je me suis aussi fixé une limite : le script ne lit que ce que voit n'importe q
 
 65 tests automatiques vérifient les règles de couleur.
 
+Prochaine étape : garder l'historique des audits dans une base SQLite, avec une sauvegarde automatique.
+
 La fiche complète : https://forestmaxime-pf.fr/projets/homelab-etape-5.html
 
 #homelab #python #cybersécurité #https #btssio
 
 ## 2026-10-27 : Homelab, étape 4 : l'audit DNS et courrier d'un nom de domaine
 
-- Statut : à relire
+- Statut : à relire, à programmer le 2026-11-10 à 9 h
 - Lien : https://forestmaxime-pf.fr/projets/homelab-etape-4.html
 - Image proposée : projets/img/homelab-etape-4-01.webp
 
@@ -43,13 +56,15 @@ Ce que j'ai appris en le testant :
 
 30 tests automatiques vérifient que chaque cas donne la bonne couleur.
 
+Prochaine étape : l'audit du site lui-même (HTTPS, en-têtes de sécurité).
+
 La fiche complète : https://forestmaxime-pf.fr/projets/homelab-etape-4.html
 
 #homelab #python #dns #cybersécurité #btssio
 
 ## 2026-10-27 : Homelab, étape 3 : l'accès à distance au serveur
 
-- Statut : à relire
+- Statut : à relire, à programmer le 2026-11-05 à 9 h
 - Lien : https://forestmaxime-pf.fr/projets/homelab-etape-3.html
 - Image proposée : projets/img/homelab-etape-3-21.webp
 
@@ -63,7 +78,11 @@ Au programme :
 
 Le test final, depuis mon téléphone en 4G : VPN, réveil du serveur, connexion SSH, extinction. Tout le cycle est inscrit dans le journal du serveur.
 
+Un écart au budget de 0 € annoncé au lancement : 58,27 € pour un kit CPL. Le réveil à distance ne marche qu'avec un câble, et la tour est à l'étage, loin de la box : le réseau passe maintenant par les prises électriques.
+
 J'ai aussi relié ces choix aux principes du Zero Trust, avec leur limite : un VPN reste un accès réseau classique.
+
+Prochaine étape : le premier script d'audit, pour le DNS et le courrier.
 
 La fiche complète : https://forestmaxime-pf.fr/projets/homelab-etape-3.html
 
@@ -71,7 +90,7 @@ La fiche complète : https://forestmaxime-pf.fr/projets/homelab-etape-3.html
 
 ## 2026-10-26 : Le Zero Trust, que j'appliquais déjà pour un client de Site de Poche
 
-- Statut : à relire
+- Statut : à relire, à programmer le 2026-11-03 à 9 h
 - Lien : https://forestmaxime-pf.fr/#parcours
 - Image proposée : aucune
 
@@ -90,7 +109,7 @@ Mon parcours : https://forestmaxime-pf.fr/#parcours
 
 ## 2026-10-26 : Certification Zero Trust Security Essentials (Cato Networks)
 
-- Statut : programmé le 2026-10-27 à 9 h 30
+- Statut : à programmer le 2026-10-30 à 9 h (prévu le 27/10, mais pas encore en ligne)
 - Lien : https://forestmaxime-pf.fr/#certifications
 - Image proposée : badge-cato-zero-trust.png
 
@@ -104,7 +123,7 @@ Elle rejoint mes certifications Cisco et ma formation RGPD de la CNIL, dans la r
 
 ## 2026-10-25 : Homelab, étape 2 : le socle logiciel du serveur
 
-- Statut : à relire
+- Statut : à relire, à programmer le 2026-10-28 à 9 h
 - Lien : https://forestmaxime-pf.fr/projets/homelab-etape-2.html
 - Image proposée : projets/img/homelab-etape-2-01.webp
 

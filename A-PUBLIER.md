@@ -2,6 +2,73 @@
 
 Une entrée par nouveauté du site, la plus récente en haut. Les posts sont publiés avec Claude Desktop, après relecture. Format : voir `CLAUDE.md`, partie 4.
 
+## 2026-10-27 : Homelab, étape 5 : l'audit web d'un site
+
+- Statut : à relire
+- Lien : https://forestmaxime-pf.fr/projets/homelab-etape-5.html
+- Image proposée : projets/img/homelab-etape-5-03.webp
+
+L'étape 5 de mon homelab est validée : un script Python qui audite ce qu'un visiteur voit d'un site.
+
+Il vérifie :
+- le HTTPS : certificat valide, renvoi de http vers https, une seule adresse principale ;
+- les en-têtes de sécurité : HSTS, CSP, X-Content-Type-Options, Referrer-Policy ;
+- la date d'expiration du nom de domaine, dans l'annuaire public RDAP ;
+- le code et le temps de réponse.
+
+Dès le premier essai, il a trouvé un vrai oubli sur le site de mon premier client : le site s'ouvrait avec et sans « www », sans renvoyer vers une seule adresse. Corrigé en quelques minutes avec une règle de redirection dans Cloudflare, puis audit tout vert.
+
+Je me suis aussi fixé une limite : le script ne lit que ce que voit n'importe quel visiteur. Pas de scan de ports ni de recherche de failles, et le test des versions de TLS est réservé à mes clients.
+
+65 tests automatiques vérifient les règles de couleur.
+
+La fiche complète : https://forestmaxime-pf.fr/projets/homelab-etape-5.html
+
+#homelab #python #cybersécurité #https #btssio
+
+## 2026-10-27 : Homelab, étape 4 : l'audit DNS et courrier d'un nom de domaine
+
+- Statut : à relire
+- Lien : https://forestmaxime-pf.fr/projets/homelab-etape-4.html
+- Image proposée : projets/img/homelab-etape-4-01.webp
+
+L'étape 4 de mon homelab est validée : un script Python qui vérifie les réglages qui protègent le courrier d'un nom de domaine.
+
+MX, SPF, DMARC, DKIM et DNSSEC : pour chacun, un résultat vert, orange ou rouge, décidé par des règles écrites dans le code (jamais par une IA), et un résultat complet en JSON pour l'historique.
+
+Ce que j'ai appris en le testant :
+- le domaine de mon client, que j'avais réglé moi-même, a révélé deux défauts du script que les domaines publics ne montraient pas ;
+- un audit honnête distingue « absent » et « non trouvé » : on ne peut pas lister les clés DKIM d'un domaine, seulement essayer des noms courants ;
+- un domaine au DNSSEC cassé exprès permet de tester un cas d'erreur sans rien casser chez soi.
+
+30 tests automatiques vérifient que chaque cas donne la bonne couleur.
+
+La fiche complète : https://forestmaxime-pf.fr/projets/homelab-etape-4.html
+
+#homelab #python #dns #cybersécurité #btssio
+
+## 2026-10-27 : Homelab, étape 3 : l'accès à distance au serveur
+
+- Statut : à relire
+- Lien : https://forestmaxime-pf.fr/projets/homelab-etape-3.html
+- Image proposée : projets/img/homelab-etape-3-21.webp
+
+L'étape 3 de mon homelab est validée : je peux travailler sur mon serveur depuis n'importe où, sans l'exposer sur internet et sans le laisser allumé en permanence.
+
+Au programme :
+- un VPN WireGuard hébergé par ma Freebox, qui marche même quand le serveur est éteint ;
+- le réveil à distance (Wake-on-LAN), puis l'extinction propre à distance ;
+- un pare-feu qui n'accepte le SSH que depuis mon réseau local et le VPN ;
+- une clé SSH et un accès VPN par appareil, pour pouvoir en retirer un sans toucher aux autres.
+
+Le test final, depuis mon téléphone en 4G : VPN, réveil du serveur, connexion SSH, extinction. Tout le cycle est inscrit dans le journal du serveur.
+
+J'ai aussi relié ces choix aux principes du Zero Trust, avec leur limite : un VPN reste un accès réseau classique.
+
+La fiche complète : https://forestmaxime-pf.fr/projets/homelab-etape-3.html
+
+#homelab #linux #vpn #wireguard #cybersécurité #btssio
+
 ## 2026-10-26 : Le Zero Trust, que j'appliquais déjà pour un client de Site de Poche
 
 - Statut : à relire

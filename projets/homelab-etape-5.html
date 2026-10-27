@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Homelab, étape 5 : l'audit web d'un site | Maxime Forest</title>
+<meta name="description" content="Homelab, étape 5 : un script Python qui vérifie le HTTPS, les en-têtes de sécurité, l'expiration du nom de domaine et la disponibilité d'un site, en ne lisant que ce que voit un visiteur.">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#efe9df">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/homelab-etape-5.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/homelab-etape-5.html">
+<meta property="og:title" content="Homelab, étape 5 : l'audit web d'un site | Maxime Forest">
+<meta property="og:description" content="Homelab, étape 5 : un script Python qui vérifie le HTTPS, les en-têtes de sécurité, l'expiration du nom de domaine et la disponibilité d'un site, en ne lisant que ce que voit un visiteur.">
+<meta property="og:image" content="https://forestmaxime-pf.fr/favicon.png">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="homelab.html#etapes">← Homelab : toutes les étapes</a></p>
+    <p class="kicker">Projet personnel · <b>Homelab, étape 5 sur 10</b> · validée le 27/10/2026</p>
+    <h1>L'audit web d'un site</h1>
+    <p class="lead">Compléter l'audit DNS et courrier par ce qu'un visiteur voit du site lui-même : HTTPS, en-têtes de sécurité, expiration du nom de domaine et disponibilité. Dès le premier essai, l'outil a trouvé un vrai oubli sur le site de mon premier client.</p>
+    <dl class="facts"><div><dt>Projet</dt><dd><a href="homelab.html">Homelab</a> au service de ma micro-entreprise Site de Poche</dd></div><div><dt>Période</dt><dd>27 octobre 2026</dd></div><div><dt>Machine</dt><dd>Tour « labo », Ubuntu Server 24.04 LTS, Python 3.12</dd></div><div><dt>Points clés</dt><dd>Certificat, redirections, HSTS, CSP, RDAP, versions de TLS, 65 tests automatiques</dd></div></dl>
+    <ul class="tags"><li>Python</li><li>HTTPS et TLS</li><li>En-têtes de sécurité</li><li>RDAP</li><li>Cadre légal</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Objectif</a></li><li><a href="#partie-2"><span>02</span>Schéma et technologies</a></li><li><a href="#partie-3"><span>03</span>Les règles de couleur</a></li><li><a href="#partie-4"><span>04</span>Les versions de TLS</a></li><li><a href="#partie-5"><span>05</span>Tests réussis</a></li><li><a href="#partie-6"><span>06</span>Problèmes rencontrés</a></li><li><a href="#partie-7"><span>07</span>Ce que j'en retiens</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Objectif</h2>
+<p>Compléter l'audit de l'<a href="homelab-etape-4.html">étape 4</a> (DNS et courrier) par ce qu'un visiteur voit du <strong>site</strong> lui-même, avec le même principe : un script en ligne de commande, un résultat en <strong>JSON</strong>, des couleurs décidées par des règles écrites.</p>
+<ul class="b"><li><strong>HTTPS</strong> : certificat valide (le cadenas), date d'expiration, renvoi de http vers https, une seule adresse principale (avec ou sans www, mais l'autre doit y renvoyer) ;</li><li><strong>En-têtes de sécurité</strong> : HSTS, CSP, X-Content-Type-Options, Referrer-Policy ;</li><li><strong>Nom de domaine</strong> : date d'expiration, lue dans l'annuaire public RDAP ;</li><li><strong>Disponibilité</strong> : code de réponse et temps de réponse ;</li><li><strong>Versions de TLS acceptées</strong> : en option, pour mes clients seulement.</li></ul>
+<p class="note"><strong>Cadre</strong> : le script ne lit que des <strong>informations publiques</strong>, comme un navigateur : ports 80 et 443 seulement, certificat, en-têtes, début de la page d'accueil. Pas de scan de ports, pas de recherche de failles. Il se présente honnêtement (<span class="k">User-Agent: Audit Site de Poche</span>), sans se faire passer pour un navigateur. De l'annuaire RDAP, il ne garde que les dates et le nom du bureau d'enregistrement, <strong>jamais les coordonnées du titulaire</strong>.</p>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>Schéma et technologies</h2>
+<pre class="cmd schema" role="img" aria-label="Schéma : la commande python3 audit/web.py, avec les options --resume et --versions-tls, cherche d'abord dans le DNS quelles adresses existent (exemple.fr, www.exemple.fr). Le script web.py interroge le site en http et en https sur les ports 80 et 443, en suivant les redirections une à une, et lit le certificat, les en-têtes et la page d'accueil. Pour l'expiration du domaine, il lit la liste officielle des annuaires de l'IANA puis l'annuaire RDAP de l'extension. Des règles écrites donnent vert, orange, rouge ou erreur, en JSON complet ou en une ligne par vérification."><code>  python3 audit/web.py [--resume] [--versions-tls] exemple.fr
+          │
+          │ adresses qui existent dans le DNS : exemple.fr, www.exemple.fr
+          ▼
+ ┌──────────────────────────┐  http:// et https://, redirections suivies une à une  ┌────────────────────┐
+ │ web.py                   ├──────────────────────────────────────────────────────►│ Le site            │
+ │  certificat, redirections│◄──────────────────────────────────────────────────────┤ (ports 80 et 443)  │
+ │  en-têtes, page d'accueil│                                                       └────────────────────┘
+ │                          │  liste officielle des annuaires   ┌───────────────────────────────────────┐
+ │  expiration du domaine   ├──────────────────────────────────►│ IANA (data.iana.org/rdap/dns.json)    │
+ │                          ├──────────────────────────────────►│ annuaire RDAP de l'extension (.fr…)   │
+ └──────────┬───────────────┘                                   └───────────────────────────────────────┘
+            │ règles écrites → vert / orange / rouge / erreur
+            ▼
+   JSON complet (par défaut)  ou  une ligne par vérification (--resume)</code></pre>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Rôle</th><th scope="col">Technologie</th></tr></thead><tbody><tr><td>Langage</td><td>Python 3.12 (sur la tour), <strong>bibliothèque standard seulement</strong> : <span class="k">http.client</span>, <span class="k">ssl</span>, <span class="k">socket</span>, <span class="k">urllib</span> (rien à installer)</td></tr><tr><td>Réutilisation</td><td>Nettoyage de la saisie, format des résultats et affichage repris de l'étape 4 (<span class="k">dns_courrier.py</span>)</td></tr><tr><td>Annuaire des noms de domaine</td><td>RDAP, l'annuaire public qui remplace WHOIS ; serveur de chaque extension trouvé dans la liste officielle de l'IANA</td></tr><tr><td>Tests</td><td><span class="k">unittest</span>, pages, certificats et fiches RDAP simulés (sans internet)</td></tr><tr><td>Code</td><td><span class="k">audit/web.py</span>, <span class="k">audit/test_web.py</span> (dépôt Git privé)</td></tr></tbody></table></div>
+<p>Utilisation :</p>
+<pre class="cmd"><code>cd ~/homelab
+python3 audit/web.py exemple.fr                          # JSON complet
+python3 audit/web.py --resume https://www.exemple.fr/    # une ligne par vérification, en couleur
+python3 audit/web.py --resume --versions-tls client.fr   # clients seulement
+python3 -m unittest discover -s audit -v                 # les tests (étapes 4 et 5)</code></pre>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>Les règles de couleur</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Vérification</th><th scope="col">Vert</th><th scope="col">Orange</th><th scope="col">Rouge</th></tr></thead><tbody><tr><td><strong>Certificat</strong> (avec et sans www)</td><td>Valide</td><td>Expire dans moins de 14 jours (ou d'un tiers de sa durée, pour les certificats très courts)</td><td>Refusé (expiré, mauvais nom…) ou pas de HTTPS</td></tr><tr><td><strong>http → https</strong></td><td>Renvoi vers https</td><td>L'adresse en http ne répond pas</td><td>Le site s'affiche <strong>sans cadenas</strong></td></tr><tr><td><strong>Adresse principale</strong></td><td>Une seule, les autres y renvoient</td><td>Le site s'ouvre à deux adresses (doublon pour Google), ou l'une ne s'ouvre pas</td><td>Aucune page ne s'affiche</td></tr><tr><td><strong>HSTS</strong></td><td>6 mois ou plus</td><td>Absent, trop court, mal écrit</td><td>—</td></tr><tr><td><strong>CSP</strong></td><td>En-tête, ou balise <span class="k">&lt;meta&gt;</span> dans la page</td><td>Absente, ou en mode test (<span class="k">report-only</span>)</td><td>—</td></tr><tr><td><strong>X-Content-Type-Options</strong></td><td><span class="k">nosniff</span></td><td>Absent ou mal écrit</td><td>—</td></tr><tr><td><strong>Referrer-Policy</strong></td><td>Valeur prudente</td><td>Absent, ou valeur qui donne l'adresse complète aux autres sites (<span class="k">unsafe-url</span>…)</td><td>—</td></tr><tr><td><strong>Expiration du domaine</strong></td><td>Plus de 45 jours</td><td>45 jours ou moins, ou date non publiée</td><td>15 jours ou moins, ou expiré</td></tr><tr><td><strong>Réponse</strong></td><td>Code 2xx en 3 s ou moins</td><td>Plus de 3 s</td><td>Erreur (4xx, 5xx) ou pas de réponse</td></tr><tr><td><strong>Versions de TLS</strong> (option)</td><td>Seulement TLS 1.2 / 1.3</td><td>Accepte encore TLS 1.0 ou 1.1</td><td>Ni TLS 1.2 ni 1.3</td></tr></tbody></table></div>
+<p>Choix réfléchis :</p>
+<ul class="b"><li><strong>Une CSP qui manque est orange, jamais rouge</strong> : presque aucun site d'artisan n'en a, c'est bien moins grave qu'un cadenas qui manque.</li><li><strong>45 jours pour le nom de domaine</strong> : un rapport mensuel prévient forcément au moins une fois avant l'expiration.</li><li><strong>Un temps de réponse mesuré depuis chez moi</strong> : c'est une indication, pas une mesure de ce que vit chaque visiteur.</li><li><strong>Certificats courts</strong> : certains certificats ne durent que quelques jours et se renouvellent sans cesse ; le seuil d'alerte suit leur durée pour ne pas crier au loup.</li></ul>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>Les versions de TLS : une limite assumée</h2>
+<p>Lire le certificat, c'est ce que fait n'importe quel visiteur. Tester les versions de TLS, c'est autre chose : le script se connecte plusieurs fois en <strong>forçant</strong> une version ancienne, pour voir si le serveur l'accepte. Ce n'est ni un scan ni une attaque, mais c'est <strong>tester la configuration du serveur</strong>, plus seulement la lire.</p>
+<p>Décision : cette vérification n'est faite <strong>que pour mes clients</strong>, avec l'option <span class="k">--versions-tls</span>, et jamais pour un prospect (un test automatique vérifie qu'elle n'est pas faite sans l'option). Techniquement, OpenSSL sur Ubuntu 24.04 refuse lui-même de proposer TLS 1.0 et 1.1 : le niveau de sécurité est abaissé <strong>seulement pour ces essais</strong> (<span class="k">@SECLEVEL=0</span>), pas pour le reste de l'audit.</p>
+<p class="note"><strong>Pourquoi pas de scan de ports ni de recherche de failles</strong> : sur la machine de quelqu'un d'autre, sans autorisation écrite, c'est juridiquement risqué (articles 323-1 et 323-3-1 du Code pénal) ; le serveur appartient en général à l'hébergeur, pas au commerçant ; et un diagnostic fondé sur ce que voit n'importe quel visiteur est inattaquable devant un prospect.</p>
+</div>
+<div class="part" id="partie-5">
+<h2><span class="n">05</span>Tests réussis</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Test</th><th scope="col">Résultat attendu</th><th scope="col">Résultat obtenu</th><th scope="col">Preuve</th></tr></thead><tbody><tr><td>Mon propre site (<span class="k">sitedepoche.fr</span>)</td><td>Tout vert</td><td>Conforme</td><td><a href="#fig-1">Fig. 1</a></td></tr><tr><td>Site au certificat expiré exprès (<span class="k">expired.badssl.com</span>)</td><td>Certificat rouge, renvoi http → https quand même reconnu</td><td>Conforme</td><td><a href="#fig-2">Fig. 2</a></td></tr><tr><td>Site de mon client traiteur, <strong>avant</strong></td><td>Orange : le site s'ouvrait avec et sans www</td><td>Défaut trouvé</td><td><a href="#fig-3">Fig. 3</a></td></tr><tr><td>Correction dans Cloudflare</td><td>Règle de redirection www → adresse sans www (301)</td><td>Conforme</td><td><a href="#fig-4">Fig. 4</a></td></tr><tr><td>Site de mon client traiteur, <strong>après</strong></td><td>Tout vert</td><td>Conforme</td><td><a href="#fig-5">Fig. 5</a></td></tr><tr><td>Versions de TLS sur mon site</td><td>Seulement TLS 1.2 et 1.3 : vert</td><td>Conforme</td><td><a href="#fig-6">Fig. 6</a></td></tr><tr><td>Versions de TLS sur un serveur qui n'accepte que TLS 1.0 (<span class="k">tls-v1-0.badssl.com</span>)</td><td>Rouge</td><td>Conforme</td><td>—</td></tr><tr><td>Autres sites publics (<span class="k">afnic.fr</span>, <span class="k">cloudflare.com</span>, <span class="k">example.com</span>)</td><td>Couleurs cohérentes (<span class="k">example.com</span> rouge : il s'affiche aussi sans cadenas)</td><td>Conforme</td><td>—</td></tr><tr><td>65 tests automatiques (étapes 4 et 5), sur la tour</td><td><span class="k">Ran 65 tests … OK</span></td><td>Conforme</td><td><a href="#fig-7">Fig. 7</a></td></tr></tbody></table></div>
+<figure class="shot" id="fig-1"><a href="img/homelab-etape-5-01.webp"><img src="img/homelab-etape-5-01.webp" alt="Terminal : web.py --resume sitedepoche.fr donne tout VERT : certificat valide jusqu'au 06/01/2027, renvoi http vers https, une seule adresse principale, HSTS 180 jours, CSP, nosniff, Referrer-Policy, domaine payé jusqu'au 08/10/2027, réponse en 0,07 s." width="1342" height="268" loading="lazy"></a><figcaption><b>Fig. 1</b> Mon propre site : tout vert.</figcaption></figure>
+<figure class="shot" id="fig-2"><a href="img/homelab-etape-5-02.webp"><img src="img/homelab-etape-5-02.webp" alt="Terminal : web.py --resume expired.badssl.com donne ROUGE : certificat refusé car expiré, aucune page qui s'affiche, site qui ne répond pas ; le renvoi http vers https et l'expiration du domaine restent verts." width="1219" height="178" loading="lazy"></a><figcaption><b>Fig. 2</b> Un certificat expiré exprès : rouge, sans accuser le renvoi vers https.</figcaption></figure>
+<figure class="shot" id="fig-3"><a href="img/homelab-etape-5-03.webp"><img src="img/homelab-etape-5-03.webp" alt="Terminal : audit du site du client (nom de domaine masqué) en ORANGE : le site s'ouvre à plusieurs adresses, avec et sans www, sans renvoyer vers une seule ; tout le reste est vert." width="2000" height="259" loading="lazy"></a><figcaption><b>Fig. 3</b> Le site de mon client, avant : ouvert à deux adresses (nom du client masqué).</figcaption></figure>
+<figure class="shot" id="fig-4"><a href="img/homelab-etape-5-04.webp"><img src="img/homelab-etape-5-04.webp" alt="Cloudflare, Redirect Rules, Single Redirects : une règle Redirect from WWW to root, activée." width="1902" height="903" loading="lazy"></a><figcaption><b>Fig. 4</b> La correction : une règle de redirection dans Cloudflare.</figcaption></figure>
+<figure class="shot" id="fig-5"><a href="img/homelab-etape-5-05.webp"><img src="img/homelab-etape-5-05.webp" alt="Terminal : nouvel audit du site du client (nom de domaine masqué), tout VERT : une seule adresse principale, les autres y renvoient." width="1381" height="264" loading="lazy"></a><figcaption><b>Fig. 5</b> Le site de mon client, après : tout vert (nom du client masqué).</figcaption></figure>
+<figure class="shot" id="fig-6"><a href="img/homelab-etape-5-06.webp"><img src="img/homelab-etape-5-06.webp" alt="Terminal : web.py --resume --versions-tls sitedepoche.fr, tout VERT, avec la ligne VERSIONS_TLS : seulement des versions récentes (TLS 1.2, TLS 1.3)." width="1341" height="288" loading="lazy"></a><figcaption><b>Fig. 6</b> L'option des versions de TLS, sur mon site.</figcaption></figure>
+<figure class="shot" id="fig-7"><a href="img/homelab-etape-5-07.webp"><img src="img/homelab-etape-5-07.webp" alt="Terminal : la liste des tests des étapes 4 et 5 (adresse principale, certificat, en-têtes, expiration, redirection https, réponse, versions de TLS), tous ok, et Ran 65 tests, OK." width="1546" height="1300" loading="lazy"></a><figcaption><b>Fig. 7</b> Les 65 tests automatiques passent sur la tour.</figcaption></figure>
+</div>
+<div class="part" id="partie-6">
+<h2><span class="n">06</span>Problèmes rencontrés et solutions</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Problème</th><th scope="col">Cause</th><th scope="col">Solution</th></tr></thead><tbody><tr><td><strong>Le site de mon client s'ouvrait à deux adresses</strong> (avec et sans www)</td><td>L'adresse www était bien branchée sur le site, mais sans renvoi vers l'adresse principale (seule une balise « canonical » indiquait la bonne à Google)</td><td>Règle de redirection Cloudflare « www → adresse sans www » (301) ; vérifiée avec <span class="k">curl -sI</span>, puis audit tout vert</td></tr><tr><td>Un site au certificat expiré était accusé de « ne pas répondre en http »</td><td>L'adresse http renvoyait bien vers https ; c'est la page https qui échouait</td><td>Un renvoi vers https compte comme réussi ; la panne est signalée par la vérification du certificat</td></tr><tr><td>Temps de réponse affiché « 0,0 s »</td><td>Arrondi au dixième</td><td>Affichage au centième (« 0,04 s »)</td></tr><tr><td>Seulement 30 tests sur la tour au lieu de 60</td><td>Le travail n'avait pas encore été poussé sur GitHub, le <span class="k">git pull</span> n'a rien ramené</td><td>Commit et push, puis <span class="k">git pull</span> : 60 tests, puis 65</td></tr><tr><td>La tour refusait de tenter TLS 1.0 / 1.1</td><td>OpenSSL 3 sur Ubuntu 24.04 les bloque par défaut (niveau de sécurité 2)</td><td>Niveau abaissé seulement pour ce test, et seulement pour mes clients</td></tr></tbody></table></div>
+</div>
+<div class="part" id="partie-7">
+<h2><span class="n">07</span>Ce que j'en retiens</h2>
+<ul class="b"><li><strong>L'outil sert déjà</strong> : dès le premier essai, il a trouvé un vrai oubli sur le site de mon premier client, que j'ai corrigé dans Cloudflare en quelques minutes.</li><li><strong>Savoir où s'arrêter</strong> : lire ce que voit un visiteur est sans risque ; tester la configuration d'un serveur demande un accord, et chercher des failles demande un contrat. J'ai réservé le test des versions de TLS à mes clients.</li><li><strong>Ne pas compter deux fois la même panne</strong> : une seule cause (le certificat) ne doit pas être reprochée sous plusieurs noms trompeurs.</li><li><strong>Rien à installer</strong> : la bibliothèque standard de Python suffit pour ce travail, donc moins de dépendances à maintenir sur la tour.</li></ul>
+</div>
+<nav class="pager" aria-label="Autres étapes"><a href="homelab-etape-4.html"><span>Précédent</span>Étape 4 : l'audit DNS et courrier d'un nom de domaine</a><span></span></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js"></script>
+</body>
+</html>

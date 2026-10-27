@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Homelab, étape 4 : l'audit DNS et courrier d'un nom de domaine | Maxime Forest</title>
+<meta name="description" content="Homelab, étape 4 : un script Python qui vérifie MX, SPF, DMARC, DKIM et DNSSEC d'un nom de domaine, avec des règles de couleur écrites et testées, et un résultat en JSON.">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#efe9df">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/homelab-etape-4.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/homelab-etape-4.html">
+<meta property="og:title" content="Homelab, étape 4 : l'audit DNS et courrier d'un nom de domaine | Maxime Forest">
+<meta property="og:description" content="Homelab, étape 4 : un script Python qui vérifie MX, SPF, DMARC, DKIM et DNSSEC d'un nom de domaine, avec des règles de couleur écrites et testées, et un résultat en JSON.">
+<meta property="og:image" content="https://forestmaxime-pf.fr/favicon.png">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="homelab.html#etapes">← Homelab : toutes les étapes</a></p>
+    <p class="kicker">Projet personnel · <b>Homelab, étape 4 sur 10</b> · validée le 27/10/2026</p>
+    <h1>L'audit DNS et courrier d'un nom de domaine</h1>
+    <p class="lead">Un script en ligne de commande qui vérifie les réglages qui protègent le courrier d'un nom de domaine, et rend un résultat en JSON, avec des couleurs décidées par des règles écrites et testées.</p>
+    <dl class="facts"><div><dt>Projet</dt><dd><a href="homelab.html">Homelab</a> au service de ma micro-entreprise Site de Poche</dd></div><div><dt>Période</dt><dd>27 octobre 2026</dd></div><div><dt>Machine</dt><dd>Tour « labo », Ubuntu Server 24.04 LTS, Python 3.12</dd></div><div><dt>Points clés</dt><dd>MX, SPF, DMARC, DKIM, DNSSEC, dnspython, JSON, 30 tests automatiques</dd></div></dl>
+    <ul class="tags"><li>Python</li><li>DNS</li><li>SPF, DKIM, DMARC</li><li>DNSSEC</li><li>Tests automatiques</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Objectif</a></li><li><a href="#partie-2"><span>02</span>Schéma et technologies</a></li><li><a href="#partie-3"><span>03</span>Les règles de couleur</a></li><li><a href="#partie-4"><span>04</span>Utilisation</a></li><li><a href="#partie-5"><span>05</span>Tests réussis</a></li><li><a href="#partie-6"><span>06</span>Problèmes rencontrés</a></li><li><a href="#partie-7"><span>07</span>Ce que j'en retiens</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Objectif</h2>
+<p>Un script en ligne de commande qui, pour un nom de domaine, vérifie les réglages qui protègent son courrier et rend un résultat en <strong>JSON</strong> (pour l'historique de l'étape 6 et les rapports de l'étape 8) :</p>
+<ul class="b"><li><strong>MX</strong> : où arrive le courrier ;</li><li><strong>SPF</strong> : qui a le droit d'envoyer des e-mails au nom du domaine ;</li><li><strong>DMARC</strong> : ce qu'un serveur doit faire d'un e-mail qui usurpe le domaine ;</li><li><strong>DKIM</strong> : la clé qui signe les e-mails envoyés ;</li><li><strong>DNSSEC</strong> : la signature des réponses DNS elles-mêmes.</li></ul>
+<p>Ce sont exactement les réglages que j'ai faits à la main pour mon premier client (un traiteur) : le script permet de les vérifier chez d'autres, et de suivre mes clients chaque mois.</p>
+<p class="note"><strong>Cadre</strong> : le script ne lit que des <strong>informations publiques</strong> (des enregistrements DNS, comme n'importe quel serveur de courrier le fait). Pas de scan, pas de recherche de failles. Le vert, orange ou rouge est décidé par des <strong>règles écrites dans le script</strong>, jamais par une IA.</p>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>Schéma et technologies</h2>
+<pre class="cmd schema" role="img" aria-label="Schéma : la commande python3 audit/dns_courrier.py exemple.fr nettoie d'abord la saisie (https://, www., chemin). Le script dns_courrier.py interroge les résolveurs publics 1.1.1.1 de Cloudflare et 9.9.9.9 de Quad9, qui vérifient le DNSSEC, pour lire les MX, le SPF et ses include, le DMARC, le DKIM sur 19 noms et le DNSSEC. Des règles écrites donnent vert, orange, rouge ou erreur, et le résultat sort en JSON complet ou en une ligne par vérification avec --resume."><code>  python3 audit/dns_courrier.py exemple.fr
+          │
+          │ nettoyage de la saisie (https://, www., chemin)
+          ▼
+ ┌──────────────────────┐   questions DNS    ┌─────────────────────────────┐
+ │ dns_courrier.py      ├───────────────────►│ Résolveurs publics          │
+ │  MX, SPF (+ include),│                    │ 1.1.1.1 (Cloudflare)        │
+ │  DMARC, DKIM (19     │◄───────────────────┤ 9.9.9.9 (Quad9)             │
+ │  noms), DS + AD      │   réponses         │ vérifient le DNSSEC         │
+ └──────────┬───────────┘                    └─────────────────────────────┘
+            │ règles écrites → vert / orange / rouge / erreur
+            ▼
+   JSON complet (par défaut)  ou  une ligne par vérification (--resume)</code></pre>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Rôle</th><th scope="col">Technologie</th></tr></thead><tbody><tr><td>Langage</td><td>Python 3.12 (sur la tour), sans framework</td></tr><tr><td>Requêtes DNS</td><td><span class="k">dnspython</span> 2.6.1, paquet Ubuntu <span class="k">python3-dnspython</span> (mis à jour par les mises à jour de sécurité automatiques)</td></tr><tr><td>Résolveurs</td><td>Cloudflare <span class="k">1.1.1.1</span> et Quad9 <span class="k">9.9.9.9</span> : ils vérifient le DNSSEC, et le résultat est le même sur le portable et sur la tour</td></tr><tr><td>Tests</td><td><span class="k">unittest</span> (fourni avec Python), réponses DNS simulées</td></tr><tr><td>Code</td><td><span class="k">audit/dns_courrier.py</span>, <span class="k">audit/test_dns_courrier.py</span> (dépôt Git privé)</td></tr></tbody></table></div>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>Les règles de couleur</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Vérification</th><th scope="col">Vert</th><th scope="col">Orange</th><th scope="col">Rouge</th></tr></thead><tbody><tr><td><strong>MX</strong></td><td>Serveurs déclarés, ou « MX nul » volontaire (le domaine annonce qu'il ne reçoit pas de courrier)</td><td>Aucun serveur</td><td>—</td></tr><tr><td><strong>SPF</strong></td><td>Se termine par <span class="k">-all</span> ou <span class="k">~all</span>, au plus 10 recherches DNS</td><td>Trop permissif (<span class="k">?all</span>, pas de fin)</td><td>Absent, en double, mal écrit, plus de 10 recherches, <span class="k">include</span> cassé ou en boucle, <span class="k">+all</span></td></tr><tr><td><strong>DMARC</strong></td><td>Politique <span class="k">quarantine</span> ou <span class="k">reject</span></td><td><span class="k">p=none</span> (observation seulement)</td><td>Absent, en double, politique absente</td></tr><tr><td><strong>DKIM</strong></td><td>Clé trouvée</td><td><strong>« Non trouvé »</strong> parmi 19 noms courants</td><td>—</td></tr><tr><td><strong>DNSSEC</strong></td><td>Déclaré chez le registre (DS) <strong>et</strong> signatures vérifiées (drapeau AD)</td><td>Pas activé</td><td><strong>Cassé</strong> : déclaré mais signatures fausses</td></tr></tbody></table></div>
+<p>Le résultat global prend la <strong>pire</strong> couleur. Une panne du DNS donne « erreur » (à refaire), jamais « rouge » : on ne reproche pas au domaine une panne qui n'est pas la sienne.</p>
+<p>Quelques points qui demandent de la rigueur :</p>
+<ul class="b"><li><strong>Les 10 recherches du SPF</strong> : la norme (RFC 7208) limite à 10 le nombre de recherches DNS qu'un serveur fait pour lire un SPF. Au-delà, le SPF est ignoré. Le script suit chaque <span class="k">include</span> et <span class="k">redirect</span>, compte les <span class="k">a</span>, <span class="k">mx</span>, <span class="k">ptr</span>, <span class="k">exists</span>, et repère les boucles.</li><li><strong>DKIM « Non trouvé », jamais « absent »</strong> : le DNS ne permet pas de lister les clés DKIM d'un domaine. On ne peut qu'essayer des noms courants (<span class="k">google</span>, <span class="k">selector1</span>, <span class="k">k1</span>…). Ne pas trouver ne prouve pas qu'il n'y en a pas.</li><li><strong>DNSSEC cassé</strong> : les requêtes ordinaires sont faites avec le drapeau CD (« ne vérifie pas ») pour que le reste de l'audit marche quand même ; seule la vérification DNSSEC demande la validation.</li></ul>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>Utilisation</h2>
+<pre class="cmd"><code>cd ~/homelab
+python3 audit/dns_courrier.py exemple.fr                         # JSON complet
+python3 audit/dns_courrier.py --resume https://www.exemple.fr/   # une ligne par vérification, en couleur
+python3 -m unittest discover -s audit -v                         # les tests</code></pre>
+</div>
+<div class="part" id="partie-5">
+<h2><span class="n">05</span>Tests réussis</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Test</th><th scope="col">Résultat attendu</th><th scope="col">Résultat obtenu</th><th scope="col">Preuve</th></tr></thead><tbody><tr><td>Domaine bien configuré (<span class="k">afnic.fr</span>, saisi comme une adresse de site)</td><td>Tout vert</td><td>Conforme</td><td><a href="#fig-1">Fig. 1</a></td></tr><tr><td>Domaine au DNSSEC cassé exprès (<span class="k">dnssec-failed.org</span>)</td><td>DNSSEC rouge, le reste audité quand même</td><td>Conforme</td><td><a href="#fig-1">Fig. 1</a></td></tr><tr><td>Résultat en JSON</td><td>Statut, message et détails de chaque vérification</td><td>Conforme</td><td><a href="#fig-2">Fig. 2</a></td></tr><tr><td>Domaine de mon client traiteur (réglé par moi)</td><td>Tout vert, y compris la clé DKIM de Cloudflare Email Routing</td><td>Conforme</td><td>— (pas de capture : nom du client)</td></tr><tr><td>Domaine qui n'existe pas</td><td>« erreur », pas « rouge »</td><td>Conforme</td><td>—</td></tr><tr><td>30 tests automatiques des règles, sur la tour</td><td><span class="k">Ran 30 tests … OK</span></td><td>Conforme</td><td><a href="#fig-3">Fig. 3</a></td></tr></tbody></table></div>
+<p>Les tests automatiques remplacent le DNS par des réponses écrites à la main (un SPF en <span class="k">+all</span>, un DMARC en <span class="k">p=none</span>, une boucle d'<span class="k">include</span>…) : ils prouvent que chaque cas donne la bonne couleur, sans internet, et ils signaleront toute erreur introduite plus tard dans le code.</p>
+<figure class="shot" id="fig-1"><a href="img/homelab-etape-4-01.webp"><img src="img/homelab-etape-4-01.webp" alt="Terminal : dns_courrier.py --resume sur https://www.afnic.fr/ donne afnic.fr tout VERT (MX, SPF, DMARC, DKIM, DNSSEC) ; sur dnssec-failed.org, le résultat est ROUGE avec DNSSEC cassé, DMARC absent, MX et DKIM en orange." width="1089" height="333" loading="lazy"></a><figcaption><b>Fig. 1</b> Un domaine sain tout vert, puis un domaine au DNSSEC cassé exprès.</figcaption></figure>
+<figure class="shot" id="fig-2"><a href="img/homelab-etape-4-02.webp"><img src="img/homelab-etape-4-02.webp" alt="Terminal : début du JSON produit pour afnic.fr, avec le domaine, la date, puis pour mx et spf un statut vert, un message et les détails (serveurs, enregistrement SPF, 6 recherches DNS)." width="817" height="622" loading="lazy"></a><figcaption><b>Fig. 2</b> Le résultat complet en JSON, prêt pour l'historique.</figcaption></figure>
+<figure class="shot" id="fig-3"><a href="img/homelab-etape-4-03.webp"><img src="img/homelab-etape-4-03.webp" alt="Terminal : python3 -m unittest discover -s audit -v liste 30 tests (DKIM, DMARC, DNSSEC, MX, SPF, ensemble), tous ok, et se termine par Ran 30 tests, OK." width="1356" height="865" loading="lazy"></a><figcaption><b>Fig. 3</b> Les 30 tests automatiques passent sur la tour.</figcaption></figure>
+</div>
+<div class="part" id="partie-6">
+<h2><span class="n">06</span>Problèmes rencontrés et solutions</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Problème</th><th scope="col">Cause</th><th scope="col">Solution</th></tr></thead><tbody><tr><td>Un domaine au DNSSEC cassé faisait planter tout l'audit</td><td>Les résolveurs qui vérifient le DNSSEC refusent de répondre (SERVFAIL) pour ce domaine</td><td>Requêtes ordinaires avec le drapeau CD ; seule la vérification DNSSEC demande la validation</td></tr><tr><td>DKIM « Non trouvé » chez mon client, alors que je l'avais réglé</td><td>Cloudflare Email Routing nomme sa clé <span class="k">cf2024-1</span>, absente de ma liste</td><td>Nom ajouté (19 noms essayés) ; c'est exactement pourquoi le résultat dit « Non trouvé » et pas « absent »</td></tr><tr><td>L'adresse du site (<span class="k">https://…/</span>) donnait « le domaine n'existe pas »</td><td>Le script attendait un nom de domaine seul</td><td>Saisie nettoyée (protocole, chemin, port, <span class="k">www.</span>) ; un texte sans point est refusé avec un message clair</td></tr><tr><td>Pastilles de couleur illisibles dans le terminal Windows</td><td>Les emoji de couleur s'affichaient en ronds gris (<a href="#fig-4">Fig. 4</a>)</td><td>Statut écrit en toutes lettres et coloré par le terminal (codes ANSI), seulement quand on affiche dans un terminal</td></tr></tbody></table></div>
+<figure class="shot" id="fig-4"><a href="img/homelab-etape-4-04.webp"><img src="img/homelab-etape-4-04.webp" alt="Terminal : première version du résumé pour afnic.fr, où les pastilles de couleur s'affichent en ronds gris hachurés, impossibles à distinguer." width="1017" height="96" loading="lazy"></a><figcaption><b>Fig. 4</b> La première version : des pastilles qu'on ne peut pas distinguer.</figcaption></figure>
+</div>
+<div class="part" id="partie-7">
+<h2><span class="n">07</span>Ce que j'en retiens</h2>
+<ul class="b"><li><strong>Tester sur un vrai cas que je connais</strong> : le domaine de mon client, dont je savais qu'il devait être tout vert, a révélé deux défauts que les domaines publics ne montraient pas.</li><li><strong>Distinguer « absent », « non trouvé » et « on ne sait pas »</strong> : un audit honnête ne conclut pas plus que ce qu'il a vérifié.</li><li><strong>Les règles dans le code, testées</strong> : c'est ce qui permettra plus tard de confier la rédaction à une IA sans lui confier le jugement.</li><li><strong>Un domaine cassé exprès</strong> (<span class="k">dnssec-failed.org</span>) est un bon moyen de tester un cas d'erreur sans rien casser chez soi.</li></ul>
+</div>
+<nav class="pager" aria-label="Autres étapes"><a href="homelab-etape-3.html"><span>Précédent</span>Étape 3 : l'accès à distance au serveur</a><a class="next" href="homelab-etape-5.html"><span>Suivant</span>Étape 5 : l'audit web d'un site</a></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js"></script>
+</body>
+</html>

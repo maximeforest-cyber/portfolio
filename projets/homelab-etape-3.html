@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Homelab, étape 3 : l'accès à distance au serveur | Maxime Forest</title>
+<meta name="description" content="Homelab, étape 3 : VPN WireGuard de la Freebox, Wake-on-LAN et extinction à distance, pour travailler sur le serveur depuis la 4G sans l'exposer sur internet.">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#efe9df">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/homelab-etape-3.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/homelab-etape-3.html">
+<meta property="og:title" content="Homelab, étape 3 : l'accès à distance au serveur | Maxime Forest">
+<meta property="og:description" content="Homelab, étape 3 : VPN WireGuard de la Freebox, Wake-on-LAN et extinction à distance, pour travailler sur le serveur depuis la 4G sans l'exposer sur internet.">
+<meta property="og:image" content="https://forestmaxime-pf.fr/favicon.png">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="homelab.html#etapes">← Homelab : toutes les étapes</a></p>
+    <p class="kicker">Projet personnel · <b>Homelab, étape 3 sur 10</b> · validée le 27/10/2026</p>
+    <h1>L'accès à distance au serveur</h1>
+    <p class="lead">Travailler sur le serveur depuis n'importe où, sans l'exposer sur internet et sans le laisser allumé en permanence : un VPN sur la box, le réveil à distance et l'extinction à distance.</p>
+    <dl class="facts"><div><dt>Projet</dt><dd><a href="homelab.html">Homelab</a> au service de ma micro-entreprise Site de Poche</dd></div><div><dt>Période</dt><dd>Du 25 au 27 octobre 2026</dd></div><div><dt>Machine</dt><dd>Tour « labo », Ubuntu Server 24.04 LTS (<a href="homelab-etape-1.html">étape 1</a>), Freebox Pop</dd></div><div><dt>Points clés</dt><dd>VPN WireGuard de la Freebox, IP Full Stack, ufw, Wake-on-LAN, CPL, test complet en 4G</dd></div></dl>
+    <ul class="tags"><li>VPN WireGuard</li><li>Wake-on-LAN</li><li>Pare-feu ufw</li><li>SSH par clé</li><li>Zero Trust</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Objectif</a></li><li><a href="#partie-2"><span>02</span>Schéma et technologies</a></li><li><a href="#partie-3"><span>03</span>Configuration</a></li><li><a href="#partie-4"><span>04</span>Tests réussis</a></li><li><a href="#partie-5"><span>05</span>Problèmes rencontrés</a></li><li><a href="#partie-6"><span>06</span>Lien avec le Zero Trust</a></li><li><a href="#partie-7"><span>07</span>Ce que j'en retiens</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Objectif</h2>
+<p>Pouvoir travailler sur le serveur <span class="k">labo</span> depuis n'importe où, <strong>sans exposer le serveur sur internet</strong> et <strong>sans le laisser allumé en permanence</strong> :</p>
+<ul class="b"><li>un <strong>VPN</strong> (WireGuard) hébergé par la Freebox, qui fonctionne tout le temps, même quand la tour est éteinte ;</li><li>le <strong>Wake-on-LAN</strong> pour allumer la tour à distance ;</li><li>une <strong>extinction propre</strong> à distance ;</li><li>un test complet depuis mon téléphone en 4G : VPN, réveil de la tour, connexion SSH, extinction ;</li><li>en bonus, le même accès depuis mon PC portable, quand je travaille hors de chez moi.</li></ul>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>Schéma et technologies</h2>
+<pre class="cmd schema" role="img" aria-label="Schéma : l'iPhone en 4G, avec WireGuard (adresse 192.168.27.65) et Termius (SSH par clé ED25519), ouvre un tunnel chiffré en UDP vers le serveur VPN WireGuard de la Freebox Pop, toujours allumée, qui a une IPv4 fixe Full Stack et envoie aussi le paquet de réveil. La Freebox est reliée par le réseau local 192.168.1.0/24 (CPL, Wi-Fi en secours) à la tour labo, dont le pare-feu ufw n'accepte le port 22 que depuis le réseau local et le VPN, et dont la carte filaire accepte le Wake-on-LAN."><code>  iPhone en 4G                         Freebox Pop (toujours allumée)
+ ┌──────────────────┐   tunnel      ┌────────────────────────────────┐
+ │ WireGuard        ├══════════════►│ Serveur VPN WireGuard          │
+ │ 192.168.27.65    │   chiffré     │ réseau VPN 192.168.27.64/27    │
+ │ Termius (SSH,    │  (UDP, IPv4   │ IP Full Stack (IPv4 fixe,      │
+ │ clé ED25519)     │   Full Stack) │ tous les ports)                │
+ └──────────────────┘               │ envoi du paquet de réveil (WoL)│
+                                    └───────────────┬────────────────┘
+                                                    │ réseau local 192.168.1.0/24
+                                                    │ (CPL, Wi-Fi en secours)
+                                    ┌───────────────▼────────────────┐
+                                    │ Tour « labo »                  │
+                                    │ ufw : port 22 seulement depuis │
+                                    │  192.168.1.0/24 et le VPN      │
+                                    │ carte filaire : Wake-on-LAN g  │
+                                    └────────────────────────────────┘</code></pre>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Rôle</th><th scope="col">Technologie</th></tr></thead><tbody><tr><td>VPN</td><td>Serveur WireGuard intégré à la Freebox Pop (Freebox OS)</td></tr><tr><td>Adresse publique</td><td>IP Full Stack de Free (IPv4 fixe et non partagée, gratuite)</td></tr><tr><td>Client VPN</td><td>Application WireGuard sur iPhone et sur Windows (PC portable)</td></tr><tr><td>Client SSH sur téléphone</td><td>Termius, avec une clé ED25519 propre au téléphone</td></tr><tr><td>Réveil depuis le téléphone</td><td>Application « Freebox (ancienne app) » de Free, à travers le VPN</td></tr><tr><td>Pare-feu</td><td><span class="k">ufw</span> (règle ajoutée pour le réseau du VPN)</td></tr><tr><td>Réveil à distance</td><td>Wake-on-LAN (carte Intel I219-V, réglage netplan, BIOS ASRock Z270 Pro4)</td></tr><tr><td>Liaison réseau de la tour</td><td>Kit CPL TP-Link TL-PA7017P (réseau par les prises électriques)</td></tr></tbody></table></div>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>Configuration</h2>
+<h3>IP Full Stack</h3>
+<p>Au départ, l'adresse IPv4 de ma Freebox était <strong>partagée</strong> avec d'autres abonnés (Freebox OS affichait une plage de ports limitée). Dans ce cas, un VPN entrant ne peut pas fonctionner de façon fiable. J'ai demandé l'<strong>IP Full Stack</strong> dans mon espace abonné Free (gratuit), puis redémarré la Freebox : elle affiche maintenant « Ports 0 à 65535 ». L'adresse publique n'apparaît ni dans le dépôt, ni sur les captures (masquée).</p>
+<h3>Serveur WireGuard de la Freebox</h3>
+<ul class="b"><li>Serveur WireGuard activé dans Freebox OS (port et MTU par défaut).</li><li>Un utilisateur par appareil : <span class="k">iphone-maxime</span>, avec une adresse fixe dans le VPN (<span class="k">192.168.27.65</span>) et une <strong>clé pré-partagée</strong> en plus des clés de WireGuard.</li><li>La configuration est importée dans l'application WireGuard de l'iPhone par QR code. Ce QR code contient la clé privée du téléphone : il n'a <strong>jamais</strong> été pris en capture.</li></ul>
+<p>Pourquoi le téléphone pour les tests : le PC portable est d'habitude chez moi, sur le même réseau que la tour, donc un VPN activé depuis la maison ne prouve rien. Le téléphone en 4G, c'est un vrai réseau extérieur, sans rien régler.</p>
+<p>C'est la Freebox qui fait tourner le VPN, pas la tour : il marche même quand la tour est éteinte, ce qui est indispensable pour la réveiller ensuite.</p>
+<h3>Pare-feu de la tour</h3>
+<pre class="cmd"><code>sudo ufw allow from 192.168.27.64/27 to any port 22 proto tcp comment 'SSH via VPN Freebox'</code></pre>
+<p>Le SSH n'est accepté que depuis le réseau local et le réseau du VPN. La tour n'est pas joignable depuis internet : la seule porte d'entrée est le VPN de la Freebox, dont le port (UDP) ne répond qu'aux appareils qui ont la bonne clé.</p>
+<h3>SSH depuis le téléphone</h3>
+<p>Termius génère sa <strong>propre</strong> clé ED25519 sur l'iPhone (avec phrase de passe). Seule la clé publique est copiée sur la tour, dans <span class="k">~/.ssh/authorized_keys</span>, sous le nom <span class="k">iphone-maxime-termius</span>. Chaque appareil a sa clé : si je perds le téléphone, je supprime sa ligne sans toucher aux autres (3 clés en tout : PowerShell, WSL, iPhone).</p>
+<h3>Le VPN aussi sur le PC portable</h3>
+<p>Pour travailler sur la tour depuis l'extérieur avec mon vrai terminal (WSL, <span class="k">ssh labo</span>) :</p>
+<ul class="b"><li>un 2<sup>e</sup> utilisateur WireGuard dans la Freebox, <span class="k">portable-maxime</span>, IP fixe <span class="k">192.168.27.66</span>, clé pré-partagée. On ne réutilise jamais la configuration du téléphone : un appareil = un utilisateur ;</li><li>le fichier de configuration contient la clé privée du portable : importé dans l'application WireGuard pour Windows, puis supprimé du disque, jamais en capture ni dans Git ;</li><li>rien à changer sur la tour : l'adresse <span class="k">.66</span> fait partie de <span class="k">192.168.27.64/27</span>, déjà autorisée par <span class="k">ufw</span> ;</li><li>rien à changer dans WSL : en mode réseau par défaut, WSL passe par Windows, donc par le tunnel.</li></ul>
+<p>La configuration de la Freebox envoie <strong>tout</strong> le trafic du portable dans le tunnel (<span class="k">0.0.0.0/0</span>) : sur un Wi-Fi public, il est chiffré jusqu'à la maison. À la maison, le tunnel ne sert à rien : je le laisse coupé.</p>
+<h3>Wake-on-LAN côté Ubuntu</h3>
+<p>Le Wake-on-LAN ne fonctionne qu'avec un <strong>câble</strong> : une carte Wi-Fi éteinte ne peut pas recevoir le paquet de réveil. La carte filaire <span class="k">enp0s31f6</span> (Intel I219-V) le permet. Pour que le réglage tienne après chaque redémarrage, il est écrit dans <span class="k">/etc/netplan/60-ethernet.yaml</span> :</p>
+<pre class="cmd"><code>network:
+  version: 2
+  ethernets:
+    enp0s31f6:
+      dhcp4: true
+      optional: true
+      wakeonlan: true</code></pre>
+<pre class="cmd"><code>sudo netplan generate &amp;&amp; sudo netplan apply
+sudo ethtool enp0s31f6 | grep Wake-on     # Wake-on: g = réveil par « paquet magique »</code></pre>
+<p><span class="k">optional: true</span> évite que le démarrage attende un câble absent.</p>
+<h3>Wake-on-LAN côté BIOS</h3>
+<p>Dans le BIOS ASRock (<span class="k">Suppr</span> au démarrage), <strong>Advanced → ACPI Configuration → PCIE/PCI Devices Power On</strong> = <span class="k">Enabled</span> : la carte réseau, branchée sur le bus PCIe de la carte mère, a le droit d'allumer la machine.</p>
+<h3>Extinction propre à distance</h3>
+<pre class="cmd"><code>sudo poweroff</code></pre>
+<p>Tapée depuis Termius, en 4G à travers le VPN. Une extinction « propre » : Ubuntu arrête les services et enregistre les fichiers sur le disque avant de couper, contrairement à un appui long sur le bouton. Elle laisse une trace <span class="k">shutdown</span> dans <span class="k">last -x</span>.</p>
+<h3>Le câble par le CPL</h3>
+<p>Un boîtier CPL est branché près de la Freebox, l'autre près de la tour : le réseau passe par les fils électriques de la maison. Temps de réponse de la box : <strong>3 ms</strong> par le câble, contre <strong>521 ms</strong> en moyenne (et très irrégulier) en Wi-Fi.</p>
+<p>Baux DHCP statiques dans la Freebox : le câble (<span class="k">enp0s31f6</span>) reçoit <span class="k">192.168.1.49</span>, le Wi-Fi (<span class="k">wlp3s0</span>) <span class="k">192.168.1.50</span>. L'adresse <span class="k">.49</span>, celle que tout utilisait déjà, passe au câble : ni le raccourci <span class="k">ssh labo</span>, ni Termius, ni <span class="k">ufw</span> n'ont eu à changer. Le Wi-Fi reste en secours : Ubuntu préfère le câble (priorité de route 100 contre 600).</p>
+<h3>Envoi du paquet de réveil</h3>
+<p>C'est la Freebox, toujours allumée, qui envoie le « paquet magique » : Freebox OS → <strong>Périphériques réseau</strong> → clic droit sur l'appareil → <strong>Réveil réseau (Wake on Lan) → Allumer</strong>. Depuis l'iPhone, Freebox OS dans Safari ne permet pas le clic droit : le réveil passe par l'application « Freebox (ancienne app) » de Free (appareil <span class="k">labo</span> du câble → <strong>Allumer l'appareil (WOL)</strong>), qui fonctionne à travers le VPN.</p>
+<h3>Test complet en 4G</h3>
+<p>Wi-Fi de l'iPhone coupé, tour éteinte :</p>
+<ul class="b"><li>VPN WireGuard activé (tunnel <span class="k">freebox</span>) ;</li><li>réveil par l'application Freebox ;</li><li>une minute plus tard, connexion Termius : <span class="k">hostname</span> → <span class="k">labo</span>, <span class="k">uptime -p</span> → <span class="k">up 1 minute</span> ;</li><li>extinction par <span class="k">sudo poweroff</span>.</li></ul>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>Tests réussis</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Test</th><th scope="col">Résultat attendu</th><th scope="col">Résultat obtenu</th><th scope="col">Preuve</th></tr></thead><tbody><tr><td>IPv4 avant la demande</td><td>Adresse partagée (plage de ports limitée)</td><td>Constaté</td><td><a href="#fig-1">Fig. 1</a></td></tr><tr><td>IP Full Stack attribuée</td><td>Confirmation dans l'espace abonné</td><td>Conforme</td><td><a href="#fig-2">Fig. 2</a></td></tr><tr><td>IP Full Stack active</td><td>« Ports 0 à 65535 » dans Freebox OS</td><td>Conforme</td><td><a href="#fig-3">Fig. 3</a></td></tr><tr><td>Serveur WireGuard</td><td>Actif dans Freebox OS</td><td>Conforme</td><td><a href="#fig-4">Fig. 4</a></td></tr><tr><td>Utilisateur VPN</td><td><span class="k">iphone-maxime</span>, IP fixe <span class="k">192.168.27.65</span>, clé pré-partagée</td><td>Conforme</td><td><a href="#fig-5">Fig. 5</a></td></tr><tr><td>Tunnel en 4G</td><td>Tunnel actif, données échangées</td><td>Conforme</td><td><a href="#fig-6">Fig. 6</a></td></tr><tr><td>Accès au réseau de la maison en 4G</td><td>Freebox OS s'ouvre dans Safari</td><td>Conforme</td><td><a href="#fig-7">Fig. 7</a></td></tr><tr><td>Pare-feu</td><td>SSH autorisé depuis le réseau local et le VPN seulement</td><td>Conforme</td><td><a href="#fig-8">Fig. 8</a></td></tr><tr><td>SSH en 4G via le VPN</td><td><span class="k">hostname</span> → <span class="k">labo</span>, <span class="k">who</span> → connexion depuis <span class="k">192.168.27.65</span></td><td>Conforme</td><td><a href="#fig-9">Fig. 9</a></td></tr><tr><td>Wake-on-LAN enregistré</td><td><span class="k">Wake-on: g</span> après <span class="k">netplan apply</span></td><td>Conforme</td><td><a href="#fig-10">Fig. 10</a></td></tr><tr><td>Réveil autorisé dans le BIOS</td><td>PCIE/PCI Devices Power On = Enabled</td><td>Conforme</td><td><a href="#fig-11">Fig. 11</a></td></tr><tr><td>Extinction à distance en 4G</td><td><span class="k">sudo poweroff</span> tapé dans Termius via le VPN</td><td>Conforme</td><td><a href="#fig-12">Fig. 12</a></td></tr><tr><td>Extinction propre</td><td>Ligne <span class="k">shutdown system down</span> dans <span class="k">last -x</span>, puis <span class="k">reboot</span> au rallumage</td><td>Conforme</td><td><a href="#fig-13">Fig. 13</a></td></tr><tr><td>Wake-on-LAN après redémarrage</td><td><span class="k">Wake-on: g</span> toujours là</td><td>Conforme</td><td><a href="#fig-14">Fig. 14</a></td></tr><tr><td>Câble par le CPL</td><td><span class="k">enp0s31f6</span> UP, ping de la box à 3 ms</td><td>Conforme</td><td><a href="#fig-15">Fig. 15</a></td></tr><tr><td>Adresses fixes</td><td>Câble <span class="k">.49</span>, Wi-Fi <span class="k">.50</span> dans les baux statiques</td><td>Conforme</td><td><a href="#fig-16">Fig. 16</a></td></tr><tr><td>Réveil depuis la Freebox</td><td>Menu « Réveil réseau (Wake on Lan) » de Freebox OS</td><td>Conforme</td><td><a href="#fig-17">Fig. 17</a></td></tr><tr><td>Réveil à distance (réseau local)</td><td><span class="k">shutdown</span> à 18:50, <span class="k">reboot</span> à 18:58 après l'envoi du paquet</td><td>Conforme</td><td><a href="#fig-18">Fig. 18</a></td></tr><tr><td>Test 4G : VPN</td><td>Tunnel <span class="k">freebox</span> actif, iPhone en LTE</td><td>Conforme</td><td><a href="#fig-19">Fig. 19</a></td></tr><tr><td>Test 4G : réveil</td><td>Appli Freebox : <span class="k">labo</span> injoignable (éteinte), « Allumer l'appareil (WOL) »</td><td>Conforme</td><td><a href="#fig-20">Fig. 20</a></td></tr><tr><td>Test 4G : SSH</td><td><span class="k">hostname</span> → <span class="k">labo</span>, <span class="k">uptime -p</span> → <span class="k">up 1 minute</span></td><td>Conforme</td><td><a href="#fig-21">Fig. 21</a></td></tr><tr><td>PC portable : utilisateur VPN</td><td><span class="k">portable-maxime</span>, IP fixe <span class="k">192.168.27.66</span>, à côté de <span class="k">iphone-maxime</span></td><td>Conforme</td><td><a href="#fig-22">Fig. 22</a></td></tr><tr><td>PC portable en 4G sans VPN</td><td><span class="k">ssh labo</span> → <span class="k">Connection timed out</span> : tour invisible depuis internet</td><td>Conforme</td><td><a href="#fig-23">Fig. 23</a></td></tr><tr><td>PC portable en 4G : tunnel</td><td>WireGuard pour Windows « Activée », liaison établie</td><td>Conforme</td><td><a href="#fig-24">Fig. 24</a></td></tr><tr><td>PC portable en 4G : SSH via le VPN</td><td><span class="k">hostname</span> → <span class="k">labo</span>, <span class="k">who</span> → connexion depuis <span class="k">192.168.27.66</span></td><td>Conforme</td><td><a href="#fig-25">Fig. 25</a></td></tr><tr><td>Test 4G : tout le cycle dans le journal</td><td>Depuis le VPN (<span class="k">192.168.27.65</span>) : connexion 19:06, extinction 19:07, réveil 19:18, connexion 19:18, extinction 19:20</td><td>Conforme</td><td><a href="#fig-26">Fig. 26</a></td></tr></tbody></table></div>
+<figure class="shot" id="fig-1"><a href="img/homelab-etape-3-01.webp"><img src="img/homelab-etape-3-01.webp" alt="Freebox OS, état de la connexion internet : l'adresse IPv4, masquée, est suivie d'une plage de ports limitée « Ports 327… »." width="1158" height="771" loading="lazy"></a><figcaption><b>Fig. 1</b> Avant : adresse IPv4 partagée, avec une plage de ports limitée (adresses masquées).</figcaption></figure>
+<figure class="shot" id="fig-2"><a href="img/homelab-etape-3-02.webp"><img src="img/homelab-etape-3-02.webp" alt="Espace abonné Free : « Demander une adresse IP fixe V4 full-stack », l'adresse IP (masquée) vous a été attribuée, redémarrez votre Freebox." width="1086" height="262" loading="lazy"></a><figcaption><b>Fig. 2</b> L'IP Full Stack est attribuée (adresse masquée).</figcaption></figure>
+<figure class="shot" id="fig-3"><a href="img/homelab-etape-3-03.webp"><img src="img/homelab-etape-3-03.webp" alt="Freebox OS, état de la connexion internet : l'adresse IPv4, masquée, affiche maintenant « Ports 0 à 65535 »." width="1500" height="772" loading="lazy"></a><figcaption><b>Fig. 3</b> Après : tous les ports, de 0 à 65535.</figcaption></figure>
+<figure class="shot" id="fig-4"><a href="img/homelab-etape-3-04.webp"><img src="img/homelab-etape-3-04.webp" alt="Freebox OS, serveur VPN, configuration WireGuard : case Activer cochée, MTU 1360 (port flouté)." width="1168" height="709" loading="lazy"></a><figcaption><b>Fig. 4</b> Serveur WireGuard activé sur la Freebox (port flouté).</figcaption></figure>
+<figure class="shot" id="fig-5"><a href="img/homelab-etape-3-05.webp"><img src="img/homelab-etape-3-05.webp" alt="Freebox OS, utilisateur VPN : login iphone-maxime, serveur WireGuard, IP fixe 192.168.27.65, clé pré-partagée cochée." width="739" height="450" loading="lazy"></a><figcaption><b>Fig. 5</b> Un utilisateur VPN pour l'iPhone, avec clé pré-partagée.</figcaption></figure>
+<div class="shots"><figure class="shot" id="fig-6"><a href="img/homelab-etape-3-06.webp"><img src="img/homelab-etape-3-06.webp" alt="Application WireGuard sur iPhone en LTE : tunnel freebox actif, adresse 192.168.27.65/32, clé pré-partagée activée (clés, point de terminaison et serveur DNS masqués)." width="462" height="1000" loading="lazy"></a><figcaption><b>Fig. 6</b> Le tunnel actif sur l'iPhone en 4G (clés et adresses publiques masquées).</figcaption></figure><figure class="shot" id="fig-7"><a href="img/homelab-etape-3-07.webp"><img src="img/homelab-etape-3-07.webp" alt="Safari sur iPhone en LTE : la page d'accueil de Freebox OS s'affiche, à travers le VPN." width="462" height="1000" loading="lazy"></a><figcaption><b>Fig. 7</b> En 4G, Freebox OS s'ouvre : le téléphone est bien « à la maison ».</figcaption></figure></div>
+<figure class="shot" id="fig-8"><a href="img/homelab-etape-3-08.webp"><img src="img/homelab-etape-3-08.webp" alt="Terminal : sudo ufw status numbered, deux règles 22/tcp ALLOW IN, depuis 192.168.1.0/24 (réseau local) et depuis 192.168.27.64/27 (VPN Freebox)." width="1107" height="184" loading="lazy"></a><figcaption><b>Fig. 8</b> Le SSH n'est accepté que depuis le réseau local et le VPN.</figcaption></figure>
+<figure class="shot" id="fig-9"><a href="img/homelab-etape-3-09.webp"><img src="img/homelab-etape-3-09.webp" alt="Termius sur iPhone en LTE : hostname répond labo, et who montre une connexion depuis 192.168.27.65, l'adresse VPN du téléphone." width="924" height="930" loading="lazy"></a><figcaption><b>Fig. 9</b> Connexion SSH depuis la 4G, à travers le VPN.</figcaption></figure>
+<figure class="shot" id="fig-10"><a href="img/homelab-etape-3-10.webp"><img src="img/homelab-etape-3-10.webp" alt="Terminal : après netplan apply, ethtool enp0s31f6 affiche Supports Wake-on: pumbg et Wake-on: g." width="640" height="93" loading="lazy"></a><figcaption><b>Fig. 10</b> Wake-on-LAN activé sur la carte filaire.</figcaption></figure>
+<figure class="shot" id="fig-11"><a href="img/homelab-etape-3-11.webp"><img src="img/homelab-etape-3-11.webp" alt="Photo de l'écran du BIOS ASRock UEFI, Advanced, ACPI Configuration : PCIE/PCI Devices Power On réglé sur Enabled." width="1200" height="900" loading="lazy"></a><figcaption><b>Fig. 11</b> BIOS : la carte réseau a le droit d'allumer la machine.</figcaption></figure>
+<figure class="shot" id="fig-12"><a href="img/homelab-etape-3-12.webp"><img src="img/homelab-etape-3-12.webp" alt="Termius sur iPhone en LTE : dernière connexion depuis 192.168.27.65, commande sudo poweroff tapée." width="924" height="930" loading="lazy"></a><figcaption><b>Fig. 12</b> Extinction à distance depuis le téléphone.</figcaption></figure>
+<figure class="shot" id="fig-13"><a href="img/homelab-etape-3-13.webp"><img src="img/homelab-etape-3-13.webp" alt="Terminal : last -x montre shutdown system down à 17:14:24 puis reboot system boot à 17:24:19." width="1105" height="124" loading="lazy"></a><figcaption><b>Fig. 13</b> L'extinction propre est inscrite dans le journal.</figcaption></figure>
+<figure class="shot" id="fig-14"><a href="img/homelab-etape-3-14.webp"><img src="img/homelab-etape-3-14.webp" alt="Terminal : après le redémarrage de 17:24, ethtool enp0s31f6 affiche toujours Wake-on: g." width="1093" height="265" loading="lazy"></a><figcaption><b>Fig. 14</b> Le réglage tient après un redémarrage.</figcaption></figure>
+<figure class="shot" id="fig-15"><a href="img/homelab-etape-3-15.webp"><img src="img/homelab-etape-3-15.webp" alt="Terminal : ip -br addr montre enp0s31f6 UP avec la priorité 100 et le Wi-Fi avec la priorité 600 ; ping de la box 192.168.1.254 en 2,9 ms en moyenne (adresses IPv6 masquées)." width="1320" height="435" loading="lazy"></a><figcaption><b>Fig. 15</b> La carte filaire est active par le CPL, avant le changement des baux (adresses IPv6 masquées).</figcaption></figure>
+<figure class="shot" id="fig-16"><a href="img/homelab-etape-3-16.webp"><img src="img/homelab-etape-3-16.webp" alt="Freebox OS, baux statiques : labo (Wi-Fi) en 192.168.1.50 et labo (câble) en 192.168.1.49." width="954" height="678" loading="lazy"></a><figcaption><b>Fig. 16</b> Deux baux fixes : le câble garde l'adresse .49.</figcaption></figure>
+<figure class="shot" id="fig-17"><a href="img/homelab-etape-3-17.webp"><img src="img/homelab-etape-3-17.webp" alt="Freebox OS, périphériques réseau : menu du clic droit sur labo, Réveil réseau (Wake on Lan), puis Allumer ou Allumer (avancé)." width="605" height="390" loading="lazy"></a><figcaption><b>Fig. 17</b> Le menu de réveil dans Freebox OS.</figcaption></figure>
+<figure class="shot" id="fig-18"><a href="img/homelab-etape-3-18.webp"><img src="img/homelab-etape-3-18.webp" alt="Terminal : last -x montre shutdown à 18:50, puis reboot à 18:58 après l'envoi du paquet de réveil." width="816" height="171" loading="lazy"></a><figcaption><b>Fig. 18</b> Le réveil par le réseau fonctionne.</figcaption></figure>
+<div class="shots"><figure class="shot" id="fig-19"><a href="img/homelab-etape-3-19.webp"><img src="img/homelab-etape-3-19.webp" alt="Application WireGuard sur iPhone en LTE à 19:18 : tunnel freebox activé." width="924" height="420" loading="lazy"></a><figcaption><b>Fig. 19</b> Test 4G, 1 : le VPN.</figcaption></figure><figure class="shot" id="fig-20"><a href="img/homelab-etape-3-20.webp"><img src="img/homelab-etape-3-20.webp" alt="Application Freebox sur iPhone en LTE : appareil labo, injoignable depuis 19:06, bouton Allumer l'appareil (WOL)." width="924" height="1120" loading="lazy"></a><figcaption><b>Fig. 20</b> Test 4G, 2 : le réveil.</figcaption></figure><figure class="shot" id="fig-21"><a href="img/homelab-etape-3-21.webp"><img src="img/homelab-etape-3-21.webp" alt="Termius sur iPhone en LTE à 19:19 : hostname répond labo, uptime -p répond up 1 minute." width="924" height="930" loading="lazy"></a><figcaption><b>Fig. 21</b> Test 4G, 3 : la tour vient de démarrer.</figcaption></figure></div>
+<figure class="shot" id="fig-22"><a href="img/homelab-etape-3-22.webp"><img src="img/homelab-etape-3-22.webp" alt="Freebox OS, utilisateurs du serveur VPN : iphone-maxime en 192.168.27.65 et portable-maxime en 192.168.27.66." width="1257" height="630" loading="lazy"></a><figcaption><b>Fig. 22</b> Un utilisateur VPN par appareil.</figcaption></figure>
+<figure class="shot" id="fig-23"><a href="img/homelab-etape-3-23.webp"><img src="img/homelab-etape-3-23.webp" alt="Terminal du PC portable en 4G sans VPN : ssh vers labo, port 22, Connection timed out." width="700" height="51" loading="lazy"></a><figcaption><b>Fig. 23</b> Sans VPN, la tour est invisible depuis internet.</figcaption></figure>
+<figure class="shot" id="fig-24"><a href="img/homelab-etape-3-24.webp"><img src="img/homelab-etape-3-24.webp" alt="WireGuard pour Windows : tunnel du portable activé, adresse 192.168.27.66/32, clé pré-partagée activée, dernière liaison il y a 1 seconde (clés, point de terminaison et serveur DNS masqués)." width="972" height="760" loading="lazy"></a><figcaption><b>Fig. 24</b> Le tunnel actif sur le PC portable (clés et adresses publiques masquées).</figcaption></figure>
+<figure class="shot" id="fig-25"><a href="img/homelab-etape-3-25.webp"><img src="img/homelab-etape-3-25.webp" alt="Terminal : hostname répond labo, who montre une connexion depuis 192.168.27.66, l'adresse VPN du portable." width="594" height="99" loading="lazy"></a><figcaption><b>Fig. 25</b> Avec le VPN, le portable se connecte à la tour.</figcaption></figure>
+<figure class="shot" id="fig-26"><a href="img/homelab-etape-3-26.webp"><img src="img/homelab-etape-3-26.webp" alt="Terminal : last -x montre, depuis 192.168.27.65, une connexion à 19:06, une extinction à 19:07, un réveil à 19:18, une connexion à 19:18 et une extinction à 19:20." width="1029" height="290" loading="lazy"></a><figcaption><b>Fig. 26</b> Tout le test 4G est inscrit dans le journal du serveur.</figcaption></figure>
+</div>
+<div class="part" id="partie-5">
+<h2><span class="n">05</span>Problèmes rencontrés et solutions</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Problème</th><th scope="col">Cause</th><th scope="col">Solution</th></tr></thead><tbody><tr><td>VPN impossible depuis l'extérieur</td><td>Adresse IPv4 partagée entre plusieurs abonnés Free</td><td>Demande de l'IP Full Stack (gratuite), puis redémarrage de la Freebox</td></tr><tr><td>Termius affiche une empreinte de serveur différente de celle notée</td><td>Le serveur a plusieurs clés d'hôte : Termius choisit la clé ECDSA, le portable la clé ED25519</td><td>Empreinte ECDSA lue depuis le portable sur la tour : identique, la connexion est sûre</td></tr><tr><td>Premier réveil sans effet</td><td>Deux appareils <span class="k">labo</span> dans Freebox OS (carte Wi-Fi et carte filaire) : le paquet était parti vers l'adresse MAC du Wi-Fi, qui ne peut pas réveiller la tour</td><td>Vérifier l'adresse MAC dans « Propriétés » et réveiller le <span class="k">labo</span> du câble</td></tr><tr><td>Pas de menu de réveil dans Freebox OS sur iPhone</td><td>Le menu s'ouvre par clic droit, impossible dans Safari sur téléphone</td><td>Réveil par l'application « Freebox (ancienne app) »</td></tr><tr><td>Pas de câble réseau jusqu'à la tour (box en bas, tour à l'étage)</td><td>Le Wake-on-LAN ne marche pas en Wi-Fi ; déplacer la tour près de la box n'était pas possible</td><td>Achat d'un kit CPL</td></tr></tbody></table></div>
+<p class="note"><strong>Écart au budget</strong> : le projet visait 0 €. Le kit CPL TP-Link TL-PA7017P (58,27 €) est la seule dépense, faute d'autre solution pour amener un câble jusqu'à la tour.</p>
+</div>
+<div class="part" id="partie-6">
+<h2><span class="n">06</span>Lien avec le Zero Trust</h2>
+<p>Accès à distance conçu selon des principes du Zero Trust (formation Cato Networks « Zero Trust Security Essentials », octobre 2026, voir mes <a href="../#certifications">certifications</a>) :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Principe</th><th scope="col">Ce que j'ai mis en place</th></tr></thead><tbody><tr><td>Vérifier explicitement</td><td>SSH par clé uniquement, mot de passe et compte root coupés, phrase de passe sur chaque clé</td></tr><tr><td>Une identité par appareil</td><td>Une clé SSH par appareil (PowerShell, WSL, iPhone), et un utilisateur WireGuard par appareil (iPhone, PC portable) avec clé pré-partagée : chacun se retire seul</td></tr><tr><td>Moindre privilège</td><td><span class="k">ufw</span> refuse tout en entrée, SSH seulement depuis le réseau local et le VPN ; la clé de déploiement GitHub ne donne accès qu'à un seul dépôt</td></tr><tr><td>Vérifier l'autre côté aussi</td><td>Empreinte de la clé du serveur contrôlée sur chaque nouvel appareil (cas ECDSA / ED25519 ci-dessus)</td></tr><tr><td>Réduire la surface d'attaque</td><td>Le serveur est éteint quand je ne m'en sers pas</td></tr></tbody></table></div>
+<p class="note"><strong>Limite assumée</strong> : le VPN WireGuard reste un accès réseau classique. Une fois connecté, l'appareil est sur le réseau de la maison, alors que le Zero Trust vérifie chaque accès à chaque ressource. Pour aller vers un vrai accès Zero Trust (ZTNA), on pourrait remplacer le VPN par Cloudflare Tunnel et Cloudflare Access pour SSH : gratuit, sans port ouvert sur la box. C'est le principe que j'utilise déjà en production pour l'espace de gestion d'un client.</p>
+</div>
+<div class="part" id="partie-7">
+<h2><span class="n">07</span>Ce que j'en retiens</h2>
+<ul class="b"><li><strong>Exposer le moins possible</strong> : une seule porte d'entrée, le VPN, et le SSH accepté seulement depuis les réseaux connus.</li><li><strong>Ce qui doit toujours marcher tourne sur la box</strong>, pas sur le serveur : c'est ce qui permet de réveiller un serveur éteint.</li><li><strong>Une clé par appareil</strong>, pour pouvoir en retirer une sans toucher aux autres.</li><li><strong>Vérifier une empreinte différente au lieu de l'accepter</strong> : ici, c'était une autre clé d'hôte légitime.</li><li><strong>Vérifier la bonne carte réseau</strong> : un même ordinateur peut apparaître deux fois dans la box (Wi-Fi et câble) ; seule la carte filaire peut réveiller la tour.</li><li><strong>Le journal du serveur (<span class="k">last -x</span>) sert de preuve</strong> : il garde la trace de chaque arrêt, démarrage et connexion, avec l'adresse d'origine.</li></ul>
+</div>
+<nav class="pager" aria-label="Autres étapes"><a href="homelab-etape-2.html"><span>Précédent</span>Étape 2 : le socle logiciel du serveur</a><a class="next" href="homelab-etape-4.html"><span>Suivant</span>Étape 4 : l'audit DNS et courrier d'un nom de domaine</a></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js"></script>
+</body>
+</html>

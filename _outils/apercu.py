@@ -1,5 +1,5 @@
 import subprocess, os, sys
-# Images d'aperçu (LinkedIn, og:image) des pages du homelab, 1200 x 627.
+# Images d'aperçu (LinkedIn, og:image) de la page d'accueil et des pages du homelab, 1200 x 627.
 # Usage : python3 -I _outils/apercu.py <dossier-temporaire> projets/img
 # Ajouter la page dans « pages » ci-dessous, puis la balise og:image dans la page.
 D=sys.argv[1]; OUT=sys.argv[2]
@@ -8,6 +8,7 @@ BOLD='/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf'
 MONO='/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf'
 MONOR='/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
 pages={
+ 'accueil':("PORTFOLIO",["Systèmes, réseaux","et cybersécurité"],"Projets, stage, certifications et veille"),
  'homelab':("PROJET PERSONNEL · HOMELAB",["Un ancien PC de jeu","devenu serveur"],"Audit et surveillance des sites de mes clients, étape par étape"),
  'homelab-etape-1':("HOMELAB · ÉTAPE 1 SUR 10",["Installer un serveur","Ubuntu sur un ancien PC"],"Ubuntu Server 24.04 · SSH par clé seulement · adresse fixe"),
  'homelab-etape-2':("HOMELAB · ÉTAPE 2 SUR 10",["Le socle logiciel","du serveur"],"Pare-feu ufw · mises à jour automatiques · Docker · Git privé"),

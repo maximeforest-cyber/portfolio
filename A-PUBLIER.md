@@ -89,7 +89,7 @@ La fiche complète : https://forestmaxime-pf.fr/projets/homelab-etape-3.html
 
 ## 2026-10-26 : Le Zero Trust, que j'appliquais déjà pour un client de Site de Poche
 
-- Statut : à programmer le 2026-10-30 à 18 h 30
+- Statut : programmé le 2026-10-30 à 18 h 30
 - Lien : https://forestmaxime-pf.fr/#parcours
 - Image proposée : aucune
 
@@ -122,7 +122,7 @@ Elle rejoint mes certifications Cisco et ma formation RGPD de la CNIL, dans la r
 
 ## 2026-10-25 : Homelab, étape 2 : le socle logiciel du serveur
 
-- Statut : à programmer le 2026-10-28 à 18 h 30
+- Statut : programmé le 2026-10-28 à 18 h 30
 - Lien : https://forestmaxime-pf.fr/projets/homelab-etape-2.html
 - Image proposée : projets/img/homelab-etape-2-01.webp
 

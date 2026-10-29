@@ -688,18 +688,18 @@
       <article class="card" id="veille-dmarc-france">
         <p class="meta">Sujet 2 · octobre 2026</p>
         <h3>Où en est DMARC en France ?</h3>
-        <p>Un domaine .fr sur cinq a un DMARC, et la plupart se contentent d'observer. Même gmail.com.</p>
+        <p>Un domaine .fr sur cinq a un DMARC, et la plupart ne bloquent rien. Même gmail.com.</p>
         <details>
           <summary>Lire la veille</summary>
           <div class="fiche">
             <h4>Les chiffres</h4>
-            <p>L'Afnic, qui gère les noms de domaine en .fr, a publié en septembre 2025 une étude sur tous les domaines en .fr :</p>
+            <p>L'Afnic, qui gère les noms de domaine en .fr, a publié en septembre 2025 une étude sur tous les domaines en .fr, même ceux qui ne reçoivent pas de courrier (avant 2025, elle ne comptait que ceux qui en reçoivent) :</p>
             <ul>
               <li>SPF : 69,0 % des domaines (52,5 % en 2023)</li>
               <li>DKIM : 40,7 % (22,6 % en 2023)</li>
               <li>DMARC : 19,5 % (7,3 % en 2023)</li>
             </ul>
-            <p>Parmi les domaines qui ont un DMARC, environ 63 % sont en <code>p=none</code> (observation seulement), 16,7 % en <code>quarantine</code> et 20,6 % en <code>reject</code>. L'adoption progresse vite, mais la plupart des domaines ne bloquent encore rien.</p>
+            <p>Parmi les domaines qui ont un DMARC, 49,7 % sont en <code>p=none</code> sans adresse de rapport, 13,0 % en <code>p=none</code> avec rapports, 16,7 % en <code>quarantine</code> et 20,6 % en <code>reject</code>. L'adoption progresse vite, mais la plupart ne bloquent rien, et la moitié n'observe même pas : sans adresse de rapport, le domaine ne reçoit aucun compte rendu.</p>
             <h4>Mon relevé du 29/10/2026</h4>
             <ul>
               <li><code>gmail.com</code> : <code>p=none</code> (observation seulement), mais <code>quarantine</code> pour ses sous-domaines</li>

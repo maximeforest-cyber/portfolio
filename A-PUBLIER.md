@@ -21,11 +21,11 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 
 Je commence une nouvelle veille technologique pour mon BTS : la sécurité de la messagerie. Ma question : comment protéger un domaine contre l'usurpation et le phishing ?
 
-Un exemple relevé le 29/10 : google.com refuse les e-mails qui usurpent son nom (DMARC en « reject »), alors que gmail.com se contente d'observer (« p=none »). Pourtant, Google exige un DMARC de tous les gros expéditeurs depuis 2024.
+Un exemple relevé le 29/10 : google.com demande aux messageries de refuser les e-mails qui usurpent son nom (DMARC en « reject »), alors que gmail.com se contente d'observer (« p=none »). Pourtant, Google exige un DMARC de tous les gros expéditeurs depuis 2024.
 
 Mes trois premiers sujets :
 - Google, Yahoo et Microsoft trient désormais les e-mails selon SPF, DKIM et DMARC ;
-- où en est DMARC en France : un domaine .fr sur cinq en a un, et la plupart se contentent d'observer ;
+- où en est DMARC en France : un domaine .fr sur cinq en a un, la plupart ne bloquent rien, et la moitié n'observe même pas ;
 - le phishing écrit par l'IA, et ce que DMARC ne bloque pas.
 
 Ce que j'en retiens pour l'instant : l'authentification des e-mails est nécessaire, mais pas suffisante. Elle empêche d'usurper mon domaine, mais elle ne protège pas mes utilisateurs de tous les phishings.

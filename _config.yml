@@ -2,3 +2,4 @@
 exclude:
   - CLAUDE.md
   - A-PUBLIER.md
+  - .claude

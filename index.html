@@ -673,7 +673,7 @@
             <p>Microsoft a suivi le 5 mai 2025 pour Outlook.com, Hotmail et Live, avec le même seuil de 5 000 e-mails par jour : les e-mails des domaines qui ne respectent pas ces règles partent en courrier indésirable.</p>
             <h4>Ce que j'en retiens</h4>
             <p>Ces règles sont exigées des gros expéditeurs, et de fait attendues de tous : sans SPF, DKIM et DMARC, les e-mails d'une petite entreprise risquent de finir en spam.</p>
-            <p>Je l'ai fait pour mon premier client : SPF, DKIM et DMARC, avec Cloudflare Email Routing. En le vérifiant avec mon <a href="projets/homelab-etape-4.html">outil d'audit</a>, la clé DKIM sortait « Non trouvé » : Cloudflare la nomme <code>cf2024-1</code>, un nom absent de ma liste. On ne peut pas lister les clés DKIM d'un domaine, il faut deviner leur nom : c'est pour ça que mon outil dit « Non trouvé » et jamais « absent ».</p>
+            <p>Je l'ai fait pour mon premier client, sur un domaine qui sert seulement à recevoir : Cloudflare Email Routing renvoie les e-mails reçus vers sa boîte, et les signe en DKIM. Comme personne n'envoie depuis ce domaine, son DMARC est en <code>reject</code> : tout e-mail à son nom est forcément faux. En le vérifiant avec mon <a href="projets/homelab-etape-4.html">outil d'audit</a>, la clé DKIM sortait « Non trouvé » : Cloudflare la nomme <code>cf2024-1</code>, un nom absent de ma liste. On ne peut pas lister les clés DKIM d'un domaine, il faut deviner leur nom : c'est pour ça que mon outil dit « Non trouvé » et jamais « absent ».</p>
             <h4>Sources</h4>
             <ul class="sources">
               <li><a href="https://support.google.com/a/answer/81126" rel="noopener">support.google.com (consignes aux expéditeurs)</a></li>

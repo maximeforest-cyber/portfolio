@@ -19,10 +19,8 @@ Mon portfolio de BTS SIO option SISR. On se tutoie, en français simple. Tout le
 
 ## 2. Git : toujours pull avant, push après
 
-Claude Desktop travaille aussi sur ce dépôt.
-
 - **Avant toute modification** : `git pull`. Si le pull échoue (conflit, accès refusé), s'arrêter et me prévenir, ne rien modifier.
-- **Après chaque modification** : commit (message en français qui dit ce qui change sur le site, comme dans l'historique) puis `git push` tout de suite, pour que Claude Desktop reparte de la dernière version.
+- **Après chaque modification** : commit (message en français qui dit ce qui change sur le site, comme dans l'historique). Le `git push` met le site en ligne : il se fait une fois la vérification passée (niveau 3 pour un contenu nouveau, comme une étape du homelab ; voir `~/.claude/CLAUDE.md`), et avec mon accord. Claude Desktop ne travaille plus sur ce dépôt (29/10/2026).
 - La clé SSH a une phrase de passe : si GitHub répond `Permission denied (publickey)`, me demander de taper `! ssh-add ~/.ssh/id_ed25519`, puis réessayer.
 
 ## 3. Publier depuis le homelab (`~/homelab/portfolio/`)

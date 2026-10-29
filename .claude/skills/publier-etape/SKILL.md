@@ -18,4 +18,6 @@ Vérifier d'abord que la fiche `~/homelab/portfolio/etape-N-….md` est validée
 4. Navigation `pager` : la fiche N-1 reçoit un lien « Suivant » vers la fiche N ; la fiche N a « Précédent » vers la fiche N-1 et un `<span></span>` à droite.
 5. La carte `#projet-homelab` de `index.html` ne change pas (elle ne donne pas l'avancement). Ajouter l'entrée dans `A-PUBLIER.md` (format du point 4 de `CLAUDE.md`).
 
-Avant le commit : ouvrir la page en local (`python3 -m http.server`, http://localhost:8000/projets/homelab-etape-N.html), vérifier les captures, les liens « Précédent / Suivant » et l'absence d'erreur CSP. Puis commit en français et `git push` (le site se met en ligne en une à deux minutes). Dire à Maxime ce qui n'a pas pu être vérifié (rendu sur téléphone, aperçu dans LinkedIn).
+Avant le commit : ouvrir la page en local (`python3 -m http.server`, http://localhost:8000/projets/homelab-etape-N.html), vérifier les captures, les liens « Précédent / Suivant » et l'absence d'erreur CSP. Puis commit en français, **sans pousser** : le push met le site en ligne en une à deux minutes. Demander à Maxime : « push maintenant, ou attendre les autres étapes ? ».
+- Avant le push : relecture de niveau 3 (voir `~/.claude/CLAUDE.md`), par une relectrice ouverte dans `~/homelab` (là où sont les fiches). Elle compare chaque page à sa fiche et vérifie toutes les captures. Quand plusieurs étapes attendent, une seule relecture pour toutes, puis un seul push.
+- Dire à Maxime ce qui n'a pas pu être vérifié (rendu sur téléphone, aperçu dans LinkedIn).

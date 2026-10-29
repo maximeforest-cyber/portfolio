@@ -11,6 +11,24 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | mar. 03/11 | Homelab, étape 3 : l'accès à distance |
 | jeu. 05/11 | Homelab, étape 4 : l'audit DNS et courrier |
 | mar. 10/11 | Homelab, étape 5 : l'audit web |
+| jeu. 12/11 | Nouvelle veille : la sécurité de la messagerie |
+
+## 2026-10-29 : Nouvelle veille : la sécurité de la messagerie
+
+- Statut : à relire, à programmer le 2026-11-12 à 18 h 30
+- Lien : https://forestmaxime-pf.fr/#veille
+- Image proposée : aucune
+
+Je commence une nouvelle veille technologique pour mon BTS : la sécurité de la messagerie. Ma question : comment protéger un domaine contre l'usurpation et le phishing ?
+
+Un exemple relevé le 29/10 : google.com refuse les e-mails qui usurpent son nom (DMARC en « reject »), alors que gmail.com se contente d'observer (« p=none »). Pourtant, Google exige un DMARC de tous les gros expéditeurs depuis 2024.
+
+Mes trois premiers sujets :
+- Google, Yahoo et Microsoft trient désormais les e-mails selon SPF, DKIM et DMARC ;
+- où en est DMARC en France : beaucoup de domaines en ont un, peu le font vraiment appliquer ;
+- le phishing écrit par l'IA, et ce que DMARC ne bloque pas.
+
+Ce que j'en retiens pour l'instant : l'authentification des e-mails est nécessaire, mais pas suffisante. Elle protège mon domaine, pas mes utilisateurs.
 
 ## 2026-10-27 : Homelab, étape 5 : l'audit web d'un site
 

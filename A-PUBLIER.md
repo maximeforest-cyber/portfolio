@@ -25,10 +25,10 @@ Un exemple relevé le 29/10 : google.com refuse les e-mails qui usurpent son nom
 
 Mes trois premiers sujets :
 - Google, Yahoo et Microsoft trient désormais les e-mails selon SPF, DKIM et DMARC ;
-- où en est DMARC en France : beaucoup de domaines en ont un, peu le font vraiment appliquer ;
+- où en est DMARC en France : un domaine .fr sur cinq en a un, et la plupart se contentent d'observer ;
 - le phishing écrit par l'IA, et ce que DMARC ne bloque pas.
 
-Ce que j'en retiens pour l'instant : l'authentification des e-mails est nécessaire, mais pas suffisante. Elle protège mon domaine, pas mes utilisateurs.
+Ce que j'en retiens pour l'instant : l'authentification des e-mails est nécessaire, mais pas suffisante. Elle empêche d'usurper mon domaine, mais elle ne protège pas mes utilisateurs de tous les phishings.
 
 ## 2026-10-27 : Homelab, étape 5 : l'audit web d'un site
 

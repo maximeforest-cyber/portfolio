@@ -664,14 +664,16 @@
             <p>Le protocole SMTP, qui transporte les e-mails, ne vérifie pas l'expéditeur : n'importe qui peut écrire un e-mail qui semble venir de <code>contact@impots.gouv.fr</code>. Trois réglages publiés dans le DNS du domaine permettent de repérer ces e-mails usurpés :</p>
             <ul>
               <li>SPF : la liste des serveurs qui ont le droit d'envoyer des e-mails pour le domaine</li>
-              <li>DKIM : une signature qui prouve que l'e-mail vient bien du domaine et n'a pas été modifié</li>
-              <li>DMARC : ce que le serveur qui reçoit doit faire si SPF et DKIM échouent : rien (<code>p=none</code>, observation seulement), le mettre en spam (<code>quarantine</code>) ou le refuser (<code>reject</code>)</li>
+              <li>DKIM : une signature qui prouve que l'e-mail a été signé par un domaine et n'a pas été modifié</li>
+              <li>DMARC : il exige que le domaine vérifié par SPF ou par DKIM soit le même que celui affiché dans « De : » (c'est l'alignement), et il dit quoi faire si ce n'est pas le cas : rien (<code>p=none</code>, observation seulement), le mettre en spam (<code>quarantine</code>) ou le refuser (<code>reject</code>)</li>
             </ul>
+            <p>Sans DMARC, un e-mail peut passer SPF ou DKIM avec le domaine de l'attaquant tout en affichant un autre expéditeur : SPF vérifie l'adresse d'enveloppe, pas celle que lit le destinataire.</p>
             <h4>Ce qui a changé</h4>
             <p>Depuis février 2024, Google et Yahoo demandent à <strong>tous</strong> les expéditeurs au moins SPF ou DKIM. Les <strong>gros expéditeurs</strong> (plus de 5 000 e-mails par jour vers Gmail) doivent avoir SPF, DKIM et un DMARC, au moins en <code>p=none</code>, ainsi qu'un lien de désinscription en un clic.</p>
             <p>Microsoft a suivi le 5 mai 2025 pour Outlook.com, Hotmail et Live, avec le même seuil de 5 000 e-mails par jour : les e-mails des domaines qui ne respectent pas ces règles partent en courrier indésirable.</p>
             <h4>Ce que j'en retiens</h4>
             <p>Ces règles sont exigées des gros expéditeurs, et de fait attendues de tous : sans SPF, DKIM et DMARC, les e-mails d'une petite entreprise risquent de finir en spam.</p>
+            <p>Je l'ai fait pour mon premier client : SPF, DKIM et DMARC, avec Cloudflare Email Routing. En le vérifiant avec mon <a href="projets/homelab-etape-4.html">outil d'audit</a>, la clé DKIM sortait « Non trouvé » : Cloudflare la nomme <code>cf2024-1</code>, un nom absent de ma liste. On ne peut pas lister les clés DKIM d'un domaine, il faut deviner leur nom : c'est pour ça que mon outil dit « Non trouvé » et jamais « absent ».</p>
             <h4>Sources</h4>
             <ul class="sources">
               <li><a href="https://support.google.com/a/answer/81126" rel="noopener">support.google.com (consignes aux expéditeurs)</a></li>
@@ -686,12 +688,18 @@
       <article class="card" id="veille-dmarc-france">
         <p class="meta">Sujet 2 · octobre 2026</p>
         <h3>Où en est DMARC en France ?</h3>
-        <p>Beaucoup de domaines ont un DMARC, peu le font vraiment appliquer. Même gmail.com.</p>
+        <p>Un domaine .fr sur cinq a un DMARC, et la plupart se contentent d'observer. Même gmail.com.</p>
         <details>
           <summary>Lire la veille</summary>
           <div class="fiche">
             <h4>Les chiffres</h4>
-            <p>Les études publiées en 2026 ne donnent pas les mêmes chiffres, car elles n'analysent pas les mêmes domaines : selon elles, de 58 % à 87 % des domaines français ont un enregistrement DMARC. Mais toutes montrent la même chose : seule une minorité, entre 10 % et 30 % environ, applique la politique la plus stricte, <code>reject</code>. Les autres se contentent d'observer, ou n'ont aucune protection.</p>
+            <p>L'Afnic, qui gère les noms de domaine en .fr, a publié en septembre 2025 une étude sur tous les domaines en .fr :</p>
+            <ul>
+              <li>SPF : 69,0 % des domaines (52,5 % en 2023)</li>
+              <li>DKIM : 40,7 % (22,6 % en 2023)</li>
+              <li>DMARC : 19,5 % (7,3 % en 2023)</li>
+            </ul>
+            <p>Parmi les domaines qui ont un DMARC, environ 63 % sont en <code>p=none</code> (observation seulement), 16,7 % en <code>quarantine</code> et 20,6 % en <code>reject</code>. L'adoption progresse vite, mais la plupart des domaines ne bloquent encore rien.</p>
             <h4>Mon relevé du 29/10/2026</h4>
             <ul>
               <li><code>gmail.com</code> : <code>p=none</code> (observation seulement), mais <code>quarantine</code> pour ses sous-domaines</li>
@@ -700,12 +708,12 @@
               <li><code>laposte.net</code> et <code>impots.gouv.fr</code> : <code>p=reject</code></li>
             </ul>
             <p>Google exige un DMARC des gros expéditeurs et protège google.com au maximum, mais garde la politique la plus souple sur gmail.com. Google n'explique pas officiellement ce choix.</p>
+            <p>L'exemple du sujet 1, un faux e-mail venant de <code>contact@impots.gouv.fr</code>, serait donc refusé par les grandes messageries : ce domaine est en <code>reject</code>.</p>
             <h4>Ce que j'en retiens</h4>
             <p>Avoir un DMARC ne suffit pas : en <code>p=none</code>, un e-mail usurpé est quand même livré. On passe en général par étapes de <code>none</code> à <code>quarantine</code> puis <code>reject</code>, en lisant les rapports DMARC pour ne pas bloquer ses propres e-mails. C'est ce que vérifie mon <a href="projets/homelab-etape-4.html">outil d'audit</a> : un DMARC en <code>p=none</code> y apparaît en orange.</p>
             <h4>Sources</h4>
             <ul class="sources">
-              <li><a href="https://powerdmarc.com/france-dmarc-adoption-report/" rel="noopener">powerdmarc.com</a></li>
-              <li><a href="https://dharmail.com/blog/fr/adoption-dmarc-france-statistiques-2026/" rel="noopener">dharmail.com</a></li>
+              <li><a href="https://www.afnic.fr/en/observatory-and-resources/expert-papers/spf-dkim-dmarc-and-bimi-on-fr-still-on-the-rise-in-2025/" rel="noopener">afnic.fr</a></li>
               <li>Relevé DNS personnel des enregistrements <code>_dmarc</code>, le 29/10/2026</li>
             </ul>
           </div>
@@ -720,8 +728,8 @@
           <summary>Lire la veille</summary>
           <div class="fiche">
             <h4>Le constat</h4>
-            <p>Dans son rapport d'activité 2025, publié le 26 mars 2026, Cybermalveillance.gouv.fr place l'hameçonnage au premier rang des menaces, tous publics confondus, en hausse de 70 % en un an.</p>
-            <p>L'IA permet d'écrire des e-mails sans fautes, adaptés à chaque cible, et en grand nombre. Des kits de phishing vendus clé en main (« phishing-as-a-service ») mettent ces attaques à la portée de personnes sans compétences techniques.</p>
+            <p>Dans son rapport d'activité 2025, publié le 26 mars 2026, Cybermalveillance.gouv.fr place l'hameçonnage (par e-mail, SMS ou appel) au premier rang des menaces, tous publics confondus, en hausse de 70 % en un an. Il relie cette hausse aux fuites de données (+107 % de demandes d'assistance) : les données volées donnent aux attaquants de quoi viser et personnaliser leurs messages.</p>
+            <p>L'IA, elle, rend ces e-mails plus crédibles : elle permet d'écrire des e-mails sans fautes, adaptés à chaque cible, et en grand nombre. Des kits de phishing vendus clé en main (« phishing-as-a-service ») mettent ces attaques à la portée de personnes sans compétences techniques.</p>
             <h4>Ce que SPF, DKIM et DMARC ne bloquent pas</h4>
             <p>Ils protègent seulement le nom de domaine exact. Ils n'empêchent pas :</p>
             <ul>
@@ -737,10 +745,10 @@
               <li>Signaler les e-mails d'hameçonnage sur Signal Spam</li>
             </ul>
             <h4>Ce que j'en retiens</h4>
-            <p>L'authentification des e-mails est nécessaire mais pas suffisante : elle protège mon domaine, pas mes utilisateurs.</p>
+            <p>L'authentification des e-mails est nécessaire mais pas suffisante : elle empêche d'usurper mon domaine, mais elle ne protège pas mes utilisateurs de tous les phishings.</p>
             <h4>Sources</h4>
             <ul class="sources">
-              <li><a href="https://www.cybermalveillance.gouv.fr/tous-nos-contenus/actualites/rapport-activite-2025" rel="noopener">cybermalveillance.gouv.fr</a></li>
+              <li><a href="https://www.cybermalveillance.gouv.fr/tous-nos-contenus/actualites/rapport-activite-2025" rel="noopener">cybermalveillance.gouv.fr</a> (<a href="https://www.cybermalveillance.gouv.fr/medias/2026/03/CP-RA2026.pdf" rel="noopener">communiqué</a>)</li>
               <li><a href="https://itdaily.fr/nouvelles/securite/ia-phishing-as-a-service-attaques-par-email/" rel="noopener">itdaily.fr</a></li>
               <li><a href="https://www.signal-spam.fr/" rel="noopener">signal-spam.fr</a></li>
             </ul>

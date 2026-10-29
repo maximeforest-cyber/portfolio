@@ -16,19 +16,23 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 ## 2026-10-29 : Nouvelle veille : la sécurité de la messagerie
 
 - Statut : à relire, à programmer le 2026-11-12 à 18 h 30
-- Lien : https://forestmaxime-pf.fr/#veille
+- Lien : https://forestmaxime-pf.fr/#veille-exigences-messagerie
 - Image proposée : aucune
 
-Je commence une nouvelle veille technologique pour mon BTS : la sécurité de la messagerie. Ma question : comment protéger un domaine contre l'usurpation et le phishing ?
+Je commence une nouvelle veille technologique pour mon BTS : la sécurité de la messagerie. Ma question : comment protéger un domaine contre l'usurpation et le phishing ? Je publierai une fiche par mois.
 
-Un exemple relevé le 29/10 : google.com demande aux messageries de refuser les e-mails qui usurpent son nom (DMARC en « reject »), alors que gmail.com se contente d'observer (« p=none »). Pourtant, Google exige un DMARC de tous les gros expéditeurs depuis 2024.
+Première fiche : Google, Yahoo et Microsoft trient désormais les e-mails selon trois réglages publiés dans le DNS du domaine :
+- SPF : les serveurs qui ont le droit d'envoyer pour le domaine ;
+- DKIM : une signature qui prouve que l'e-mail n'a pas été modifié ;
+- DMARC : il vérifie que le domaine contrôlé est bien celui affiché dans « De : », et dit quoi faire sinon.
 
-Mes trois premiers sujets :
-- Google, Yahoo et Microsoft trient désormais les e-mails selon SPF, DKIM et DMARC ;
-- où en est DMARC en France : un domaine .fr sur cinq en a un, la plupart ne bloquent rien, et la moitié n'observe même pas ;
-- le phishing écrit par l'IA, et ce que DMARC ne bloque pas.
+C'est exigé des gros expéditeurs (plus de 5 000 e-mails par jour vers Gmail, même seuil chez Microsoft), et de fait attendu de tous : sans ces réglages, les e-mails d'une petite entreprise risquent de finir en spam.
 
-Ce que j'en retiens pour l'instant : l'authentification des e-mails est nécessaire, mais pas suffisante. Elle empêche d'usurper mon domaine, mais elle ne protège pas mes utilisateurs de tous les phishings.
+Je l'ai fait pour mon premier client, avec un cas particulier : son domaine sert seulement à recevoir. Personne n'envoie d'e-mail en son nom, donc son DMARC est en « reject » et tout e-mail à son nom est forcément faux.
+
+La fiche complète : https://forestmaxime-pf.fr/#veille-exigences-messagerie
+
+#cybersécurité #messagerie #dmarc #btssio
 
 ## 2026-10-27 : Homelab, étape 5 : l'audit web d'un site
 

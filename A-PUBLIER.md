@@ -14,6 +14,25 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | jeu. 12/11 | Nouvelle veille : la sécurité de la messagerie |
 | mar. 17/11 | Homelab, étape 6 : l'historique des audits et la sauvegarde |
 | jeu. 19/11 | Homelab, étape 7 : la surveillance des sites de mes clients |
+| mar. 24/11 | Homelab, étape 8 : les rapports aux couleurs de Site de Poche |
+
+## 2026-10-30 : Homelab, étape 8 : les rapports aux couleurs de Site de Poche
+
+- Statut : à relire, à programmer le 2026-11-24 à 18 h 30
+- Lien : https://forestmaxime-pf.fr/projets/homelab-etape-8.html
+- Image proposée : projets/img/homelab-etape-8-01.webp
+
+L'étape 8 de mon homelab est validée : transformer les résultats de mes audits en documents qu'un commerçant peut lire.
+
+Un fichier JSON plein de « SPF » et de « DMARC » ne parle à personne. Mon script Python produit donc deux rapports, en page HTML et en PDF, aux couleurs de ma micro-entreprise Site de Poche. Le premier est un diagnostic d'une seule page, pour démarcher : le cadenas, l'affichage sur téléphone, la date d'expiration du nom de domaine… en phrases simples. Le second est un rapport mensuel complet pour chacun de mes clients, avec le détail technique et ce qui a changé depuis le mois dernier.
+
+Une règle que je me suis fixée : la couleur (vert, orange, rouge) est toujours décidée par les règles écrites des scripts d'audit, jamais par la mise en page. Chaque point porte aussi un mot (« Bon », « À améliorer »…), pour rester lisible en noir et blanc ou pour un daltonien.
+
+Côté données personnelles : le diagnostic d'un prospect n'est jamais enregistré, et les rapports restent sur ma machine, hors de Git.
+
+J'ai aussi fait relire tout mon code par une deuxième session d'IA, comme une revue de code : elle a trouvé deux défauts que mes tests ne pouvaient pas voir, parce qu'ils venaient d'une mauvaise idée de départ. Par exemple, un site qui bloque les robots était dit « en panne », alors qu'il s'affiche très bien pour un vrai visiteur.
+
+Le compte rendu complet, avec un exemple de diagnostic : https://forestmaxime-pf.fr/projets/homelab-etape-8.html
 
 ## 2026-10-30 : Homelab, étape 7 : la surveillance des sites de mes clients
 

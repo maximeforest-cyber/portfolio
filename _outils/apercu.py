@@ -17,6 +17,7 @@ pages={
  'homelab-etape-5':("HOMELAB · ÉTAPE 5 SUR 10",["L'audit web","d'un site"],"HTTPS · en-têtes de sécurité · expiration du domaine · 65 tests"),
  'homelab-etape-6':("HOMELAB · ÉTAPE 6 SUR 10",["L'historique des audits","et leur sauvegarde"],"SQLite · minuteur systemd · copie hors de la tour · restauration testée"),
  'homelab-etape-7':("HOMELAB · ÉTAPE 7 SUR 10",["La surveillance des sites","de mes clients"],"Worker Cloudflare · toutes les 15 min · alerte Discord · résumé à 8 h"),
+ 'homelab-etape-8':("HOMELAB · ÉTAPE 8 SUR 10",["Les rapports aux couleurs","de Site de Poche"],"Diagnostic d'une page · rapport mensuel · HTML et PDF · WeasyPrint"),
 }
 def t(name,txt):
     p=os.path.join(D,name); open(p,'w').write(txt); return p

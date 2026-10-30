@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Homelab, étape 8 : les rapports aux couleurs de Site de Poche | Maxime Forest</title>
+<meta name="description" content="Homelab, étape 8 : transformer les résultats des audits en documents qu'un commerçant peut lire, en HTML et en PDF : un diagnostic d'une page pour démarcher, un rapport mensuel complet pour le suivi de mes clients.">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#efe9df">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/homelab-etape-8.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/homelab-etape-8.html">
+<meta property="og:title" content="Homelab, étape 8 : les rapports aux couleurs de Site de Poche | Maxime Forest">
+<meta property="og:description" content="Homelab, étape 8 : transformer les résultats des audits en documents qu'un commerçant peut lire, en HTML et en PDF : un diagnostic d'une page pour démarcher, un rapport mensuel complet pour le suivi de mes clients.">
+<meta property="og:image" content="https://forestmaxime-pf.fr/projets/img/apercu-homelab-etape-8.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="Homelab, étape 8 : les rapports aux couleurs de Site de Poche, sur le portfolio de Maxime Forest">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="homelab.html#etapes">← Homelab : toutes les étapes</a></p>
+    <p class="kicker">Projet personnel · <b>Homelab, étape 8 sur 10</b> · validée le 29/10/2026</p>
+    <h1>Les rapports aux couleurs de Site de Poche</h1>
+    <p class="lead">Transformer les résultats techniques des audits en documents qu'un commerçant peut lire, à mon image : un diagnostic d'une page pour démarcher, un rapport mensuel complet pour le suivi de mes clients, chaque fois en page HTML et en PDF.</p>
+    <dl class="facts"><div><dt>Projet</dt><dd><a href="homelab.html">Homelab</a> au service de ma micro-entreprise Site de Poche</dd></div><div><dt>Période</dt><dd>29 octobre 2026</dd></div><div><dt>Où ça tourne</dt><dd>Le diagnostic sur le portable (prospection), le rapport mensuel sur la tour (là où est la base)</dd></div><div><dt>Points clés</dt><dd>Python, HTML et CSS générés, WeasyPrint, polices intégrées, couleurs décidées par les règles des audits, RGPD, 121 tests automatiques, relecture du code</dd></div></dl>
+    <ul class="tags"><li>Python</li><li>HTML / CSS</li><li>WeasyPrint</li><li>SQLite</li><li>RGPD</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Objectif</a></li><li><a href="#partie-2"><span>02</span>Schéma et technologies</a></li><li><a href="#partie-3"><span>03</span>Les deux rapports</a></li><li><a href="#partie-4"><span>04</span>Données personnelles</a></li><li><a href="#partie-5"><span>05</span>Utilisation</a></li><li><a href="#partie-6"><span>06</span>Tests réussis</a></li><li><a href="#partie-7"><span>07</span>Problèmes rencontrés</a></li><li><a href="#partie-8"><span>08</span>Relecture du code</a></li><li><a href="#partie-9"><span>09</span>Ce que j'en retiens</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Objectif</h2>
+<p>Transformer les résultats techniques des audits (<a href="homelab-etape-4.html">étapes 4</a> à <a href="homelab-etape-6.html">6</a>, en JSON) en <strong>documents qu'un commerçant peut lire</strong>, à mon image :</p>
+<ul class="b"><li>un <strong>diagnostic court</strong>, pour démarcher : une seule page, seulement ce qu'un commerçant comprend (cadenas, téléphone, nom de domaine…) ;</li><li>un <strong>rapport mensuel complet</strong> sur chacun de mes clients : tous les points vérifiés, et ce qui a changé depuis le mois dernier. Il me sert d'abord à moi, pour mon suivi du mois. Il est écrit pour pouvoir être montré tel quel à un client qui demande ce que je fais pour son site, ou pour présenter mon suivi à un futur client ;</li><li>chaque fois une <strong>page HTML</strong> qui s'ouvre partout, et sa version <strong>PDF</strong> à joindre à un message.</li></ul>
+<p>Règle du projet : la couleur (vert, orange, rouge) est toujours décidée par les scripts d'audit, avec des règles écrites. La mise en page ne fait que l'afficher, avec des phrases écrites à l'avance. L'IA locale (étape 9) pourra reformuler les phrases, jamais changer une couleur.</p>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>Schéma et technologies</h2>
+<pre class="cmd schema" role="img" aria-label="Schéma : deux chaînes. À gauche, le diagnostic de prospection, sur le portable : la commande rapport.py diagnostic, suivie du site et de l'option pdf, lance dns_courrier.py et web.py ; l'audit est fait sur le moment et rien n'est enregistré. À droite, le rapport mensuel des clients, sur la tour : la commande rapport.py mensuel, suivie du client et de l'option pdf, lit dans historique.py la base SQLite de l'étape 6, le dernier audit et la comparaison avec le mois d'avant. Les deux chaînes produisent une page HTML autonome, avec polices et logo intégrés, que WeasyPrint transforme en PDF A4. Les fichiers vont dans le dossier rapports, lisible par moi seul et jamais dans Git ; je relis, puis j'envoie moi-même."><code> Diagnostic (prospection, sur le portable)          Rapport mensuel (clients, sur la tour)
+
+ rapport.py diagnostic &lt;site&gt; --pdf                 rapport.py mensuel &lt;client&gt; --pdf
+        │                                                  │
+        ├─ dns_courrier.py  ┐ audit fait sur le moment     ├─ historique.py : base SQLite (étape 6)
+        └─ web.py           ┘ RIEN n'est enregistré        │   dernier audit + comparaison avec le mois d'avant
+        │                                                  │
+        ▼                                                  ▼
+  page HTML autonome (polices et logo intégrés) ──── WeasyPrint ────► PDF A4
+        │
+        ▼
+  rapports/ (lisible par moi seul, jamais dans Git) → je relis → j'envoie moi-même</code></pre>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Rôle</th><th scope="col">Technologie</th></tr></thead><tbody><tr><td>Mise en page</td><td><strong>HTML + CSS</strong> écrits par le script Python (bibliothèque standard), texte échappé (<span class="k">html.escape</span>)</td></tr><tr><td>HTML → PDF</td><td><strong>WeasyPrint</strong> (logiciel libre) : paquet Ubuntu <span class="k">weasyprint</span> 61.1 sur la tour, mises à jour automatiques ; <span class="k">pip</span> dans un environnement Python à part sur le portable</td></tr><tr><td>Identité visuelle</td><td>celle de mon site <a href="https://sitedepoche.fr/" rel="noopener">sitedepoche.fr</a> : logo SVG, couleurs, polices <strong>Poppins</strong> (titres) et <strong>Inter</strong> (texte), licence libre <strong>SIL OFL 1.1</strong>, intégrées au fichier (base64)</td></tr><tr><td>Données</td><td>rapports JSON des <a href="homelab-etape-4.html">étapes 4</a> et <a href="homelab-etape-5.html">5</a>, base <strong>SQLite</strong> de l'<a href="homelab-etape-6.html">étape 6</a></td></tr><tr><td>Tests</td><td><span class="k">unittest</span> : 121 tests en tout pour l'audit et les rapports, sur le portable et sur la tour</td></tr><tr><td>Code</td><td><span class="k">audit/rapport.py</span>, <span class="k">audit/test_rapport.py</span>, <span class="k">audit/base_essai.py</span>, <span class="k">audit/modele/</span> (dépôt Git privé)</td></tr></tbody></table></div>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>Les deux rapports</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col"></th><th scope="col">Diagnostic (prospection)</th><th scope="col">Rapport mensuel (clients)</th></tr></thead><tbody><tr><td>Pour qui</td><td>un commerce que je démarche (je l'envoie après relecture)</td><td>moi, pour le suivi de chaque client (présentable à un client s'il le demande)</td></tr><tr><td>Où</td><td>sur le portable, quand je prospecte</td><td>sur la tour, là où est la base</td></tr><tr><td>Audit</td><td>fait sur le moment, <strong>jamais enregistré</strong></td><td>lu dans la base (audit fait chaque mois)</td></tr><tr><td>Contenu</td><td>6 à 8 points, en phrases simples</td><td>15 points en 3 parties : votre site, vos e-mails, réglages de sécurité</td></tr><tr><td>Détail technique</td><td>non</td><td>oui, sous chaque phrase simple</td></tr><tr><td>Versions de TLS</td><td><strong>jamais</strong> (décision de l'<a href="homelab-etape-5.html">étape 5</a> : clients seulement)</td><td>oui</td></tr><tr><td>Comparaison</td><td>non</td><td>ce qui va mieux ou moins bien que le mois dernier</td></tr><tr><td>Taille</td><td><strong>une seule page A4</strong>, même dans le pire cas (testé)</td><td>2 pages</td></tr></tbody></table></div>
+<p>Points du diagnostic : le cadenas, le passage automatique au cadenas, une seule adresse (avec ou sans www), l'affichage sur téléphone, le site s'affiche (et en combien de temps), le nom de domaine (date d'expiration), la date « © » en bas de page (seulement si elle est ancienne), la protection des e-mails (seulement si le domaine reçoit des e-mails ; couleur = la pire du SPF et du DMARC).</p>
+<p>Chaque point porte un mot <strong>en plus</strong> de sa couleur (« Bon », « À améliorer », « À corriger », « Non vérifié ») : le rapport reste lisible en noir et blanc ou pour un daltonien. Le DKIM reste « Non trouvé », jamais « absent » : on ne peut essayer que des noms courants.</p>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>Données personnelles (RGPD)</h2>
+<p class="note">Je ne suis pas juriste : ce sont des précautions de bon sens, pas un avis juridique.</p>
+<ul class="b"><li>Le diagnostic d'un prospect n'est <strong>jamais enregistré dans la base</strong>. Il n'est fait que quand je le demande, pour un commerce précis, jamais pour toute une liste.</li><li>Les rapports sont rangés dans <span class="k">rapports/</span>, lisibles par moi seul (<span class="k">chmod 600</span>), et <strong>jamais dans Git</strong> (<span class="k">.gitignore</span>). Un diagnostic de prospect n'est gardé que le temps de la démarche.</li><li>Les rapports ne contiennent que des informations publiques (ce que voit un visiteur) : jamais les coordonnées du titulaire du nom de domaine.</li><li>Pour travailler sur le portable, une <strong>base d'essai avec des clients inventés</strong> (domaines en <span class="k">.example</span>, extension réservée aux exemples) remplace la vraie base : les données de mes clients restent sur la tour.</li></ul>
+</div>
+<div class="part" id="partie-5">
+<h2><span class="n">05</span>Utilisation</h2>
+<pre class="cmd"><code># Diagnostic d'un commerce (portable)
+.venv/bin/python audit/rapport.py diagnostic exemple.fr --pdf
+
+# Rapport mensuel d'un client (tour), après « historique.py enregistrer --tous »
+python3 audit/rapport.py mensuel exemple.fr --pdf
+
+# Base d'essai et rapport d'un client inventé (portable)
+.venv/bin/python audit/base_essai.py
+.venv/bin/python audit/rapport.py mensuel boulangerie-dupain.example --pdf --base donnees/essai.db</code></pre>
+<p>Le script affiche le chemin des fichiers écrits (le PDF en dernier) et s'arrête avec le code 1 en cas d'erreur : un autre programme peut donc l'appeler. Option <span class="k">--dossier</span> : où ranger le rapport. C'est ce qui permet d'ajouter à mon outil de prospection un bouton « Générer le diagnostic PDF », qui appelle ce script sans en copier le code.</p>
+</div>
+<div class="part" id="partie-6">
+<h2><span class="n">06</span>Tests réussis</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Test</th><th scope="col">Résultat attendu</th><th scope="col">Résultat obtenu</th><th scope="col">Preuve</th></tr></thead><tbody><tr><td>Diagnostic d'un site public (<span class="k">example.com</span>)</td><td>Page unique, 2 points à revoir (pas de renvoi http → https, deux adresses), le reste « Bon »</td><td>Conforme</td><td><a href="#fig-1">Fig. 1</a></td></tr><tr><td>Rapport mensuel d'un client inventé, avec un mois d'écart</td><td>Bilan (11 bons points, 4 à améliorer) et les 2 changements : DMARC moins bien, adresse mieux</td><td>Conforme</td><td><a href="#fig-2">Fig. 2</a></td></tr><tr><td>1<sup>er</sup> vrai rapport mensuel de mon client, sur la tour</td><td>15 bons points, polices intégrées au PDF (WeasyPrint 61.1)</td><td>Conforme (PDF de 2 pages)</td><td>Non publié : il contient le nom du client</td></tr><tr><td>26 tests automatiques des rapports : couleurs reprises des scripts, rien d'enregistré pour un prospect, jamais de versions de TLS dans un diagnostic, DKIM jamais « absent », un point « non vérifié » n'est ni mieux ni moins bien, texte échappé, page sans aucun lien extérieur sauf sitedepoche.fr, diagnostic sur une page dans le pire cas</td><td><span class="k">OK</span></td><td>Conforme : 121 tests au total, portable et tour</td><td>Sortie de commande</td></tr></tbody></table></div>
+<figure class="shot" id="fig-1"><a href="img/homelab-etape-8-01.webp"><img src="img/homelab-etape-8-01.webp" alt="Diagnostic de example.com, fait le 29/10/2026, en-tête Site de Poche (numéro de téléphone masqué) : 2 points sur 7 méritent votre attention. Le cadenas : Bon. Le passage automatique au cadenas : À corriger, le visiteur arrive sur une page marquée Non sécurisé. Une seule adresse : À améliorer, le site ne se comporte pas de la même façon avec ou sans www. L'affichage sur téléphone, le site s'affiche (0,07 s), le nom de domaine (réservé jusqu'au 13/08/2027) et la protection des e-mails : Bon. Page 1 sur 1." width="910" height="1287" loading="lazy"></a><figcaption><b>Fig. 1</b> Le diagnostic d'un site public : une seule page, 2 points à revoir (numéro de téléphone masqué).</figcaption></figure>
+<figure class="shot" id="fig-2"><a href="img/homelab-etape-8-02.webp"><img src="img/homelab-etape-8-02.webp" alt="Page 1 sur 2 du rapport d'octobre 2026 de boulangerie-dupain.example (Boulangerie, essai), vérifié le 28/10/2026, en-tête Site de Poche (numéro de téléphone masqué). Ce mois-ci : 11 bons points, 4 à améliorer. Depuis la vérification du 28/09/2026 : consigne contre les faux e-mails (DMARC) moins bien que le mois dernier, une seule adresse mieux que le mois dernier. Partie Votre site : le cadenas, le passage automatique au cadenas, une seule adresse (Mieux que le mois dernier), le site s'affiche et le nom de domaine sont Bon, chacun avec son détail technique. Partie Vos e-mails : réception des e-mails (MX), Bon." width="910" height="1287" loading="lazy"></a><figcaption><b>Fig. 2</b> La 1<sup>re</sup> page du rapport mensuel d'un client inventé : le bilan, ce qui a changé depuis le mois dernier, puis le détail technique sous chaque phrase simple (numéro de téléphone masqué).</figcaption></figure>
+</div>
+<div class="part" id="partie-7">
+<h2><span class="n">07</span>Problèmes rencontrés et solutions</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Problème</th><th scope="col">Cause</th><th scope="col">Solution</th></tr></thead><tbody><tr><td><span class="k">sudo apt install python3-weasyprint</span> : « aucune version disponible »</td><td>Sur Ubuntu 24.04, le paquet s'appelle simplement <span class="k">weasyprint</span></td><td><span class="k">sudo apt install weasyprint</span>, vérifié avec <span class="k">python3 -c "import weasyprint; print(weasyprint.__version__)"</span> → <span class="k">61.1</span></td></tr><tr><td>Diagnostic sur 2 pages quand on a ajouté les points « téléphone » et « © »</td><td>Espacements prévus pour l'écran</td><td>Espacements plus serrés seulement à l'impression (<span class="k">@media print</span>), marges de page réduites ; un test vérifie qu'un diagnostic de 8 points tient sur une page</td></tr><tr><td>Un point « non vérifié » le mois dernier apparaissait « mieux » ce mois-ci</td><td>La comparaison classe « non vérifié » comme le pire état</td><td>Dans le rapport, une comparaison avec un point non vérifié n'est ni mieux ni moins bien : on ne sait pas</td></tr><tr><td>La flèche « → » s'affichait dans une autre police dans le PDF</td><td>Le caractère n'est pas dans les polices intégrées</td><td>Remplacée par des mots : « avant : bon, maintenant : à améliorer »</td></tr><tr><td>« Rapport de octobre », « depuis le rapport du 28/10 »</td><td>Fautes vues en relisant le 1<sup>er</sup> vrai rapport</td><td>« d' » devant une voyelle (testé), et « depuis la vérification du… » (il n'y avait pas eu de rapport ce jour-là)</td></tr><tr><td>Pour un domaine qui n'existe pas, un diagnostic « Tout ce que j'ai regardé est en ordre », avec un seul point « Non vérifié » (vu par la session Claude Code de Site de Poche en testant le bouton, après la validation)</td><td>Le bilan ne comptait que les points orange et rouges</td><td>Pas de site à regarder → pas de diagnostic : message d'erreur, code 1, aucun fichier. Et le bilan ne dit plus jamais « en ordre » si un point n'a pas pu être vérifié. 2 tests ajoutés</td></tr><tr><td>L'outil de prospection voyait deux choses que l'audit ignorait</td><td>Deux outils écrits séparément</td><td>« Affichage sur téléphone » (balise viewport) et « © ancienne » repris dans <span class="k">web.py</span>, avec leurs tests</td></tr></tbody></table></div>
+</div>
+<div class="part" id="partie-8">
+<h2><span class="n">08</span>Relecture du code par une deuxième session</h2>
+<p>Après la validation, j'ai demandé à la session Claude Code de mon projet Site de Poche de relire tout le dossier homelab, <strong>sans rien modifier</strong> : un regard extérieur, comme une revue de code en entreprise. Chaque point a été vérifié puis corrigé ici, avec un test :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Point relevé</th><th scope="col">Correction</th></tr></thead><tbody><tr><td>Un site qui bloque les robots (code 403) était dit « en panne » en rouge, alors qu'il s'affiche pour un vrai visiteur</td><td>Codes 401, 403 et 429 : « Non vérifié », jamais rouge. Si le site entier refuse les robots : pas de diagnostic, et un message qui dit d'aller le voir dans un navigateur. Essai réel sur un grand site qui bloque les robots. L'audit continue de se présenter honnêtement comme un robot</td></tr><tr><td>« Rien n'empêche quelqu'un d'envoyer de faux e-mails » dès que le DMARC manque, même avec un SPF correct</td><td>Point « e-mails » rouge seulement si SPF <strong>et</strong> DMARC manquent, vert si les deux sont bons, orange sinon</td></tr><tr><td>Une panne du DNS pendant la vérification du DNSSEC faisait planter le script, et <span class="k">enregistrer --tous</span> s'arrêtait au premier client en échec</td><td>Panne → « Non vérifié » ; un client en échec n'empêche plus d'auditer les suivants (liste des ratés à la fin)</td></tr><tr><td>Un sous-domaine (<span class="k">boutique.exemple.fr</span>) était dit « inexistant »</td><td>Existence testée par la réponse « ce nom n'existe pas » du DNS ; le DNSSEC est vérifié sur la zone qui contient le nom. Limite : le SPF et le DMARC sont cherchés sur le sous-domaine lui-même</td></tr><tr><td>« Pas de cadenas valide » alors que seule l'adresse avec « www » était touchée</td><td>Phrase qui nomme l'adresse qui marche et celle qui ne marche pas</td></tr><tr><td>La relecture du SPF acceptait des fautes de frappe (<span class="k">abc</span>, <span class="k">mxx</span>)</td><td>Chaque terme est lu selon la norme (RFC 7208) ; un modificateur inconnu reste permis, comme le veut la norme</td></tr><tr><td>Adresses MAC des cartes réseau dans le dépôt</td><td>Masquées dans la fiche publiée de l'<a href="homelab-etape-3.html">étape 3</a> (<span class="k">70:85:c2:xx:xx:xx</span>) ; elles restent dans les notes privées du dépôt</td></tr></tbody></table></div>
+</div>
+<div class="part" id="partie-9">
+<h2><span class="n">09</span>Ce que j'en retiens</h2>
+<ul class="b"><li><strong>Un rapport est fait pour son lecteur</strong> : le commerçant lit une phrase simple, le détail technique est en dessous pour qui le veut. Le même résultat se dit deux fois, jamais avec deux couleurs différentes.</li><li><strong>Ne jamais laisser la mise en page décider</strong> : la couleur vient des règles des scripts, testées ; le rapport ne fait que l'afficher.</li><li><strong>Relire le vrai document</strong>, pas seulement les tests : les fautes de français ne se voient que sur le PDF.</li><li><strong>Faire relire son code</strong> : la relecture a trouvé deux défauts que les tests ne pouvaient pas voir, parce qu'ils venaient d'une mauvaise idée de départ, pas d'une erreur de programmation.</li><li><strong>Séparer les projets</strong> : l'outil de prospection appelle le script du labo au lieu de le copier. Une correction dans l'audit profite aux deux.</li></ul>
+</div>
+<nav class="pager" aria-label="Autres étapes"><a href="homelab-etape-7.html"><span>Précédent</span>Étape 7 : la surveillance des sites de mes clients</a><span></span></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js"></script>
+</body>
+</html>

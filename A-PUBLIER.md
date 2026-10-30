@@ -16,6 +16,27 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | jeu. 19/11 | Homelab, étape 7 : la surveillance des sites de mes clients |
 | mar. 24/11 | Homelab, étape 8 : les rapports aux couleurs de Site de Poche |
 | jeu. 26/11 | Homelab, étape 9 : une IA locale sur la carte graphique du labo |
+| mar. 01/12 | Homelab, étape 10 : des services dans Docker, avec un vrai certificat |
+
+## 2026-10-30 : Homelab, étape 10 : des services dans Docker, avec un vrai certificat
+
+- Statut : à relire
+- Lien : https://forestmaxime-pf.fr/projets/homelab-etape-10.html
+- Image proposée : projets/img/homelab-etape-10-12.webp
+
+L'étape 10 de mon homelab est validée. C'était une étape en option : faire tourner des services dans Docker sur mon serveur, sans affaiblir sa sécurité.
+
+Le premier, Uptime Kuma, est un tableau de bord qui surveille le labo et deux sites. Pour le tester, j'ai provoqué une vraie panne en arrêtant un service : l'alerte est arrivée sur Discord, puis le message de retour deux minutes plus tard.
+
+Le second, Traefik, ouvre ce tableau de bord en https avec un vrai certificat Let's Encrypt, alors que mon serveur n'est pas joignable depuis internet. L'astuce, c'est le défi DNS : au lieu de venir vérifier sur mon serveur, Let's Encrypt lit un enregistrement que Traefik a posé dans mon DNS chez Cloudflare. Essai sur mon iPhone en 4G : avec le VPN, la page s'ouvre ; sans le VPN, rien ne répond.
+
+Pour poser cet enregistrement, Traefik utilise un jeton Cloudflare. Je l'ai limité autant que possible : une seule zone DNS, utilisable seulement depuis mon adresse, avec une date de fin. Mais cette zone porte aussi mon portfolio : limiter un secret, ce n'est pas le rendre inoffensif. Et quand un premier jeton s'est retrouvé visible sur une capture d'écran, je l'ai remplacé : un secret vu est un secret grillé.
+
+Les deux conteneurs tournent sous leur propre utilisateur, avec le moins de droits possible, et Docker ne publie aucun port : un port publié par Docker passerait par-dessus le pare-feu.
+
+Le compte rendu complet : https://forestmaxime-pf.fr/projets/homelab-etape-10.html
+
+#homelab #docker #letsencrypt #cybersécurité #btssio
 
 ## 2026-10-30 : Homelab, étape 9 : une IA locale sur la carte graphique du labo
 

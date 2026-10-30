@@ -37,7 +37,7 @@ Le compte rendu complet : https://forestmaxime-pf.fr/projets/homelab-etape-9.htm
 
 ## 2026-10-30 : Homelab, étape 8 : les rapports aux couleurs de Site de Poche
 
-- Statut : à relire, à programmer le 2026-11-24 à 18 h 30
+- Statut : programmé le 2026-11-24 à 18 h 30
 - Lien : https://forestmaxime-pf.fr/projets/homelab-etape-8.html
 - Image proposée : projets/img/homelab-etape-8-01.webp
 

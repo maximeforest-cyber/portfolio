@@ -19,7 +19,7 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 
 ## 2026-10-30 : Homelab, étape 9 : une IA locale sur la carte graphique du labo
 
-- Statut : à relire, à programmer le 2026-11-26 à 18 h 30
+- Statut : programmé le 2026-11-26 à 18 h 30
 - Lien : https://forestmaxime-pf.fr/projets/homelab-etape-9.html
 - Image proposée : projets/img/homelab-etape-9-03.webp
 
@@ -57,9 +57,9 @@ Le compte rendu complet, avec un exemple de diagnostic : https://forestmaxime-pf
 
 ## 2026-10-30 : Homelab, étape 7 : la surveillance des sites de mes clients
 
-- Statut : à relire, à programmer le 2026-11-19 à 18 h 30
+- Statut : programmé le 2026-11-19 à 18 h 30
 - Lien : https://forestmaxime-pf.fr/projets/homelab-etape-7.html
-- Image proposée : aucune (l'aperçu du lien suffit : les captures montrent une erreur de saisie ou une zone masquée)
+- Image proposée : aucune (l'aperçu du lien suffit ; « expired[.]badssl.com » est écrit ainsi pour que LinkedIn ne prenne pas ce site pour l'aperçu)
 
 L'étape 7 de mon homelab est validée : savoir dans le quart d'heure si le site d'un de mes clients tombe en panne.
 
@@ -67,9 +67,9 @@ Ma tour n'est pas allumée en permanence. La surveillance tourne donc chez Cloud
 
 Quand un site tombe, ou quand il revient, je reçois une alerte sur mon téléphone par Discord. Tant que rien ne change, aucun message : avec une alerte à chaque passage, une panne d'une nuit enverrait 30 messages, et on finit par ne plus les lire. Un échec est aussi revérifié 5 secondes plus tard, pour ignorer une erreur passagère.
 
-Une surveillance qui ne dit rien doit prouver qu'elle tourne : chaque matin à 8 h, je reçois un résumé de tous les sites. S'il manque, c'est la surveillance elle-même qui est en panne.
+Une surveillance qui ne dit rien doit prouver qu'elle tourne : chaque matin vers 8 h, je reçois un résumé de tous les sites. S'il manque, c'est la surveillance elle-même qui est en panne.
 
-Pour tester l'alerte avec une vraie panne sans toucher au site d'un client, j'ai ajouté exprès expired.badssl.com, un site public au certificat expiré : l'alerte est bien arrivée sur mon téléphone.
+Pour tester l'alerte avec une vraie panne sans toucher au site d'un client, j'ai ajouté exprès expired[.]badssl.com, un site public au certificat expiré : l'alerte est bien arrivée sur mon téléphone.
 
 Le Worker n'a aucune adresse publique, le lien secret de Discord n'est jamais dans Git, et seuls les sites de mes clients sont surveillés, jamais ceux des prospects.
 
@@ -81,7 +81,7 @@ La fiche complète : https://forestmaxime-pf.fr/projets/homelab-etape-7.html
 
 ## 2026-10-30 : Homelab, étape 6 : l'historique des audits, la sauvegarde et la restauration
 
-- Statut : à relire, à programmer le 2026-11-17 à 18 h 30
+- Statut : programmé le 2026-11-17 à 18 h 30
 - Lien : https://forestmaxime-pf.fr/projets/homelab-etape-6.html
 - Image proposée : projets/img/homelab-etape-6-06.webp
 
@@ -108,7 +108,7 @@ La fiche complète : https://forestmaxime-pf.fr/projets/homelab-etape-6.html
 
 ## 2026-10-29 : Nouvelle veille : la sécurité de la messagerie
 
-- Statut : à relire, à programmer le 2026-11-12 à 18 h 30
+- Statut : programmé le 2026-11-12 à 18 h 30
 - Lien : https://forestmaxime-pf.fr/#veille-exigences-messagerie
 - Image proposée : aucune
 
@@ -129,7 +129,7 @@ La fiche complète : https://forestmaxime-pf.fr/#veille-exigences-messagerie
 
 ## 2026-10-27 : Homelab, étape 5 : l'audit web d'un site
 
-- Statut : à relire, à programmer le 2026-11-10 à 18 h 30
+- Statut : programmé le 2026-11-10 à 18 h 30
 - Lien : https://forestmaxime-pf.fr/projets/homelab-etape-5.html
 - Image proposée : projets/img/homelab-etape-5-03.webp
 
@@ -155,7 +155,7 @@ La fiche complète : https://forestmaxime-pf.fr/projets/homelab-etape-5.html
 
 ## 2026-10-27 : Homelab, étape 4 : l'audit DNS et courrier d'un nom de domaine
 
-- Statut : à relire, à programmer le 2026-11-05 à 18 h 30
+- Statut : programmé le 2026-11-05 à 18 h 30
 - Lien : https://forestmaxime-pf.fr/projets/homelab-etape-4.html
 - Image proposée : projets/img/homelab-etape-4-01.webp
 
@@ -178,7 +178,7 @@ La fiche complète : https://forestmaxime-pf.fr/projets/homelab-etape-4.html
 
 ## 2026-10-27 : Homelab, étape 3 : l'accès à distance au serveur
 
-- Statut : à relire, à programmer le 2026-11-03 à 18 h 30
+- Statut : programmé le 2026-11-03 à 18 h 30
 - Lien : https://forestmaxime-pf.fr/projets/homelab-etape-3.html
 - Image proposée : projets/img/homelab-etape-3-21.webp
 

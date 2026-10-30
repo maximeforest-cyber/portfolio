@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Homelab, étape 6 : l'historique des audits, la sauvegarde et la restauration | Maxime Forest</title>
+<meta name="description" content="Homelab, étape 6 : une base SQLite garde l'historique des audits de mes clients pour comparer d'un mois sur l'autre, avec une sauvegarde automatique vérifiée et une restauration testée en cassant exprès la base.">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#efe9df">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/homelab-etape-6.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/homelab-etape-6.html">
+<meta property="og:title" content="Homelab, étape 6 : l'historique des audits, la sauvegarde et la restauration | Maxime Forest">
+<meta property="og:description" content="Homelab, étape 6 : une base SQLite garde l'historique des audits de mes clients pour comparer d'un mois sur l'autre, avec une sauvegarde automatique vérifiée et une restauration testée en cassant exprès la base.">
+<meta property="og:image" content="https://forestmaxime-pf.fr/projets/img/apercu-homelab-etape-6.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="Homelab, étape 6 : l'historique des audits, la sauvegarde et la restauration, sur le portfolio de Maxime Forest">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="homelab.html#etapes">← Homelab : toutes les étapes</a></p>
+    <p class="kicker">Projet personnel · <b>Homelab, étape 6 sur 10</b> · validée le 28/10/2026</p>
+    <h1>L'historique des audits, la sauvegarde et la restauration</h1>
+    <p class="lead">Garder les résultats des audits d'un mois sur l'autre, pour que le rapport mensuel d'un client dise ce qui s'est amélioré ou dégradé, et protéger ces données comme de vraies données de production : sauvegarde automatique vérifiée, copie hors de la tour, et restauration testée en cassant exprès la base.</p>
+    <dl class="facts"><div><dt>Projet</dt><dd><a href="homelab.html">Homelab</a> au service de ma micro-entreprise Site de Poche</dd></div><div><dt>Période</dt><dd>28 octobre 2026</dd></div><div><dt>Machine</dt><dd>Tour « labo », Ubuntu Server 24.04 LTS, Python 3.12</dd></div><div><dt>Points clés</dt><dd>SQLite, comparaison mensuelle, minuteur systemd, copie hors de la tour, restauration testée, RGPD, 85 tests automatiques</dd></div></dl>
+    <ul class="tags"><li>SQLite</li><li>Python</li><li>systemd</li><li>Sauvegarde et restauration</li><li>RGPD</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Objectif</a></li><li><a href="#partie-2"><span>02</span>Schéma et technologies</a></li><li><a href="#partie-3"><span>03</span>Données personnelles</a></li><li><a href="#partie-4"><span>04</span>La comparaison mensuelle</a></li><li><a href="#partie-5"><span>05</span>Les choix de sauvegarde</a></li><li><a href="#partie-6"><span>06</span>Tests réussis</a></li><li><a href="#partie-7"><span>07</span>Problèmes rencontrés</a></li><li><a href="#partie-8"><span>08</span>Ce que j'en retiens</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Objectif</h2>
+<p>Garder les résultats des audits des étapes <a href="homelab-etape-4.html">4</a> (DNS et courrier) et <a href="homelab-etape-5.html">5</a> (site web) <strong>d'un mois sur l'autre</strong>, pour que le rapport mensuel d'un client puisse dire ce qui s'est amélioré ou dégradé. Et protéger ces données comme de vraies données de production :</p>
+<ul class="b"><li>une <strong>base SQLite</strong> sur la tour, avec l'historique de chaque client ;</li><li>une <strong>comparaison</strong> du dernier audit avec celui du mois précédent ;</li><li>une <strong>sauvegarde automatique</strong>, vérifiée, avec une copie hors de la tour ;</li><li>une <strong>restauration testée</strong> en cassant exprès la base, et écrite pas à pas.</li></ul>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>Schéma et technologies</h2>
+<pre class="cmd schema" role="img" aria-label="Schéma : la commande python3 audit/historique.py enregistrer client.fr lance les audits des étapes 4 et 5. Sur la tour labo, les résultats vont dans la base donnees/audits.db (SQLite, droits 600), avec trois tables : domaines, audits et vérifications, chaque domaine ayant plusieurs audits et chaque audit plusieurs vérifications. Un minuteur systemd, tous les jours à midi et rattrapé au démarrage, lance historique.py sauvegarder, qui écrit une copie datée dans donnees/sauvegardes (30 copies gardées). Une fois par mois, à la main, les sauvegardes sont copiées par scp, en SSH avec clé, vers le PC portable (WSL), dans le dossier sauvegardes-labo en droits 700."><code>  python3 audit/historique.py enregistrer client.fr
+          │  lance les audits des étapes 4 et 5
+          ▼
+ ┌─────────────────────────────── tour « labo » ────────────────────────────────┐
+ │  donnees/audits.db  (SQLite, droits 600)                                     │
+ │    domaines ──&lt; audits ──&lt; verifications                                     │
+ │                                                                              │
+ │  minuteur systemd (tous les jours à midi, rattrapé au démarrage)             │
+ │    └─► historique.py sauvegarder ─► donnees/sauvegardes/audits-DATE.db (×30) │
+ └──────────────────────────────────────────┬───────────────────────────────────┘
+                                            │ scp par SSH (clé), à la main, 1×/mois
+                                            ▼
+                               PC portable (WSL) : ~/sauvegardes-labo/  (dossier 700)</code></pre>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Rôle</th><th scope="col">Technologie</th></tr></thead><tbody><tr><td>Base de données</td><td>SQLite 3, module <span class="k">sqlite3</span> de la bibliothèque standard de Python (rien à installer)</td></tr><tr><td>Planification</td><td>Minuteur <strong>systemd</strong> (<span class="k">.timer</span> + <span class="k">.service</span>), <span class="k">Persistent=true</span></td></tr><tr><td>Copie hors de la tour</td><td><span class="k">scp</span> par SSH avec clé, vérifiée par empreinte SHA256</td></tr><tr><td>Tests</td><td><span class="k">unittest</span>, base temporaire et faux rapports d'audit (sans internet)</td></tr><tr><td>Code</td><td><span class="k">audit/historique.py</span>, <span class="k">audit/test_historique.py</span>, <span class="k">systeme/audit-sauvegarde.*</span> (dépôt Git privé)</td></tr><tr><td>Procédure</td><td><span class="k">docs/sauvegarde-restauration-audits.md</span></td></tr></tbody></table></div>
+<p><strong>Structure de la base</strong> (trois tables) :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Table</th><th scope="col">Contenu</th></tr></thead><tbody><tr><td><span class="k">domaines</span></td><td>Nom de domaine du client, libellé court (« Traiteur », jamais un nom de personne), date d'ajout</td></tr><tr><td><span class="k">audits</span></td><td>Une ligne par audit (DNS ou web) : date, couleur globale, et le <strong>JSON complet</strong> rendu par le script</td></tr><tr><td><span class="k">verifications</span></td><td>Une ligne par vérification (SPF, certificat…) : couleur et message, pour comparer facilement</td></tr></tbody></table></div>
+<p>Les clés étrangères sont activées : effacer un client efface automatiquement tous ses audits.</p>
+<p>Utilisation :</p>
+<pre class="cmd"><code>cd ~/homelab
+python3 audit/historique.py ajouter client.fr "Traiteur"
+python3 audit/historique.py enregistrer --tous         # audits DNS + web de tous les clients
+python3 audit/historique.py comparer client.fr         # ce qui a changé depuis le mois dernier
+python3 audit/historique.py sauvegarder                # à la main (le minuteur le fait chaque jour)
+python3 audit/historique.py restaurer donnees/sauvegardes/audits-….db
+python3 -m unittest discover -s audit -v               # les tests (étapes 4, 5 et 6)</code></pre>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>Données personnelles (RGPD)</h2>
+<p class="note">Je ne suis pas juriste : ce sont des précautions de bon sens, pas un avis juridique.</p>
+<p>Un nom de domaine comme <span class="k">jean-dupont-plombier.fr</span> peut désigner une personne : c'est alors une donnée personnelle. J'ai donc décidé :</p>
+<ul class="b"><li><strong>Mes clients seulement</strong> dans la base : il y a un contrat, l'historique sert au rapport que je leur fournis. Un prospect n'est <strong>jamais enregistré</strong> : le script refuse un domaine qui n'a pas été ajouté comme client, et le diagnostic de démarchage reste à l'écran ;</li><li><strong>Le minimum</strong> : un libellé court, pas de nom, pas de coordonnées ;</li><li><strong>Accès restreint</strong> : base, sauvegardes et copie du portable lisibles par mon seul compte (droits 600 / 700), jamais dans Git, jamais dans un dossier synchronisé (OneDrive…) ;</li><li><strong>Droit à l'effacement</strong> : <span class="k">historique.py retirer client.fr</span> efface le client et tout son historique ; la procédure rappelle d'effacer aussi les copies du portable (celles de la tour sont remplacées au bout de 30 jours).</li></ul>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>La comparaison d'un mois sur l'autre</h2>
+<p><span class="k">historique.py comparer client.fr</span> met face à face le dernier audit et <strong>le plus récent fait au moins 25 jours avant</strong> (pas celui de la veille, qui ne montrerait rien). Si le client est trop récent, il compare au précédent et le dit clairement.</p>
+<p>Pour chaque vérification, le script affiche : <strong>mieux</strong>, <strong>moins bien</strong>, <strong>pareil</strong>, <strong>nouveau</strong> ou <strong>disparu</strong>. Il ne décide aucune couleur : il reprend celles des règles écrites des étapes 4 et 5, et ne fait que les comparer.</p>
+</div>
+<div class="part" id="partie-5">
+<h2><span class="n">05</span>Sauvegarde : pourquoi ces choix</h2>
+<ul class="b"><li><strong>Un minuteur systemd plutôt qu'une tâche <span class="k">cron</span></strong> : la tour ne tourne pas en permanence. Avec <span class="k">cron</span>, une sauvegarde prévue pendant que la tour est éteinte est simplement perdue. Avec <span class="k">Persistent=true</span>, systemd se souvient de la dernière exécution et <strong>rattrape</strong> la sauvegarde ratée au démarrage suivant.</li><li><strong>La fonction de sauvegarde de SQLite plutôt qu'un simple <span class="k">cp</span></strong> : un <span class="k">cp</span> pendant une écriture peut donner une copie incohérente ; la fonction de SQLite donne toujours une copie complète.</li><li><strong>Chaque copie est relue</strong> (<span class="k">PRAGMA integrity_check</span>) : une copie abîmée est refusée et effacée, au lieu de remplacer silencieusement les bonnes.</li><li><strong>30 copies gardées sur la tour</strong> : de quoi revenir en arrière si un problème n'est vu que tard.</li><li><strong>Une copie hors de la tour</strong> : un seul disque dur à plateaux dans la tour ; une sauvegarde sur le même disque ne protège pas d'une panne du disque. Choix de la copie sur le portable plutôt que dans le cloud : 0 €, aucun jeton d'accès à stocker sur la tour, et les données de mes clients ne partent chez personne.</li><li><strong>La restauration ne détruit rien</strong> : elle vérifie d'abord la sauvegarde, puis met l'ancienne base de côté (renommée) au lieu de l'effacer.</li></ul>
+</div>
+<div class="part" id="partie-6">
+<h2><span class="n">06</span>Tests réussis</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Test</th><th scope="col">Résultat attendu</th><th scope="col">Résultat obtenu</th><th scope="col">Preuve</th></tr></thead><tbody><tr><td>85 tests automatiques (étapes 4, 5 et 6), sur la tour</td><td><span class="k">Ran 85 tests … OK</span></td><td>Conforme</td><td><a href="#fig-1">Fig. 1</a></td></tr><tr><td>Mon client traiteur ajouté, deux audits enregistrés, comparaison</td><td>4 audits ; comparaison « au précédent » signalée (même jour) ; tout vert</td><td>Conforme</td><td><a href="#fig-2">Fig. 2</a></td></tr><tr><td>Droits de la base</td><td><span class="k">-rw-------</span> (moi seul)</td><td>Conforme</td><td><a href="#fig-3">Fig. 3</a></td></tr><tr><td>Minuteur installé et 1<sup>re</sup> sauvegarde</td><td>Prochaine exécution le lendemain midi ; « Sauvegarde : … » dans le journal ; fichier en <span class="k">-rw-------</span></td><td>Conforme</td><td><a href="#fig-4">Fig. 4</a></td></tr><tr><td>Copie sur le portable</td><td>Même empreinte SHA256 sur la tour et sur le portable ; dossier en 700</td><td>Conforme</td><td>Sortie de commande, sous le tableau</td></tr><tr><td><strong>Base cassée exprès</strong> (4 Ko écrasés au hasard)</td><td>Le script refuse proprement : « Base illisible… restaurer une sauvegarde »</td><td>Conforme</td><td><a href="#fig-5">Fig. 5</a></td></tr><tr><td><strong>Restauration</strong></td><td>« Base restaurée » ; le client et ses 4 audits sont revenus ; base cassée gardée de côté</td><td>Conforme</td><td><a href="#fig-6">Fig. 6</a></td></tr><tr><td>Prospect refusé, effacement d'un client, sauvegarde abîmée refusée, garde des 30 dernières, changement d'heure</td><td>Couverts par les tests automatiques</td><td>Conforme</td><td>—</td></tr></tbody></table></div>
+<p>Copie sur le portable (empreintes raccourcies) :</p>
+<pre class="cmd"><code>$ scp -p 'labo:homelab/donnees/sauvegardes/*.db' ~/sauvegardes-labo/
+$ sha256sum ~/sauvegardes-labo/*.db ; ssh labo 'sha256sum homelab/donnees/sauvegardes/*.db'
+cb5e1a94…5ac924  /home/maxime/sauvegardes-labo/audits-2026-10-28_153712.db
+cb5e1a94…5ac924  homelab/donnees/sauvegardes/audits-2026-10-28_153712.db</code></pre>
+<figure class="shot" id="fig-1"><a href="img/homelab-etape-6-01.webp"><img src="img/homelab-etape-6-01.webp" alt="Terminal sur la tour labo : python3 -m unittest discover -s audit -v se termine par Ran 85 tests in 9.607s, OK." width="862" height="120" loading="lazy"></a><figcaption><b>Fig. 1</b> Les 85 tests automatiques passent sur la tour.</figcaption></figure>
+<figure class="shot" id="fig-2"><a href="img/homelab-etape-6-02.webp"><img src="img/homelab-etape-6-02.webp" alt="Terminal : historique.py comparer sur le domaine du client (masqué). Pour le DNS et pour le web, audits du 28/10/2026 comparés au précédent, avec la mention pas encore d'audit d'il y a un mois. DKIM, DMARC, DNSSEC, MX, SPF, adresse, certificat, CSP, expiration, HSTS, HTTPS, nosniff, Referrer-Policy, réponse et versions de TLS : VERT vers VERT." width="1668" height="459" loading="lazy"></a><figcaption><b>Fig. 2</b> Mon client traiteur : deux audits comparés, tout vert (nom du client masqué).</figcaption></figure>
+<figure class="shot" id="fig-3"><a href="img/homelab-etape-6-03.webp"><img src="img/homelab-etape-6-03.webp" alt="Terminal : ls -l donnees/ montre audits.db en -rw------- (lecture et écriture pour mon seul compte)." width="640" height="72" loading="lazy"></a><figcaption><b>Fig. 3</b> La base n'est lisible que par mon compte.</figcaption></figure>
+<figure class="shot" id="fig-4"><a href="img/homelab-etape-6-04.webp"><img src="img/homelab-etape-6-04.webp" alt="Terminal : systemctl list-timers montre audit-sauvegarde.timer, prochaine exécution le jeudi 29/10/2026 à 12 h 01. Le journal de audit-sauvegarde.service montre la sauvegarde audits-2026-10-28_153712.db, terminée avec succès. Le fichier de sauvegarde est en -rw-------." width="1309" height="339" loading="lazy"></a><figcaption><b>Fig. 4</b> Le minuteur systemd, le journal de la 1<sup>re</sup> sauvegarde et le fichier créé.</figcaption></figure>
+<figure class="shot" id="fig-5"><a href="img/homelab-etape-6-05.webp"><img src="img/homelab-etape-6-05.webp" alt="Terminal : head -c 4096 /dev/urandom écrit 4 Ko au hasard au début de audits.db avec dd. Ensuite, historique.py liste répond : Base illisible (file is not a database) : restaurer une sauvegarde, voir docs/sauvegarde-restauration-audits.md." width="1227" height="147" loading="lazy"></a><figcaption><b>Fig. 5</b> La base cassée exprès : le script refuse proprement et renvoie vers la procédure.</figcaption></figure>
+<figure class="shot" id="fig-6"><a href="img/homelab-etape-6-06.webp"><img src="img/homelab-etape-6-06.webp" alt="Terminal : historique.py restaurer avec la sauvegarde du 28/10 répond Base restaurée, ancienne base mise de côté. historique.py liste montre de nouveau le client Traiteur (domaine masqué) avec 4 audits. ls -l donnees/ montre audits.db, audits.db.avant-restauration et le dossier sauvegardes en drwx------." width="1197" height="316" loading="lazy"></a><figcaption><b>Fig. 6</b> La restauration : le client et ses 4 audits sont revenus, la base cassée est gardée de côté.</figcaption></figure>
+</div>
+<div class="part" id="partie-7">
+<h2><span class="n">07</span>Problèmes rencontrés et solutions</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Problème</th><th scope="col">Cause</th><th scope="col">Solution</th></tr></thead><tbody><tr><td>Une commande mal tapée créait une base vide</td><td>Le script ouvrait (et donc créait) la base avant de vérifier la commande</td><td>Les arguments sont vérifiés d'abord ; l'aide s'affiche sans toucher à la base</td></tr><tr><td>Une base cassée donnait une erreur Python illisible</td><td>L'erreur de SQLite (« file is not a database ») n'était pas interceptée</td><td>Message clair qui renvoie vers la procédure de restauration</td></tr><tr><td>Où lancer <span class="k">sudo</span> pour installer le minuteur ?</td><td>Claude Code ne permet pas de taper un mot de passe</td><td>Commandes <span class="k">sudo</span> tapées dans mon propre terminal SSH, le reste pouvait être fait dans les deux</td></tr><tr><td>Comparer « au mois dernier » au moment du changement d'heure</td><td>Les dates passent de +02:00 à +01:00 fin octobre</td><td>Dates lues avec leur fuseau, écart calculé en vrai temps écoulé (test automatique dédié)</td></tr></tbody></table></div>
+</div>
+<div class="part" id="partie-8">
+<h2><span class="n">08</span>Ce que j'en retiens</h2>
+<ul class="b"><li><strong>Une sauvegarde qu'on n'a jamais restaurée n'est pas une sauvegarde</strong> : comme pour mon client traiteur (base D1 de Cloudflare), j'ai cassé exprès les données pour prouver que la restauration marche.</li><li><strong>Adapter les outils à la réalité du matériel</strong> : une tour qui n'est pas allumée tout le temps demande un minuteur qui rattrape les sauvegardes ratées, pas une tâche <span class="k">cron</span> classique.</li><li><strong>Le RGPD se règle d'abord en ne gardant pas</strong> : ne pas enregistrer les prospects m'évite d'avoir à gérer leur conservation et leur effacement.</li><li><strong>Règle 3-2-1 en version homelab</strong> : plusieurs copies, sur deux machines ; la troisième, hors de la maison, est une piste pour plus tard (copie chiffrée).</li></ul>
+</div>
+<nav class="pager" aria-label="Autres étapes"><a href="homelab-etape-5.html"><span>Précédent</span>Étape 5 : l'audit web d'un site</a><span></span></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js"></script>
+</body>
+</html>

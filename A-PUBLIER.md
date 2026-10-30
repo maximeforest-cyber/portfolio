@@ -12,6 +12,34 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | jeu. 05/11 | Homelab, étape 4 : l'audit DNS et courrier |
 | mar. 10/11 | Homelab, étape 5 : l'audit web |
 | jeu. 12/11 | Nouvelle veille : la sécurité de la messagerie |
+| mar. 17/11 | Homelab, étape 6 : l'historique des audits et la sauvegarde |
+
+## 2026-10-30 : Homelab, étape 6 : l'historique des audits, la sauvegarde et la restauration
+
+- Statut : à relire, à programmer le 2026-11-17 à 18 h 30
+- Lien : https://forestmaxime-pf.fr/projets/homelab-etape-6.html
+- Image proposée : projets/img/homelab-etape-6-06.webp
+
+L'étape 6 de mon homelab est validée : garder l'historique des audits de mes clients, et le protéger.
+
+Les résultats des audits (DNS, courrier et site web) vont dans une base SQLite. Chaque mois, le script compare le dernier audit à celui du mois précédent : mieux, moins bien ou pareil, pour chaque vérification.
+
+Pour la sauvegarde :
+- un minuteur systemd plutôt qu'une tâche cron : la tour n'est pas allumée tout le temps, et systemd rattrape une sauvegarde ratée au démarrage suivant ;
+- chaque copie est relue et vérifiée, 30 copies gardées ;
+- une copie sur mon PC portable, pour ne pas tout perdre si le disque de la tour lâche.
+
+Une sauvegarde qu'on n'a jamais restaurée n'est pas une sauvegarde : j'ai donc cassé la base exprès, puis je l'ai restaurée. Le client et ses 4 audits sont revenus.
+
+Côté RGPD : seuls mes clients sont enregistrés, jamais un prospect, avec le minimum d'informations et un accès réservé à mon compte.
+
+85 tests automatiques couvrent les étapes 4, 5 et 6.
+
+Prochaine étape : la surveillance des sites par un Worker Cloudflare, avec une alerte sur mon téléphone.
+
+La fiche complète : https://forestmaxime-pf.fr/projets/homelab-etape-6.html
+
+#homelab #sqlite #sauvegarde #rgpd #btssio
 
 ## 2026-10-29 : Nouvelle veille : la sécurité de la messagerie
 

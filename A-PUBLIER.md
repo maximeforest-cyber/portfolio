@@ -13,6 +13,29 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | mar. 10/11 | Homelab, étape 5 : l'audit web |
 | jeu. 12/11 | Nouvelle veille : la sécurité de la messagerie |
 | mar. 17/11 | Homelab, étape 6 : l'historique des audits et la sauvegarde |
+| jeu. 19/11 | Homelab, étape 7 : la surveillance des sites de mes clients |
+
+## 2026-10-30 : Homelab, étape 7 : la surveillance des sites de mes clients
+
+- Statut : à relire, à programmer le 2026-11-19 à 18 h 30
+- Lien : https://forestmaxime-pf.fr/projets/homelab-etape-7.html
+- Image proposée : projets/img/homelab-etape-7-03.webp
+
+L'étape 7 de mon homelab est validée : savoir dans le quart d'heure si le site d'un de mes clients tombe en panne.
+
+Ma tour n'est pas allumée en permanence. La surveillance tourne donc chez Cloudflare, dans un Worker (offre gratuite) : toutes les 15 minutes, il vérifie que chaque site répond et que son HTTPS marche.
+
+Quand un site tombe, ou quand il revient, je reçois une alerte sur mon téléphone par Discord. Tant que rien ne change, aucun message : avec une alerte à chaque passage, une panne d'une nuit enverrait 30 messages, et on finit par ne plus les lire. Un échec est aussi revérifié 5 secondes plus tard, pour ignorer une erreur passagère.
+
+Une surveillance qui ne dit rien doit prouver qu'elle tourne : chaque matin à 8 h, je reçois un résumé de tous les sites. S'il manque, c'est la surveillance elle-même qui est en panne.
+
+Pour tester l'alerte avec une vraie panne sans toucher au site d'un client, j'ai ajouté exprès expired.badssl.com, un site public au certificat expiré : l'alerte est bien arrivée sur mon téléphone.
+
+Le Worker n'a aucune adresse publique, le lien secret de Discord n'est jamais dans Git, et seuls les sites de mes clients sont surveillés, jamais ceux des prospects.
+
+Prochaine étape : les rapports d'audit en HTML, puis en PDF.
+
+La fiche complète : https://forestmaxime-pf.fr/projets/homelab-etape-7.html
 
 ## 2026-10-30 : Homelab, étape 6 : l'historique des audits, la sauvegarde et la restauration
 

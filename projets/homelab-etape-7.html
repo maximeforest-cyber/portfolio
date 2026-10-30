@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Homelab, étape 7 : la surveillance des sites de mes clients | Maxime Forest</title>
+<meta name="description" content="Homelab, étape 7 : un Worker Cloudflare vérifie toutes les 15 minutes les sites de mes clients et m'alerte sur mon téléphone par Discord quand un site tombe ou revient, avec un résumé chaque matin pour prouver que la surveillance tourne.">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#efe9df">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/homelab-etape-7.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/homelab-etape-7.html">
+<meta property="og:title" content="Homelab, étape 7 : la surveillance des sites de mes clients | Maxime Forest">
+<meta property="og:description" content="Homelab, étape 7 : un Worker Cloudflare vérifie toutes les 15 minutes les sites de mes clients et m'alerte sur mon téléphone par Discord quand un site tombe ou revient, avec un résumé chaque matin pour prouver que la surveillance tourne.">
+<meta property="og:image" content="https://forestmaxime-pf.fr/projets/img/apercu-homelab-etape-7.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="Homelab, étape 7 : la surveillance des sites de mes clients, sur le portfolio de Maxime Forest">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="homelab.html#etapes">← Homelab : toutes les étapes</a></p>
+    <p class="kicker">Projet personnel · <b>Homelab, étape 7 sur 10</b> · validée le 29/10/2026</p>
+    <h1>La surveillance des sites de mes clients</h1>
+    <p class="lead">Savoir dans le quart d'heure si le site d'un de mes clients tombe en panne ou si son HTTPS ne marche plus, avant que le client ou ses visiteurs ne me le disent : un Worker Cloudflare vérifie les sites toutes les 15 minutes et m'envoie une alerte sur mon téléphone, par Discord, seulement quand quelque chose change.</p>
+    <dl class="facts"><div><dt>Projet</dt><dd><a href="homelab.html">Homelab</a> au service de ma micro-entreprise Site de Poche</dd></div><div><dt>Période</dt><dd>28 et 29 octobre 2026</dd></div><div><dt>Où ça tourne</dt><dd>Cloudflare Workers (offre gratuite), pas sur la tour, qui n'est pas allumée en permanence</dd></div><div><dt>Points clés</dt><dd>Cron Trigger, Workers KV, webhook Discord, secret chiffré, alerte au changement d'état, résumé quotidien, RGPD, 14 tests automatiques</dd></div></dl>
+    <ul class="tags"><li>Cloudflare Workers</li><li>JavaScript</li><li>Supervision</li><li>Discord</li><li>RGPD</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Objectif</a></li><li><a href="#partie-2"><span>02</span>Schéma et technologies</a></li><li><a href="#partie-3"><span>03</span>Comment le Worker décide</a></li><li><a href="#partie-4"><span>04</span>Les choix et pourquoi</a></li><li><a href="#partie-5"><span>05</span>Données personnelles</a></li><li><a href="#partie-6"><span>06</span>La mise en ligne</a></li><li><a href="#partie-7"><span>07</span>Tests réussis</a></li><li><a href="#partie-8"><span>08</span>Problèmes rencontrés</a></li><li><a href="#partie-9"><span>09</span>Limites connues</a></li><li><a href="#partie-10"><span>10</span>Ce que j'en retiens</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Objectif</h2>
+<p>Savoir <strong>dans le quart d'heure</strong> si le site d'un de mes clients tombe en panne ou si son HTTPS ne marche plus, avant que le client ou ses visiteurs ne me le disent :</p>
+<ul class="b"><li>une vérification <strong>toutes les 15 minutes</strong>, jour et nuit ;</li><li>une <strong>alerte sur mon téléphone</strong> (Discord) quand un site tombe, puis quand il revient ;</li><li><strong>aucun bruit</strong> : pas d'alerte tant que rien ne change ;</li><li>une preuve, chaque matin, que la surveillance elle-même tourne toujours.</li></ul>
+<p>Contrainte du projet : ma tour n'est pas allumée en permanence (électricité). Tout ce qui doit fonctionner tout le temps est donc confié à Cloudflare ou à la Freebox, jamais à la tour. La surveillance tourne dans un <strong>Worker Cloudflare</strong> (offre gratuite), et pas sur le labo.</p>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>Schéma et technologies</h2>
+<pre class="cmd schema" role="img" aria-label="Schéma : chez Cloudflare, sur l'offre gratuite, un Cron Trigger réglé sur toutes les 15 minutes lance le Worker surveillance, qui n'a aucune adresse publique (workers.dev coupé). Le Worker lit la variable DOMAINES et ouvre la page d'accueil de chaque site client en HTTPS, avec 2 essais et 10 secondes au plus. Il garde dans l'espace KV ETAT le dernier état connu de chaque site (en ligne ou en panne, et depuis quand). Avec le secret DISCORD_WEBHOOK, il envoie un message dans le salon privé #surveillance de Discord, seulement si l'état d'un site change, plus un résumé à 8 h. Discord envoie ensuite une notification sur mon iPhone."><code> ┌─────────────────────────── Cloudflare (offre gratuite) ────────────────────────────┐
+ │                                                                                    │
+ │  Cron Trigger « */15 * * * * »                                                     │
+ │        │                                                                           │
+ │        ▼                                                                           │
+ │  Worker « surveillance »  (aucune adresse publique : workers.dev coupé)            │
+ │    ├─ variable DOMAINES ─────────► https://site-du-client/   (2 essais, 10 s max)  │
+ │    ├─ KV « ETAT » : dernier état connu de chaque site (ok / panne, depuis quand)   │
+ │    └─ secret DISCORD_WEBHOOK ──┐                                                   │
+ └────────────────────────────────┼───────────────────────────────────────────────────┘
+                                  │ seulement si l'état change, + résumé à 8 h
+                                  ▼
+                     Discord, salon privé #surveillance ──► notification sur mon iPhone</code></pre>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Rôle</th><th scope="col">Technologie</th></tr></thead><tbody><tr><td>Exécution à heure fixe</td><td><strong>Cloudflare Workers</strong> + <strong>Cron Trigger</strong> (toutes les 15 min)</td></tr><tr><td>Mémoire entre deux passages</td><td><strong>Workers KV</strong> (une clé par site : état et heure du changement)</td></tr><tr><td>Alerte</td><td><strong>webhook Discord</strong> (salon privé, notifications activées sur le téléphone)</td></tr><tr><td>Secret</td><td>lien du webhook en <strong>secret chiffré</strong> du Worker, jamais dans Git</td></tr><tr><td>Tests</td><td><span class="k">node:test</span> (Node.js 24), faux sites, faux Discord et faux KV (sans internet)</td></tr><tr><td>Code</td><td><span class="k">surveillance/worker.js</span>, <span class="k">surveillance/test_worker.mjs</span> (dépôt Git privé)</td></tr></tbody></table></div>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>Comment le Worker décide</h2>
+<ol class="b"><li>Pour chaque domaine de la variable <span class="k">DOMAINES</span>, il ouvre <span class="k">https://domaine/</span> en suivant les redirections.</li><li>Un site est <strong>en ligne</strong> s'il répond par un code 2xx. Il est <strong>en panne</strong> sinon : code d'erreur, pas de réponse en 10 s, ou connexion sécurisée impossible. Cloudflare refuse lui-même un certificat invalide, avec le code 526.</li><li>Un échec est <strong>revérifié 5 s plus tard</strong> : une seule erreur passagère ne déclenche pas d'alerte.</li><li>Il compare avec l'état gardé dans KV :<br>en ligne → en panne : 🔴 « <strong>site</strong> en panne : code 526 (certificat invalide) » ;<br>en panne → en ligne : 🟢 « <strong>site</strong> de nouveau en ligne, après 45 min de panne » ;<br>pas de changement : rien.</li><li>Chaque matin entre 8 h et 8 h 15 (heure de Paris, changement d'heure compris), il envoie un <strong>résumé</strong> de tous les sites. Si ce message manque un matin, c'est la surveillance elle-même qui est en panne.</li></ol>
+<p>Les codes d'erreur propres à Cloudflare (521 à 530) sont expliqués en français dans l'alerte, pour être compris d'un coup d'œil sur le téléphone.</p>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>Les choix et pourquoi</h2>
+<ul class="b"><li><strong>Alerte au changement d'état seulement</strong> : avec une alerte à chaque passage, une panne d'une nuit enverrait 30 messages, et on finit par ne plus les lire. KV ne reçoit une écriture qu'au changement, ce qui reste très loin de la limite gratuite (1 000 écritures par jour).</li><li><strong>L'alerte avant l'écriture de l'état</strong> : si Discord ne répond pas, l'état n'est pas enregistré. L'alerte repart donc au passage suivant, au lieu d'être perdue.</li><li><strong>Discord plutôt que Telegram</strong> : un seul lien secret à régler, notifications sur l'iPhone sans autre installation.</li><li><strong>Toutes les 15 minutes</strong> : un bon compromis entre réactivité et sobriété. Une panne est vue en 15 minutes au plus.</li><li><strong>Pas d'adresse publique</strong> : le Worker n'a pas de page. <span class="k">workers.dev</span> et les « Preview URLs » sont coupés, il ne tourne que par le Cron. Il y a ainsi moins de surface exposée.</li><li><strong>Pas de date d'expiration du certificat ici</strong> : un Worker ne peut pas lire les détails d'un certificat. Il voit seulement si le HTTPS marche. La date reste vérifiée <strong>chaque mois par l'audit de la tour</strong> (<a href="homelab-etape-5.html">étape 5</a>). Mes clients sont chez Cloudflare, qui renouvelle les certificats automatiquement.</li><li><strong>Domaines des clients hors de Git</strong> : ils sont dans une variable du Worker, réglée dans le tableau de bord Cloudflare.</li></ul>
+</div>
+<div class="part" id="partie-5">
+<h2><span class="n">05</span>Données personnelles (RGPD)</h2>
+<p class="note">Je ne suis pas juriste : ce sont des précautions de bon sens, pas un avis juridique.</p>
+<ul class="b"><li>Seuls les <strong>domaines de mes clients</strong> sont surveillés, jamais ceux des prospects.</li><li>Le Worker ne lit que la page d'accueil publique, comme un visiteur. Il ne garde que l'état « en ligne / en panne » et l'heure du changement.</li><li>Les noms de domaine transitent par Discord (service américain) dans un <strong>salon privé</strong> où je suis seul. Un domaine comme <span class="k">prenom-nom.fr</span> peut être une donnée personnelle : c'est le minimum nécessaire au service rendu au client, et rien d'autre n'y est envoyé.</li></ul>
+</div>
+<div class="part" id="partie-6">
+<h2><span class="n">06</span>La mise en ligne</h2>
+<p>Faite par moi dans le tableau de bord Cloudflare :</p>
+<ol class="b"><li>Discord : serveur perso, salon privé <span class="k">#surveillance</span>, <strong>webhook</strong> (lien copié, jamais collé ailleurs).</li><li>Cloudflare : espace KV <span class="k">surveillance-etat</span>.</li><li>Worker <span class="k">surveillance</span> (« Hello World »), code remplacé par <span class="k">surveillance/worker.js</span>.</li><li>Liaison KV <span class="k">ETAT</span>, variable <span class="k">DOMAINES</span> (texte), secret <span class="k">DISCORD_WEBHOOK</span>.</li><li>Cron Trigger : toutes les 15 minutes.</li><li>Domains &amp; Routes : <span class="k">workers.dev</span> et Preview URLs <strong>désactivés</strong>.</li></ol>
+<p>Tests automatiques sur le portable :</p>
+<pre class="cmd"><code>node --test surveillance/test_worker.mjs</code></pre>
+</div>
+<div class="part" id="partie-7">
+<h2><span class="n">07</span>Tests réussis</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Test</th><th scope="col">Résultat attendu</th><th scope="col">Résultat obtenu</th><th scope="col">Preuve</th></tr></thead><tbody><tr><td>14 tests automatiques : passage panne / retour avec durée, pas de 2<sup>e</sup> alerte, 2<sup>e</sup> essai, Discord en panne, résumé à 8 h (été et hiver), aucune mention <span class="k">@everyone</span>, message ≤ 2 000 caractères</td><td><span class="k">pass 14, fail 0</span></td><td>Conforme</td><td>Sortie de commande</td></tr><tr><td>Cron toutes les 15 min</td><td>Prochains passages à :00, :15, :30, :45</td><td>Conforme</td><td><a href="#fig-1">Fig. 1</a></td></tr><tr><td>Worker sans adresse publique</td><td><span class="k">workers.dev</span> et Preview coupés, aucune route</td><td>Conforme</td><td><a href="#fig-2">Fig. 2</a></td></tr><tr><td><strong>Certificat invalide</strong> : <span class="k">expired.badssl.com</span> (site public prévu pour ce test) ajouté exprès</td><td>Alerte 🔴 sur le téléphone, code 526</td><td>Conforme</td><td><a href="#fig-3">Fig. 3</a></td></tr><tr><td><strong>Le vrai site de mon client</strong> vérifié depuis Cloudflare</td><td><span class="k">ok, code 200</span>, et aucun message (rien n'a changé)</td><td>Conforme (237 ms)</td><td><a href="#fig-4">Fig. 4</a></td></tr><tr><td><strong>Résumé du matin</strong> (1<sup>er</sup> le 29/10)</td><td>« ✅ Résumé de 08:00 : 1 site(s) en ligne sur 1 », à 8 h pile, heure de Paris</td><td>Conforme (site du client OK, 0,10 s)</td><td><a href="#fig-5">Fig. 5</a></td></tr></tbody></table></div>
+<figure class="shot" id="fig-1"><a href="img/homelab-etape-7-01.webp"><img src="img/homelab-etape-7-01.webp" alt="Tableau de bord Cloudflare, fenêtre Cron triggers : exécuter le Worker toutes les 15 minutes. Les prochains passages estimés (UTC) sont le mercredi 28 octobre 2026 à 16:00, 16:15, 16:30, 16:45 et 17:00." width="964" height="835" loading="lazy"></a><figcaption><b>Fig. 1</b> Le Cron Trigger : un passage toutes les 15 minutes, à :00, :15, :30 et :45.</figcaption></figure>
+<figure class="shot" id="fig-2"><a href="img/homelab-etape-7-02.webp"><img src="img/homelab-etape-7-02.webp" alt="Tableau de bord Cloudflare, adresses du Worker : les adresses Production et Preview en workers.dev sont désactivées (nom du compte masqué), et la liste des domaines et routes est vide : No custom domains." width="2000" height="783" loading="lazy"></a><figcaption><b>Fig. 2</b> Aucune adresse publique : <span class="k">workers.dev</span> et Preview coupés, aucune route (nom du compte masqué).</figcaption></figure>
+<figure class="shot" id="fig-3"><a href="img/homelab-etape-7-03.webp"><img src="img/homelab-etape-7-03.webp" alt="Discord, salon privé #surveillance (mon pseudo est masqué) : à 17:45, le webhook envoie deux alertes, domaine-du-traiteur.fr en panne : code 530, et expired.badssl.com en panne : code 526." width="684" height="571" loading="lazy"></a><figcaption><b>Fig. 3</b> La vraie alerte sur un certificat invalide (code 526), et celle du domaine d'exemple recopié par erreur (code 530, voir partie 8).</figcaption></figure>
+<figure class="shot" id="fig-4"><a href="img/homelab-etape-7-04.webp"><img src="img/homelab-etape-7-04.webp" alt="Cloudflare, onglet Observability du Worker surveillance, le 28/10/2026 : 6 événements réussis et 0 erreur. À 18:00, le site du client (domaine masqué) est ok, code 200, 237 ms, et expired.badssl.com est en panne, code 526 (certificat invalide). À 17:45, domaine-du-traiteur.fr : panne, code 530, et expired.badssl.com : panne, code 526." width="1345" height="1150" loading="lazy"></a><figcaption><b>Fig. 4</b> Le journal du Worker : le vrai site de mon client répond en 237 ms (domaine masqué), le site de test reste en panne.</figcaption></figure>
+<figure class="shot" id="fig-5"><a href="img/homelab-etape-7-05.webp"><img src="img/homelab-etape-7-05.webp" alt="Discord, message du webhook à 08:00 : Résumé de 08:00 : 1 site(s) en ligne sur 1, avec le domaine du client masqué : OK, 0,10 s." width="564" height="169" loading="lazy"></a><figcaption><b>Fig. 5</b> Le 1<sup>er</sup> résumé du matin, le 29/10 à 8 h (domaine du client masqué).</figcaption></figure>
+</div>
+<div class="part" id="partie-8">
+<h2><span class="n">08</span>Problèmes rencontrés et solutions</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Problème</th><th scope="col">Cause</th><th scope="col">Solution</th></tr></thead><tbody><tr><td>Aucune alerte ni aucun log à 17 h 00 et à 17 h 15</td><td>Le Cron Trigger n'avait pas été enregistré : le Worker ne s'est jamais déclenché</td><td>Onglet Observability vide → Cron vérifié dans Settings, puis ajouté pour de bon. 1<sup>er</sup> passage à 17 h 45</td></tr><tr><td>Impossible de savoir ce que le Worker avait vu quand il n'envoyait rien</td><td>Aucun journal quand tout va bien</td><td>Une ligne de journal par site (<span class="k">domaine : ok, code 200, 237 ms</span>), visible dans Observability</td></tr><tr><td>Une alerte « code 530 » sur un domaine inconnu</td><td>J'avais recopié tel quel le domaine d'exemple (<span class="k">domaine-du-traiteur.fr</span>) dans <span class="k">DOMAINES</span></td><td>Vrai domaine du client saisi. Le Worker a au moins prouvé qu'il repère un domaine qui n'existe pas</td></tr><tr><td>« code 526 » incompréhensible sur le téléphone</td><td>Code propre à Cloudflare</td><td>Explication en clair ajoutée pour les codes 521 à 530 (« certificat invalide »)</td></tr></tbody></table></div>
+</div>
+<div class="part" id="partie-9">
+<h2><span class="n">09</span>Limites connues</h2>
+<ul class="b"><li><strong>Cloudflare surveille Cloudflare</strong> : mes sites et le Worker tournent chez le même hébergeur. Si Cloudflare tombe entièrement, le site et l'alerte tombent ensemble. Une 2<sup>e</sup> surveillance chez un autre service gratuit, ou Uptime Kuma sur le labo (étape 10), compléterait ce point.</li><li><strong>Un seul point de vue</strong> : le Worker vérifie depuis le réseau de Cloudflare, pas depuis la box d'un visiteur.</li><li><strong>La page d'accueil seulement</strong> : un formulaire de contact cassé ne serait pas vu.</li><li><strong>Offre gratuite</strong> : un nombre limité de requêtes par passage. Largement suffisant pour quelques clients, à revoir au-delà d'une vingtaine.</li></ul>
+</div>
+<div class="part" id="partie-10">
+<h2><span class="n">10</span>Ce que j'en retiens</h2>
+<ul class="b"><li><strong>Une surveillance qui ne dit rien doit prouver qu'elle tourne</strong> : sans le résumé du matin, un silence pourrait vouloir dire « tout va bien » comme « la surveillance est cassée ».</li><li><strong>Tester l'alerte avec une vraie panne</strong>, et pas seulement avec des tests : le site public <span class="k">expired.badssl.com</span> a permis de déclencher une vraie alerte sans toucher au site d'un client.</li><li><strong>Ne pas noyer les alertes</strong> : alerter au changement d'état, et revérifier avant d'alerter.</li><li><strong>Placer chaque service là où il a du sens</strong> : la tour fait les audits complets quand elle est allumée, Cloudflare fait la surveillance qui doit tourner en permanence.</li></ul>
+</div>
+<nav class="pager" aria-label="Autres étapes"><a href="homelab-etape-6.html"><span>Précédent</span>Étape 6 : l'historique des audits, la sauvegarde et la restauration</a><span></span></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js"></script>
+</body>
+</html>

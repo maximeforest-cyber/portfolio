@@ -16,6 +16,7 @@ pages={
  'homelab-etape-4':("HOMELAB · ÉTAPE 4 SUR 10",["L'audit DNS et courrier","d'un nom de domaine"],"MX · SPF · DMARC · DKIM · DNSSEC · 30 tests automatiques"),
  'homelab-etape-5':("HOMELAB · ÉTAPE 5 SUR 10",["L'audit web","d'un site"],"HTTPS · en-têtes de sécurité · expiration du domaine · 65 tests"),
  'homelab-etape-6':("HOMELAB · ÉTAPE 6 SUR 10",["L'historique des audits","et leur sauvegarde"],"SQLite · minuteur systemd · copie hors de la tour · restauration testée"),
+ 'homelab-etape-7':("HOMELAB · ÉTAPE 7 SUR 10",["La surveillance des sites","de mes clients"],"Worker Cloudflare · toutes les 15 min · alerte Discord · résumé à 8 h"),
 }
 def t(name,txt):
     p=os.path.join(D,name); open(p,'w').write(txt); return p

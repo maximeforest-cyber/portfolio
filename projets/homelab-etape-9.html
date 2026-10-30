@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Homelab, étape 9 : une IA locale sur la carte graphique du labo | Maxime Forest</title>
+<meta name="description" content="Homelab, étape 9 : faire tourner une IA générative sur ma propre machine (GTX 1060, pilote NVIDIA 580, Ollama, Gemma 4), choisir le modèle par des essais, puis la retirer des rapports de mes clients : aucun contrôle automatique ne garantit qu'une phrase écrite par une IA est vraie.">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#efe9df">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/homelab-etape-9.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/homelab-etape-9.html">
+<meta property="og:title" content="Homelab, étape 9 : une IA locale sur la carte graphique du labo | Maxime Forest">
+<meta property="og:description" content="Homelab, étape 9 : faire tourner une IA générative sur ma propre machine (GTX 1060, pilote NVIDIA 580, Ollama, Gemma 4), choisir le modèle par des essais, puis la retirer des rapports de mes clients : aucun contrôle automatique ne garantit qu'une phrase écrite par une IA est vraie.">
+<meta property="og:image" content="https://forestmaxime-pf.fr/projets/img/apercu-homelab-etape-9.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="Homelab, étape 9 : une IA locale sur la carte graphique du labo, sur le portfolio de Maxime Forest">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="homelab.html#etapes">← Homelab : toutes les étapes</a></p>
+    <p class="kicker">Projet personnel · <b>Homelab, étape 9 sur 10</b> · validée le 29/10/2026</p>
+    <h1>Une IA locale sur la carte graphique du labo</h1>
+    <p class="lead">Faire tourner une IA générative sur ma propre machine, sans service en ligne, avec une carte graphique de 2016 : trouver le pilote qui la gère encore, choisir le modèle par des essais, puis décider de ne pas m'en servir dans les rapports de mes clients.</p>
+    <dl class="facts"><div><dt>Projet</dt><dd><a href="homelab.html">Homelab</a> au service de ma micro-entreprise Site de Poche</dd></div><div><dt>Période</dt><dd>29 octobre 2026</dd></div><div><dt>Où ça tourne</dt><dd>Sur la tour, avec sa carte graphique NVIDIA GTX 1060 6 Go ; essais depuis le portable par un tunnel SSH</dd></div><div><dt>Points clés</dt><dd>Pilote NVIDIA 580, Ollama, Gemma 4, essai de 8 modèles, garde-fous, trois relectures du code, IA retirée des rapports au profit de phrases fixes vérifiées, 157 tests automatiques</dd></div></dl>
+    <ul class="tags"><li>NVIDIA / CUDA</li><li>Ollama</li><li>IA locale</li><li>Python</li><li>SSH</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Objectif</a></li><li><a href="#partie-2"><span>02</span>Schéma et technologies</a></li><li><a href="#partie-3"><span>03</span>Le pilote de la carte</a></li><li><a href="#partie-4"><span>04</span>Ollama sur la carte</a></li><li><a href="#partie-5"><span>05</span>Le choix du modèle</a></li><li><a href="#partie-6"><span>06</span>Les garde-fous, puis le retrait</a></li><li><a href="#partie-7"><span>07</span>Sécurité et données</a></li><li><a href="#partie-8"><span>08</span>Tests réussis</a></li><li><a href="#partie-9"><span>09</span>Problèmes rencontrés</a></li><li><a href="#partie-10"><span>10</span>Ce que j'en retiens</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Objectif</h2>
+<p>Faire tourner une <strong>IA générative sur ma propre machine</strong>, sans service en ligne, avec la carte graphique de la tour (une NVIDIA GTX 1060 6 Go de 2016). L'idée de départ était qu'elle reformule les phrases techniques des rapports de l'<a href="homelab-etape-8.html">étape 8</a> en français simple pour un commerçant.</p>
+<p>Deux règles du projet, fixées dès le départ :</p>
+<ul class="b"><li>la couleur d'un point (vert, orange, rouge) est <strong>toujours décidée par le script</strong>, jamais par l'IA ;</li><li>je relis tout avant d'envoyer quoi que ce soit.</li></ul>
+<p class="note"><strong>Résultat</strong> : l'IA locale fonctionne (pilote, Ollama, modèle choisi par des essais), mais je l'ai finalement <strong>retirée des rapports</strong>. Le modèle écrivait surtout des phrases justes, mais les relectures ont montré qu'aucun contrôle automatique ne peut <strong>garantir</strong> qu'une phrase écrite par une IA est vraie. Les rapports utilisent maintenant des phrases fixes, vérifiées une par une. La <a href="#partie-6">partie 6</a> explique ce choix.</p>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>Schéma et technologies</h2>
+<pre class="cmd schema" role="img" aria-label="Schéma : sur le PC portable, sous WSL, le script audit/ia.py, utilisé pour les essais, passe par un tunnel SSH ouvert avec ma clé (ssh -L), sans aucun port ouvert en plus. Le tunnel arrive sur la tour « labo », sous Ubuntu Server 24.04, où Ollama 0.40.13 n'écoute que sur 127.0.0.1, port 11434, avec son moteur CUDA 12. Ollama s'appuie sur le pilote NVIDIA 580, sans affichage, qui fait tourner le modèle gemma4:e4b-it-qat sur la carte GTX 1060 6 Go."><code> PC portable (WSL)                              Tour « labo » (Ubuntu Server 24.04)
+                                                 ┌───────────────────────────────────────┐
+ audit/ia.py ── tunnel SSH (ssh -L, clé) ──────► │ Ollama 0.40.13                        │
+   (essais)     aucun port ouvert en plus        │   n'écoute que sur 127.0.0.1:11434    │
+                                                 │   moteur CUDA 12                      │
+                                                 │        │                              │
+                                                 │        ▼                              │
+                                                 │ pilote NVIDIA 580 (sans affichage)    │
+                                                 │        │                              │
+                                                 │        ▼                              │
+                                                 │ GTX 1060 6 Go → gemma4:e4b-it-qat     │
+                                                 └───────────────────────────────────────┘</code></pre>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Rôle</th><th scope="col">Technologie</th></tr></thead><tbody><tr><td>Pilote de la carte</td><td><strong>NVIDIA 580</strong> (<span class="k">nvidia-headless-580</span> + <span class="k">nvidia-utils-580</span>), version sans interface graphique, pour un serveur</td></tr><tr><td>Faire tourner le modèle</td><td><strong>Ollama</strong> 0.40.13 (logiciel libre), service <span class="k">systemd</span>, écoute seulement en local</td></tr><tr><td>Modèle</td><td><strong>Gemma 4 E4B</strong> de Google (<span class="k">gemma4:e4b-it-qat</span>, poids ouverts), avec réflexion avant de répondre</td></tr><tr><td>Accès depuis le portable</td><td>tunnel <strong>SSH</strong> avec ma clé (<span class="k">ssh -L</span>) : aucun port ajouté sur la tour ni sur la box</td></tr><tr><td>Code</td><td><span class="k">audit/ia.py</span> (appel à Ollama, garde-fous, mémoire des phrases), <span class="k">audit/test_ia.py</span> (26 tests), dépôt Git privé</td></tr></tbody></table></div>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>Le pilote : trouver celui qui sait encore gérer cette carte</h2>
+<p>La GTX 1060 appartient à la génération <strong>Pascal</strong> (2016), que NVIDIA abandonne peu à peu. J'ai vérifié avant d'installer quoi que ce soit :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Pilote</th><th scope="col">Problème</th></tr></thead><tbody><tr><td>470, « recommandé » par <span class="k">ubuntu-drivers</span></td><td>trop ancien pour Ollama, qui demande au moins le 570 pour cette carte</td></tr><tr><td>versions <span class="k">-open</span></td><td>ne prennent en charge que des cartes plus récentes</td></tr><tr><td>590 et suivants</td><td>ne reconnaissent plus les cartes Pascal</td></tr><tr><td><strong>580</strong></td><td><strong>la dernière série qui prend encore Pascal</strong> : choisie</td></tr></tbody></table></div>
+<p>Après l'installation et un redémarrage, <span class="k">nvidia-smi</span> voit la carte : GTX 1060 6 Go, pilote 580.178.04, 6144 Mio de mémoire (<a href="#fig-1">Fig. 1</a>).</p>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>Ollama sur la carte graphique</h2>
+<p>Installé avec le script officiel. Le service n'écoute que sur <span class="k">127.0.0.1</span> : il n'est joignable que depuis la tour elle-même.</p>
+<p>Au démarrage, Ollama essaie d'abord son moteur <strong>CUDA 13</strong>, qui refuse la carte (« compute capability not in compiled architectures » : la GTX 1060 est en version 6.1, trop ancienne pour ce moteur). Il passe alors tout seul au moteur <strong>CUDA 12</strong>, qui l'accepte : 5,9 Gio au total, 5,8 Gio libres (<a href="#fig-2">Fig. 2</a>). Rien à régler, mais c'est un point à surveiller : le jour où Ollama retirera le moteur CUDA 12, la carte ne servira plus.</p>
+</div>
+<div class="part" id="partie-5">
+<h2><span class="n">05</span>Le choix du modèle : un essai sur de vraies phrases</h2>
+<p>Il fallait un modèle qui tienne dans 6 Go. Je les ai essayés sur <strong>6 phrases techniques d'un client inventé</strong>, en donnant à chaque fois l'explication du point et la couleur fixée par le script. Critère principal : <strong>aucune erreur de fond</strong>. Un français élégant ne compte pas si la phrase est fausse.</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Modèle</th><th scope="col">Résultat</th></tr></thead><tbody><tr><td><span class="k">gemma3:4b</span>, <span class="k">gemma3:4b-it-qat</span>, <span class="k">qwen3.5:4b</span>, <span class="k">mistral:7b</span>, <span class="k">ministral-3:3b</span></td><td>erreurs de fond : un DKIM « non trouvé » devenu « pas mis en place », HSTS confondu avec le cadenas, date mal recopiée, jargon gardé</td></tr><tr><td><span class="k">aya-expanse:8b</span></td><td>ne tient pas en entier dans la carte (12 % sur le processeur), et a aussi fait des erreurs</td></tr><tr><td><span class="k">gemma4:e2b-it-qat</span> (4,3 Go)</td><td>aucune erreur de fond, environ 10 s par phrase</td></tr><tr><td><strong><span class="k">gemma4:e4b-it-qat</span></strong></td><td>aucune erreur de fond en 2 passages, français plus naturel, environ 20 s par phrase : <strong>mon choix</strong></td></tr></tbody></table></div>
+<p>Gemma 4 « réfléchit » avant de répondre. Sans réflexion, la version E2B répondait en 0,6 s environ, mais le français était moins soigné. J'ai gardé la réflexion. Une seule IA reste installée, les autres modèles ont été supprimés.</p>
+</div>
+<div class="part" id="partie-6">
+<h2><span class="n">06</span>Les garde-fous, puis la décision de retirer l'IA des rapports</h2>
+<h3>Ce qui a été construit</h3>
+<p><span class="k">audit/ia.py</span> donne au modèle le point vérifié, son explication, la couleur du script, la phrase fixe et le détail technique, et lui demande de réécrire la phrase. La réponse passe ensuite par des <strong>garde-fous</strong>. Si elle est refusée, la phrase fixe reste. Les garde-fous refusent :</p>
+<ul class="b"><li>les sigles et le jargon (SPF, HSTS…) ;</li><li>une date ou un chiffre inventés, ou une date perdue ;</li><li>« non trouvé » devenu « absent » ;</li><li>une phrase qui contredit la couleur : un point « Bon » devenu négatif, ou un point à problème devenu rassurant.</li></ul>
+<p>S'y ajoutent une limite de temps, une mémoire des phrases déjà écrites (jamais celles qui contiennent le nom du site), et le passage automatique aux phrases fixes si la tour est éteinte.</p>
+<h3>Ce que les essais réels ont montré</h3>
+<ul class="b"><li><strong>Dans le diagnostic de prospection</strong>, l'IA recopiait surtout la phrase fixe. La seule phrase qui méritait d'être améliorée, celle des e-mails, était refusée par les garde-fous. J'ai donc décidé de ne pas mettre d'IA dans le diagnostic, et d'écrire à la place des phrases fixes plus précises.</li><li><strong>Dans le rapport mensuel</strong>, l'IA apportait plus : elle remplaçait les explications générales par le résultat du site. Sur les rapports d'essai, ses phrases acceptées étaient justes (par exemple 8 sur 15, toutes vraies). Mais elle a aussi écrit une fois « politique de référencement » pour Referrer-Policy, une erreur qu'aucun garde-fou ne peut repérer.</li></ul>
+<h3>Trois relectures par une autre session</h3>
+<p>J'ai fait relire le code par la session Claude Code de mon projet Site de Poche, sans qu'elle modifie quoi que ce soit, puis j'ai tranché. Pour tester les garde-fous, la session relectrice <strong>écrivait elle-même des phrases fausses</strong>, comme une IA pourrait en écrire, et regardait si elles passaient. Chaque point a été rejoué sur le code par la session du homelab, puis corrigé et contre-vérifié.</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Relecture</th><th scope="col">Ce qu'elle a trouvé</th></tr></thead><tbody><tr><td>1<sup>re</sup></td><td>10 points : phrases qui disaient le contraire du script, conclusions inventées, réponse d'Ollama coupée qui faisait planter le script, tunnel qui restait ouvert… Tout a été corrigé. Ma contre-vérification (session du homelab) a ensuite trouvé un défaut ajouté par les corrections : 4 bonnes phrases du modèle refusées à tort.</td></tr><tr><td>2<sup>e</sup></td><td>5 nouveaux points, dont des phrases fausses de test encore acceptées : « clé trouvée, e-mails signés » sur un DKIM non trouvé, « pas de souci » sur un DNSSEC non activé. Et des phrases justes refusées. Tout a été corrigé.</td></tr><tr><td>3<sup>e</sup></td><td>11 nouvelles phrases fausses de test acceptées, dont « Le cadenas est valide, mais il expire bientôt » sur un cadenas <strong>rouge</strong>, et « Vos e-mails ne risquent rien ». Et 4 phrases justes refusées.</td></tr></tbody></table></div>
+<p><strong>Conclusion</strong> : des listes de mots ne se fermeront jamais. Chaque correction bouche des trous et en laisse d'autres : on trouve toujours une nouvelle façon d'écrire une phrase fausse qui passe les listes. Le vrai modèle écrivait surtout des phrases justes, mais « souvent juste » ne suffit pas pour un texte destiné à un client.</p>
+<h3>La décision</h3>
+<p><strong>Plus d'IA dans les rapports.</strong> À la place, j'ai écrit des <strong>phrases fixes, une par couleur</strong>, pour les 10 réglages techniques du rapport mensuel (MX, SPF, DMARC, DKIM, DNSSEC, HSTS, CSP, X-Content-Type-Options, Referrer-Policy, versions de TLS). Elles ont été vérifiées à leur tour par une 4<sup>e</sup> relecture, qui cherchait si chaque phrase reste vraie pour toutes les causes qui peuvent donner sa couleur. Elle a trouvé 4 phrases qui disaient plus que ce que le script sait, toutes corrigées et testées.</p>
+<p>Une 5<sup>e</sup> relecture, à regard neuf, a encore trouvé une erreur ajoutée par ces corrections (la phrase CSP renvoyait à un détail qui ne montrait pas la règle) et, en lisant le code, deux cas rares où la <strong>couleur</strong> elle-même pouvait être fausse (jamais vus sur un vrai rapport) : DMARC « quarantine » appliqué à 0 % des e-mails (vert, alors que rien n'est mis de côté : maintenant orange), et DNSSEC dit « cassé » alors que les serveurs du domaine seraient en panne ou que le résolveur ne connaîtrait pas l'algorithme (maintenant « Non vérifié » ou orange).</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Phrase</th><th scope="col">Cas où elle était fausse</th><th scope="col">Correction</th></tr></thead><tbody><tr><td>CSP verte : « la liste des sources autorisées »</td><td>le script met vert pour n'importe quelle CSP, même sans liste de sources</td><td>« des règles de sécurité pour ses pages »</td></tr><tr><td>DMARC orange : « demande de surveiller les faux e-mails »</td><td><span class="k">p=none</span> sans adresse de rapports : personne ne surveille rien</td><td>« ne demande pas encore d'écarter les faux e-mails : la consigne est seulement en observation »</td></tr><tr><td>DNSSEC orange : « votre adresse n'est pas signée »</td><td>zone signée chez l'hébergeur, mais empreinte jamais déposée chez le registre : signée, mais sans protection</td><td>« votre adresse n'a pas la protection de l'annuaire DNS contre le détournement »</td></tr><tr><td>DKIM orange : « la clé n'a pas été trouvée »</td><td>seule une clé retirée par le propriétaire a été trouvée</td><td>« aucune clé <strong>active</strong> n'a été trouvée »</td></tr></tbody></table></div>
+<p>La cause exacte reste dans le « Détail technique ».</p>
+<p><span class="k">audit/ia.py</span> et ses tests sont gardés pour de futurs essais. L'installation (pilote, Ollama, modèle) reste en place sur la tour.</p>
+</div>
+<div class="part" id="partie-7">
+<h2><span class="n">07</span>Sécurité et données personnelles</h2>
+<p class="note">Je ne suis pas juriste : ce sont des précautions de bon sens, pas un avis juridique.</p>
+<ul class="b"><li><strong>Tout reste sur mes machines</strong> : avec un modèle installé sur la tour comme Gemma 4, les phrases envoyées au modèle ne partent chez aucun service en ligne. C'est l'intérêt d'une IA locale quand on travaille sur les données de ses clients. Ollama sait aussi utiliser des modèles « cloud » : je l'ai interdit avec le réglage <span class="k">OLLAMA_NO_CLOUD=1</span> (<a href="#fig-4">Fig. 4</a>).</li><li>Ollama n'écoute que sur <span class="k">127.0.0.1</span>. Depuis le portable, on y accède par un tunnel SSH avec ma clé. Si le script est tué sans le refermer, le tunnel se ferme seul au bout de son délai (quelques minutes au plus). Rien n'est ouvert en plus sur le pare-feu ni sur la box.</li><li>La mémoire des phrases (<span class="k">donnees/ia-phrases.json</span>) est lisible par moi seul et hors du suivi de Git. Elle ne garde jamais une phrase qui contient le nom d'un site.</li></ul>
+</div>
+<div class="part" id="partie-8">
+<h2><span class="n">08</span>Tests réussis</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Test</th><th scope="col">Résultat attendu</th><th scope="col">Résultat obtenu</th><th scope="col">Preuve</th></tr></thead><tbody><tr><td>La carte est reconnue par le pilote</td><td><span class="k">nvidia-smi</span> affiche la GTX 1060 6 Go et le pilote 580</td><td>Conforme</td><td><a href="#fig-1">Fig. 1</a></td></tr><tr><td>Ollama utilise la carte</td><td>Journal : CUDA 13 refuse la carte, CUDA 12 la prend (<span class="k">compute=6.1</span>, 5,8 Gio libres)</td><td>Conforme</td><td><a href="#fig-2">Fig. 2</a></td></tr><tr><td>Le modèle choisi tourne sur la carte</td><td><span class="k">ollama ps</span> : <span class="k">gemma4:e4b-it-qat</span>, <span class="k">100% GPU</span> (toutes les couches sur la carte ; une partie des poids reste en mémoire vive, normal pour les Gemma « E »)</td><td>Conforme</td><td><a href="#fig-3">Fig. 3</a></td></tr><tr><td>Essai de 8 modèles sur 6 phrases d'un client inventé</td><td>Au moins un modèle sans erreur de fond</td><td>Conforme : 2 modèles Gemma 4, 6 éliminés</td><td>Notes d'essai</td></tr><tr><td>Ollama refuse les modèles « cloud »</td><td><span class="k">OLLAMA_NO_CLOUD:true</span> dans le journal après redémarrage du service</td><td>Conforme</td><td><a href="#fig-4">Fig. 4</a></td></tr><tr><td>Tour éteinte ou injoignable</td><td>Phrases fixes, aucun plantage, code de sortie 0</td><td>Conforme</td><td>Sortie de commande</td></tr><tr><td>Script tué pendant un appel depuis le portable</td><td>Le tunnel SSH se ferme seul</td><td>Conforme : fermé après son délai (vu à 75 s pour un délai de 61 s)</td><td>Sortie de commande</td></tr><tr><td>Garde-fous : exemples des relectures rejoués</td><td>Phrases fausses refusées, phrases justes acceptées</td><td>⚠️ Réussi après les 1<sup>re</sup> et 2<sup>e</sup> relectures ; la 3<sup>e</sup> a montré la limite (<a href="#partie-6">partie 6</a>)</td><td><span class="k">audit/test_ia.py</span></td></tr><tr><td>Après le retrait de l'IA : rapports mensuels d'essai et du client sur la tour</td><td>Code 0, aucune phrase d'IA, une phrase fixe par couleur</td><td>Conforme : 157 tests OK sur le portable et sur la tour</td><td><a href="#fig-5">Fig. 5</a></td></tr></tbody></table></div>
+<figure class="shot" id="fig-1"><a href="img/homelab-etape-9-01.webp"><img src="img/homelab-etape-9-01.webp" alt="Commande nvidia-smi sur la tour labo, le 29/10/2026 : pilote 580.178.04, CUDA 13.0, une carte NVIDIA GeForce GTX 1060 6GB à 29 °C, 7 W sur 120 W, 11 Mio utilisés sur 6144 Mio, aucun processus en cours." width="1012" height="502" loading="lazy"></a><figcaption><b>Fig. 1</b> La carte reconnue par le pilote 580.</figcaption></figure>
+<figure class="shot" id="fig-2"><a href="img/homelab-etape-9-02.webp"><img src="img/homelab-etape-9-02.webp" alt="Sur la tour : ollama --version affiche 0.40.13 ; systemctl status ollama montre le service actif et lancé au démarrage. Dans le journal filtré : la configuration du serveur, avec OLLAMA_HOST http://127.0.0.1:11434 ; « skipping CUDA device – compute capability not in compiled architectures » pour la GeForce GTX 1060 6GB (cc=610, moteur cuda_v13) ; puis « inference compute » avec la bibliothèque CUDA, compute=6.1, moteur cuda_v12, 5.9 GiB au total, 5.8 GiB disponibles." width="2000" height="687" loading="lazy"></a><figcaption><b>Fig. 2</b> Ollama 0.40.13 : le moteur CUDA 13 refuse la carte, le moteur CUDA 12 la prend. Capture prise avant le réglage de la Fig. 4, d'où <span class="k">OLLAMA_NO_CLOUD:false</span>.</figcaption></figure>
+<figure class="shot" id="fig-3"><a href="img/homelab-etape-9-03.webp"><img src="img/homelab-etape-9-03.webp" alt="ollama run gemma4:e4b-it-qat « Dis bonjour en une phrase. » : le modèle réfléchit (en anglais), puis répond « Bonjour. ». Ensuite ollama ps : gemma4:e4b-it-qat, 3.1 GB, 100% GPU, contexte 4096." width="1173" height="481" loading="lazy"></a><figcaption><b>Fig. 3</b> Le modèle choisi tourne entièrement sur la carte (100 % GPU), après sa réflexion.</figcaption></figure>
+<figure class="shot" id="fig-4"><a href="img/homelab-etape-9-04.webp"><img src="img/homelab-etape-9-04.webp" alt="Création du fichier /etc/systemd/system/ollama.service.d/no-cloud.conf, qui contient Environment=OLLAMA_NO_CLOUD=1, rechargement de systemd et redémarrage d'Ollama ; le journal affiche ensuite OLLAMA_NO_CLOUD:true." width="1254" height="214" loading="lazy"></a><figcaption><b>Fig. 4</b> Les modèles « cloud » interdits : <span class="k">OLLAMA_NO_CLOUD:true</span> après redémarrage.</figcaption></figure>
+<figure class="shot" id="fig-5"><a href="img/homelab-etape-9-05.webp"><img src="img/homelab-etape-9-05.webp" alt="Sur la tour, dans ~/homelab : git pull récupère 7 fichiers modifiés, dont audit/dns_courrier.py, audit/rapport.py et leurs tests ; puis python3 -m unittest discover -s audit : Ran 157 tests in 17.492s, OK." width="655" height="389" loading="lazy"></a><figcaption><b>Fig. 5</b> Après le retrait de l'IA : les 157 tests passent sur la tour.</figcaption></figure>
+<p><strong>Ce qui n'a pas été essayé en vrai</strong> :</p>
+<ul class="b"><li>combien de temps le pilote 580 recevra encore des mises à jour : je ne l'ai pas vérifié ;</li><li>le comportement d'une future version d'Ollama sans moteur CUDA 12 ;</li><li>la répartition exacte de la mémoire du modèle entre la carte et la mémoire vive : pas mesurée.</li></ul>
+</div>
+<div class="part" id="partie-9">
+<h2><span class="n">09</span>Problèmes rencontrés et solutions</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Problème</th><th scope="col">Cause</th><th scope="col">Solution</th></tr></thead><tbody><tr><td>Le pilote « recommandé » par Ubuntu (470) ne convenait pas</td><td>Trop ancien pour Ollama, et les plus récents ne prennent plus Pascal</td><td>Pilote 580, la dernière série qui prend encore cette carte, en version serveur (<span class="k">headless</span>)</td></tr><tr><td>« compute capability not in compiled architectures » dans le journal d'Ollama</td><td>Le moteur CUDA 13 ne prend plus les cartes en version 6.1</td><td>Rien à faire : Ollama passe seul au moteur CUDA 12. À surveiller lors des mises à jour</td></tr><tr><td>La plupart des modèles inventaient ou inversaient le sens</td><td>Petits modèles, sujet technique</td><td>Essai comparatif sur de vraies phrases, critère « aucune erreur de fond » : Gemma 4</td></tr><tr><td>Le fichier de mémoire des phrases avait été commité par erreur</td><td>Oubli dans le <span class="k">.gitignore</span></td><td>Retiré du suivi de Git et ajouté au <span class="k">.gitignore</span>. Il reste dans l'historique du dépôt (privé) : aucun nom de domaine, seulement des phrases et des dates publiques</td></tr><tr><td>Dans le diagnostic, l'IA n'apportait presque rien</td><td>Les phrases fixes étaient déjà simples</td><td>Pas d'IA dans le diagnostic, et des phrases fixes plus précises (e-mails, date du certificat)</td></tr><tr><td>Des phrases fausses passaient encore après chaque correction des garde-fous</td><td>Une liste de mots ne peut pas vérifier le sens d'une phrase</td><td>Plus d'IA dans les rapports : phrases fixes par couleur</td></tr></tbody></table></div>
+</div>
+<div class="part" id="partie-10">
+<h2><span class="n">10</span>Ce que j'en retiens</h2>
+<ul class="b"><li><strong>Vérifier la compatibilité avant d'installer</strong> : avec une carte de 2016, le pilote « recommandé » n'était pas le bon. Il fallait lire les exigences d'Ollama et de NVIDIA.</li><li><strong>Choisir un modèle sur ses erreurs, pas sur son style</strong> : la plupart écrivaient bien, mais disaient des choses fausses.</li><li><strong>Une IA ne peut pas être vérifiée par une liste de mots</strong> : à chaque relecture, de nouvelles phrases fausses de test passaient les garde-fous, et la vraie erreur du modèle était invisible pour eux. Quand le texte part chez un client, une phrase fixe vérifiée vaut mieux qu'une phrase élégante peut-être fausse.</li><li><strong>Savoir retirer ce qu'on a construit</strong> : l'installation fonctionne et reste en place pour d'autres usages, mais elle n'avait pas sa place dans ces rapports.</li><li><strong>Faire relire, puis retester les corrections</strong> : ma contre-vérification a trouvé un défaut ajouté par les corrections elles-mêmes, et la relecture de cette fiche a trouvé des phrases qui exagéraient les erreurs du modèle.</li></ul>
+</div>
+<nav class="pager" aria-label="Autres étapes"><a href="homelab-etape-8.html"><span>Précédent</span>Étape 8 : les rapports aux couleurs de Site de Poche</a><span></span></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js"></script>
+</body>
+</html>

@@ -18,6 +18,7 @@ pages={
  'homelab-etape-6':("HOMELAB · ÉTAPE 6 SUR 10",["L'historique des audits","et leur sauvegarde"],"SQLite · minuteur systemd · copie hors de la tour · restauration testée"),
  'homelab-etape-7':("HOMELAB · ÉTAPE 7 SUR 10",["La surveillance des sites","de mes clients"],"Worker Cloudflare · toutes les 15 min · alerte Discord · résumé à 8 h"),
  'homelab-etape-8':("HOMELAB · ÉTAPE 8 SUR 10",["Les rapports aux couleurs","de Site de Poche"],"Diagnostic d'une page · rapport mensuel · HTML et PDF · WeasyPrint"),
+ 'homelab-etape-9':("HOMELAB · ÉTAPE 9 SUR 10",["Une IA locale sur la","carte graphique du labo"],"GTX 1060 · pilote NVIDIA 580 · Ollama · Gemma 4 · IA retirée des rapports"),
 }
 def t(name,txt):
     p=os.path.join(D,name); open(p,'w').write(txt); return p

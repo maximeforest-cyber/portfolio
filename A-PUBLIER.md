@@ -15,6 +15,23 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | mar. 17/11 | Homelab, étape 6 : l'historique des audits et la sauvegarde |
 | jeu. 19/11 | Homelab, étape 7 : la surveillance des sites de mes clients |
 | mar. 24/11 | Homelab, étape 8 : les rapports aux couleurs de Site de Poche |
+| jeu. 26/11 | Homelab, étape 9 : une IA locale sur la carte graphique du labo |
+
+## 2026-10-30 : Homelab, étape 9 : une IA locale sur la carte graphique du labo
+
+- Statut : à relire, à programmer le 2026-11-26 à 18 h 30
+- Lien : https://forestmaxime-pf.fr/projets/homelab-etape-9.html
+- Image proposée : projets/img/homelab-etape-9-03.webp
+
+L'étape 9 de mon homelab est validée : faire tourner une IA sur ma propre machine, sans service en ligne, avec la carte graphique de 2016 de mon serveur (une GTX 1060).
+
+Premier travail : trouver le bon pilote. Celui que proposait Ubuntu était trop ancien pour Ollama, et les plus récents ne gèrent plus cette carte. Le pilote 580 était la bonne série. Ensuite, j'ai essayé 8 modèles sur des phrases d'un client inventé, avec un seul critère : aucune erreur de fond. Seuls les deux modèles Gemma 4 l'ont rempli.
+
+Mon idée était que l'IA reformule en français simple les phrases techniques des rapports que j'envoie à mes clients. J'avais ajouté des garde-fous pour refuser les phrases fausses. Mais j'ai fait relire mon code trois fois par une autre session d'IA, qui inventait exprès des phrases fausses : à chaque fois, de nouvelles passaient. Une liste de mots ne peut pas vérifier le sens d'une phrase.
+
+J'ai donc retiré l'IA des rapports. Elle est remplacée par des phrases fixes, une par couleur, vérifiées une par une. Pour un texte qui part chez un client, une phrase vérifiée vaut mieux qu'une phrase élégante peut-être fausse. L'installation reste en place sur le serveur pour d'autres usages.
+
+Le compte rendu complet : https://forestmaxime-pf.fr/projets/homelab-etape-9.html
 
 ## 2026-10-30 : Homelab, étape 8 : les rapports aux couleurs de Site de Poche
 

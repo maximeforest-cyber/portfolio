@@ -30,7 +30,7 @@ Le premier, Uptime Kuma, est un tableau de bord qui surveille le labo et deux si
 
 Le second, Traefik, ouvre ce tableau de bord en https avec un vrai certificat Let's Encrypt, alors que mon serveur n'est pas joignable depuis internet. L'astuce, c'est le défi DNS : au lieu de venir vérifier sur mon serveur, Let's Encrypt lit un enregistrement que Traefik a posé dans mon DNS chez Cloudflare. Essai sur mon iPhone en 4G : avec le VPN, la page s'ouvre ; sans le VPN, rien ne répond.
 
-Pour poser cet enregistrement, Traefik utilise un jeton Cloudflare. Je l'ai limité autant que possible : une seule zone DNS, utilisable seulement depuis mon adresse, avec une date de fin. Mais cette zone porte aussi mon portfolio : limiter un secret, ce n'est pas le rendre inoffensif. Et quand un premier jeton s'est retrouvé visible sur une capture d'écran, je l'ai remplacé : un secret vu est un secret grillé.
+Pour poser cet enregistrement, Traefik utilise un jeton Cloudflare. Je l'ai limité : une seule zone DNS, utilisable seulement depuis mon adresse, avec une date de fin. Mais cette zone porte aussi mon portfolio : limiter un secret, ce n'est pas le rendre inoffensif. Et quand un premier jeton s'est retrouvé visible sur une capture d'écran, je l'ai remplacé : un secret vu est un secret grillé.
 
 Les deux conteneurs tournent sous leur propre utilisateur, avec le moins de droits possible, et Docker ne publie aucun port : un port publié par Docker passerait par-dessus le pare-feu.
 

@@ -27,11 +27,13 @@ L'étape 9 de mon homelab est validée : faire tourner une IA sur ma propre mach
 
 Premier travail : trouver le bon pilote. Celui que proposait Ubuntu était trop ancien pour Ollama, et les plus récents ne gèrent plus cette carte. Le pilote 580 était la bonne série. Ensuite, j'ai essayé 8 modèles sur des phrases d'un client inventé, avec un seul critère : aucune erreur de fond. Seuls les deux modèles Gemma 4 l'ont rempli.
 
-Mon idée était que l'IA reformule en français simple les phrases techniques des rapports que j'envoie à mes clients. J'avais ajouté des garde-fous pour refuser les phrases fausses. Mais j'ai fait relire mon code trois fois par une autre session d'IA, qui inventait exprès des phrases fausses : à chaque fois, de nouvelles passaient. Une liste de mots ne peut pas vérifier le sens d'une phrase.
+Mon idée était que l'IA reformule en français simple les phrases techniques de mes rapports d'audit. J'avais ajouté des garde-fous pour refuser les phrases fausses. Mais j'ai fait relire mon code trois fois par une autre session d'IA, qui inventait exprès des phrases fausses : à chaque fois, de nouvelles passaient. Une liste de mots ne peut pas vérifier le sens d'une phrase.
 
 J'ai donc retiré l'IA des rapports. Elle est remplacée par des phrases fixes, une par couleur, vérifiées une par une. Pour un texte qui part chez un client, une phrase vérifiée vaut mieux qu'une phrase élégante peut-être fausse. L'installation reste en place sur le serveur pour d'autres usages.
 
 Le compte rendu complet : https://forestmaxime-pf.fr/projets/homelab-etape-9.html
+
+#homelab #ia #ollama #nvidia #btssio
 
 ## 2026-10-30 : Homelab, étape 8 : les rapports aux couleurs de Site de Poche
 
@@ -45,11 +47,13 @@ Un fichier JSON plein de « SPF » et de « DMARC » ne parle à personne. Mon s
 
 Une règle que je me suis fixée : la couleur (vert, orange, rouge) est toujours décidée par les règles écrites des scripts d'audit, jamais par la mise en page. Chaque point porte aussi un mot (« Bon », « À améliorer »…), pour rester lisible en noir et blanc ou pour un daltonien.
 
-Côté données personnelles : le diagnostic d'un prospect n'est jamais enregistré, et les rapports restent sur ma machine, hors de Git.
+Côté données personnelles : le diagnostic d'un prospect n'est jamais enregistré, et les rapports sont rangés dans un dossier lisible par moi seul, hors de Git.
 
-J'ai aussi fait relire tout mon code par une deuxième session d'IA, comme une revue de code : elle a trouvé deux défauts que mes tests ne pouvaient pas voir, parce qu'ils venaient d'une mauvaise idée de départ. Par exemple, un site qui bloque les robots était dit « en panne », alors qu'il s'affiche très bien pour un vrai visiteur.
+J'ai aussi fait relire tout mon code par une deuxième session d'IA, comme une revue de code : elle a trouvé deux défauts que mes tests ne pouvaient pas voir, parce qu'ils venaient d'une mauvaise idée de départ. Parmi les points relevés : un site qui bloque les robots était dit « en panne », alors qu'il s'affiche très bien pour un vrai visiteur.
 
 Le compte rendu complet, avec un exemple de diagnostic : https://forestmaxime-pf.fr/projets/homelab-etape-8.html
+
+#homelab #python #rgpd #btssio
 
 ## 2026-10-30 : Homelab, étape 7 : la surveillance des sites de mes clients
 
@@ -72,6 +76,8 @@ Le Worker n'a aucune adresse publique, le lien secret de Discord n'est jamais da
 Prochaine étape : les rapports d'audit en HTML, puis en PDF.
 
 La fiche complète : https://forestmaxime-pf.fr/projets/homelab-etape-7.html
+
+#homelab #cloudflare #supervision #cybersécurité #btssio
 
 ## 2026-10-30 : Homelab, étape 6 : l'historique des audits, la sauvegarde et la restauration
 

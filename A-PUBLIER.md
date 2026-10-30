@@ -59,7 +59,7 @@ Le compte rendu complet, avec un exemple de diagnostic : https://forestmaxime-pf
 
 - Statut : à relire, à programmer le 2026-11-19 à 18 h 30
 - Lien : https://forestmaxime-pf.fr/projets/homelab-etape-7.html
-- Image proposée : projets/img/homelab-etape-7-03.webp
+- Image proposée : aucune (l'aperçu du lien suffit : les captures montrent une erreur de saisie ou une zone masquée)
 
 L'étape 7 de mon homelab est validée : savoir dans le quart d'heure si le site d'un de mes clients tombe en panne.
 

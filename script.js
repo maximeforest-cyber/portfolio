@@ -128,5 +128,25 @@
     document.querySelectorAll('main section[id]').forEach(function (s) { obs.observe(s); });
   }
 
+  // Schémas animés : bouton pour arrêter ou relancer le trafic (arrêté d'office si le visiteur réduit les animations)
+  var calme = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('[data-anim]').forEach(function (zone) {
+    var bouton = zone.querySelector('.pause');
+    if (!bouton) { return; }
+    var svgs = zone.querySelectorAll('svg');
+    function regler(arret) {
+      zone.classList.toggle('en-pause', arret);
+      zone.classList.toggle('en-marche', !arret);
+      svgs.forEach(function (s) {
+        if (arret && s.pauseAnimations) { s.pauseAnimations(); }
+        if (!arret && s.unpauseAnimations) { s.unpauseAnimations(); }
+      });
+      bouton.textContent = arret ? 'Relancer le trafic' : 'Mettre en pause le trafic';
+    }
+    bouton.hidden = false;
+    regler(calme);
+    bouton.addEventListener('click', function () { regler(!zone.classList.contains('en-pause')); });
+  });
+
   document.getElementById('annee').textContent = new Date().getFullYear();
 })();

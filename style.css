@@ -120,6 +120,13 @@ figcaption, .caption { font-size: 13px; color: var(--soft); margin-top: 7px; }
 .plan a:hover .ico .led, .plan a:focus-visible .ico .led { stroke: none; }
 .plan a:hover text.t, .plan a:focus-visible text.t { fill: var(--cable-text); text-decoration: underline; }
 .plan a:focus-visible { outline: none; }
+.pause { display: flex; width: fit-content; align-items: center; gap: 8px; margin: 6px 4px 2px auto; padding: 5px 10px; background: none; color: var(--soft); border: 1px solid var(--hair); font: 12.5px var(--mono); cursor: pointer; }
+.pause[hidden] { display: none; }
+.hl-fig .pause { margin: 10px 0 0; }
+.pause:hover { color: var(--ink); border-color: var(--ink); }
+.pause::before { content: ""; width: 8px; height: 10px; border-inline: 3px solid currentColor; box-sizing: border-box; }
+.en-pause .pause::before { width: 0; height: 0; border-block: 5px solid transparent; border-inline: 8px solid currentColor; border-inline-end-width: 0; }
+.en-pause .hl-flux { animation-play-state: paused; }
 .hit { fill: transparent; stroke: none; }
 
 /* ---------- Rubriques ---------- */
@@ -374,11 +381,13 @@ ol.b li::before { display: none; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .hl-flux { animation: none; }
+  .plan:not(.en-marche) .pkt { display: none; }
+  .en-marche .hl-flux { animation: hl-flux 1.2s linear infinite; }
   .hl-tuile { transition: none; }
   .tampon { animation: none; }
 }
 @media print {
-  .top, .burger, .actions, .pkt, .toc, .pager, .crumb { display: none; }
+  .top, .burger, .actions, .pkt, .pause, .toc, .pager, .crumb { display: none; }
   .report .wrap { display: block; }
   body { background: #fff; }
   details > .fiche, details > .cv { display: block; }

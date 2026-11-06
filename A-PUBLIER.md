@@ -19,7 +19,7 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | mar. 01/12 | Homelab, étape 10 : des services dans Docker, avec un vrai certificat |
 | jeu. 03/12 | Homelab : tout le labo en un schéma cliquable |
 
-## 2026-11-06 : Le portfolio prend des airs de plan réseau, avec quelques clins d'œil
+## 2026-11-06 : Quelques clins d'œil réseau sur mon portfolio
 
 - Statut : à relire
 - Lien : https://forestmaxime-pf.fr/

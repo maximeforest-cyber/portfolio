@@ -17,6 +17,7 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | mar. 24/11 | Homelab, étape 8 : les rapports aux couleurs de Site de Poche |
 | jeu. 26/11 | Homelab, étape 9 : une IA locale sur la carte graphique du labo |
 | mar. 01/12 | Homelab, étape 10 : des services dans Docker, avec un vrai certificat |
+| jeu. 03/12 | Homelab : tout le labo en un schéma cliquable |
 
 ## 2026-11-06 : Homelab : tout le labo en un schéma cliquable
 

@@ -311,6 +311,12 @@ ol.b li::before { display: none; }
 .hl a:focus { outline: none; }
 .hl-fixe .hl-tuile { fill: none; }
 @keyframes hl-flux { to { stroke-dashoffset: -11; } }
+@media (max-width: 600px) {
+  .hl-t { font-size: 16px; }
+  .hl-s { font-size: 14px; }
+  .hl-z { font-size: 14px; }
+  .hl-l { font-size: 13px; }
+}
 
 /* ---------- Petits écrans ---------- */
 @media (max-width: 1080px) {

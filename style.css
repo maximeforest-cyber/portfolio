@@ -123,6 +123,20 @@ figcaption, .caption { font-size: 13px; color: var(--soft); margin-top: 7px; }
 .pause { display: flex; width: fit-content; align-items: center; gap: 8px; margin: 6px 4px 2px auto; padding: 5px 10px; background: none; color: var(--soft); border: 1px solid var(--hair); font: 12.5px var(--mono); cursor: pointer; }
 .pause[hidden] { display: none; }
 .hl-fig .pause { margin: 10px 0 0; }
+/* ---------- Accueil : paquet capturé ---------- */
+details.capture { margin-top: 12px; border-top: 0; padding-top: 0; }
+.capture summary { font-family: var(--mono); font-size: 14px; }
+.trame { margin-top: 10px; max-width: 760px; background: var(--sheet); border: 1.5px solid var(--ink); font-family: var(--mono); font-size: 13px; line-height: 1.5; }
+.trame-tete { padding: 6px 12px; background: var(--ink); color: var(--paper); font-size: 12px; letter-spacing: .4px; }
+.couches li { padding: 6px 12px 6px 30px; border-bottom: 1px solid var(--hair); position: relative; }
+.couches li::before { content: ""; position: absolute; left: 12px; top: 13px; border-block: 4.5px solid transparent; border-inline-start: 7px solid var(--soft); }
+.couches li.charge { background: rgba(142, 47, 60, .06); }
+.couches li.charge::before { left: 11px; top: 14px; border-inline: 4.5px solid transparent; border-block: 7px solid var(--cable); border-block-end-width: 0; }
+.couches b { font-weight: 700; }
+.couches dl { margin-top: 6px; font-family: var(--sans); font-size: 15px; }
+.couches dl div { display: grid; grid-template-columns: 96px 1fr; gap: 10px; padding-block: 2px; }
+.couches dt { font-family: var(--mono); font-size: 12px; color: var(--soft); padding-top: 2px; }
+.hex { margin: 0; padding: 8px 12px; overflow-x: auto; color: var(--soft); font: 12px/1.5 var(--mono); }
 /* ---------- Page 404 ---------- */
 .lk.coupe { stroke: var(--cable); stroke-width: 2.4; }
 .lk.fantome, .ico.fantome * { stroke-dasharray: 5 4; }
@@ -372,6 +386,8 @@ ol.b li::before { display: none; }
 }
 @media (max-width: 560px) {
   .g3 { grid-template-columns: 1fr; }
+  .hex { display: none; }
+  .couches dl div { grid-template-columns: 84px 1fr; }
   .cv { padding: 18px 16px; font-size: 14.5px; }
   .cv-nom { font-size: 22px; }
   .cv-photo { width: 64px; height: 64px; }

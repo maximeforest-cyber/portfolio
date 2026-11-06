@@ -92,6 +92,27 @@
 <button class="pause" type="button" hidden>Mettre en pause le trafic</button>
       </div>
     </nav>
+    <details class="capture">
+      <summary>Capturer un paquet sur sw-coeur</summary>
+      <div class="trame">
+        <p class="trame-tete">Trame n° 1 · capturée sur sw-coeur · vers pc-maxime</p>
+        <ul class="couches">
+          <li><b>Internet Protocol Version 4</b>, Src : vous (wan), Dst : 10.0.10.11 (pc-maxime)</li>
+          <li><b>Transmission Control Protocol</b>, port 443 (HTTPS), drapeaux [PSH, ACK]</li>
+          <li class="charge"><b>Données</b> (TLS déchiffré pour la démonstration)
+            <dl>
+              <div><dt>Nom</dt><dd>Maxime Forest</dd></div>
+              <div><dt>Formation</dt><dd>BTS SIO option SISR, 2<sup>e</sup> année, à Vernon</dd></div>
+              <div><dt>Recherche</dt><dd>Alternance en cybersécurité, dès septembre 2027</dd></div>
+              <div><dt>Point fort</dt><dd><a href="projets/homelab.html">Homelab en service, documenté en 10 étapes</a></dd></div>
+              <div><dt>Réponse</dt><dd><a href="#contact">par fw-contact</a></dd></div>
+            </dl>
+          </li>
+        </ul>
+        <pre class="hex" aria-hidden="true">0000  4d 61 78 69 6d 65 20 46 6f 72 65 73 74 20 2d 20  Maxime Forest - 
+0010  61 6c 74 65 72 6e 61 6e 63 65 20 63 79 62 65 72  alternance cyber</pre>
+      </div>
+    </details>
   </div>
 </div>
 

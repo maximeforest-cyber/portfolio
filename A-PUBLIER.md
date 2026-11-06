@@ -18,6 +18,16 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | jeu. 26/11 | Homelab, étape 9 : une IA locale sur la carte graphique du labo |
 | mar. 01/12 | Homelab, étape 10 : des services dans Docker, avec un vrai certificat |
 
+## 2026-11-06 : Homelab : tout le labo en un schéma cliquable
+
+- Statut : à relire
+- Lien : https://forestmaxime-pf.fr/projets/homelab.html#partie-3
+- Image proposée : aucune (une capture du schéma pourrait être faite, elle n'est pas encore publiée)
+
+Mon homelab a maintenant son schéma d'ensemble. Sur la page du projet, on voit d'un coup d'œil comment tout s'assemble : le VPN WireGuard de la Freebox pour y accéder de l'extérieur, la tour sous Ubuntu Server avec ses audits, sa base SQLite, ses rapports et ses services Docker, puis la surveillance par Cloudflare et les alertes sur mon téléphone.
+
+Chaque case numérotée mène à la fiche de l'étape qui la met en place : 10 étapes, toutes validées par des tests.
+
 ## 2026-10-30 : Homelab, étape 10 : des services dans Docker, avec un vrai certificat
 
 - Statut : à relire

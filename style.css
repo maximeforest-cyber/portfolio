@@ -123,6 +123,15 @@ figcaption, .caption { font-size: 13px; color: var(--soft); margin-top: 7px; }
 .pause { display: flex; width: fit-content; align-items: center; gap: 8px; margin: 6px 4px 2px auto; padding: 5px 10px; background: none; color: var(--soft); border: 1px solid var(--hair); font: 12.5px var(--mono); cursor: pointer; }
 .pause[hidden] { display: none; }
 .hl-fig .pause { margin: 10px 0 0; }
+/* ---------- Page 404 ---------- */
+.lk.coupe { stroke: var(--cable); stroke-width: 2.4; }
+.lk.fantome, .ico.fantome * { stroke-dasharray: 5 4; }
+.ico.fantome { opacity: .6; }
+.plan text.perdu { font-family: var(--mono); font-size: 12.5px; font-weight: 700; fill: var(--cable-text); }
+.introuvable .plan { margin-top: 26px; max-width: 1000px; }
+.introuvable .reroute { margin-top: 30px; font-size: 19px; }
+.introuvable .actions { margin-top: 12px; }
+.introuvable .signal { margin-top: 16px; color: var(--soft); font-size: 15px; }
 .pause:hover { color: var(--ink); border-color: var(--ink); }
 .pause::before { content: ""; width: 8px; height: 10px; border-inline: 3px solid currentColor; box-sizing: border-box; }
 .en-pause .pause::before { width: 0; height: 0; border-block: 5px solid transparent; border-inline: 8px solid currentColor; border-inline-end-width: 0; }

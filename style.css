@@ -107,6 +107,13 @@ figcaption, .caption { font-size: 13px; color: var(--soft); margin-top: 7px; }
 .plan text.figt { font-size: 15px; font-weight: 700; }
 .plan text.figs { font-size: 13px; fill: var(--soft); }
 .cart { fill: var(--sheet); stroke: var(--ink); stroke-width: 1.2; }
+.tp { fill: none; stroke: var(--cable); stroke-width: 2.2; }
+.tp.fin { stroke-width: 1; }
+.plan text.tp1, .plan text.tp2 { font-family: var(--mono); fill: var(--cable-text); font-weight: 700; letter-spacing: 1px; }
+.plan text.tp1 { font-size: 11.5px; letter-spacing: 2px; }
+.plan text.tp2 { font-size: 14.5px; letter-spacing: 1px; }
+.tampon { opacity: .88; transform-box: fill-box; transform-origin: center; animation: tampon .35s cubic-bezier(.3, 1.4, .6, 1) .7s both; }
+@keyframes tampon { from { opacity: 0; transform: scale(1.7); } to { opacity: .88; transform: scale(1); } }
 .plan a { cursor: pointer; }
 .plan a:hover .route, .plan a:focus-visible .route { stroke: var(--cable); }
 .plan a:hover .ico *, .plan a:focus-visible .ico * { stroke: var(--cable-text); }
@@ -368,6 +375,7 @@ ol.b li::before { display: none; }
   html { scroll-behavior: auto; }
   .hl-flux { animation: none; }
   .hl-tuile { transition: none; }
+  .tampon { animation: none; }
 }
 @media print {
   .top, .burger, .actions, .pkt, .toc, .pager, .crumb { display: none; }

@@ -9,7 +9,7 @@ Mon portfolio de BTS SIO option SISR. On se tutoie, en français simple. Tout le
 - `_config.yml` sert uniquement à exclure de la publication les fichiers de travail (`CLAUDE.md`, `A-PUBLIER.md`) : tout nouveau fichier de travail en Markdown doit y être ajouté, sinon GitHub Pages le publie en page web.
 - Fichiers :
   - `index.html` : la page unique, avec ses rubriques (`#a-propos` avec le CV intégré, `#competences`, `#projets`, `#parcours`, `#certifications`, `#veille`, `#contact`) ;
-  - `style.css` et `script.js` : partagés par toutes les pages ;
+  - `style.css` et `script.js` : partagés par toutes les pages. Après chaque modification de l'un d'eux, augmenter le numéro `?v=N` de leurs liens dans toutes les pages. Sinon, Cloudflare sert l'ancienne version pendant 10 minutes au maximum ;
   - `projets/*.html` : un compte rendu par projet, tous bâtis sur le même modèle (parties `<div class="part" id="partie-N">` avec titre `<h2><span class="n">0N</span>…</h2>`, captures en `<figure class="shot">`, navigation `pager` Précédent / Suivant en bas) ;
   - `projets/img/` : captures en **WebP**, nommées `<projet>-NN.webp`, avec `width`, `height`, `alt` et `loading="lazy"` sur chaque `<img>` ;
   - `fichiers/` : archives à télécharger ; PDF du CV et du rapport de stage à la racine ; badges `badge-*.png`.

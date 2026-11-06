@@ -95,12 +95,14 @@
     <details class="capture">
       <summary>Capturer un paquet sur sw-coeur</summary>
       <div class="trame">
-        <p class="trame-tete">Trame n° 1 · capturée sur sw-coeur · réponse de pc-maxime</p>
+        <p class="trame-tete">Trame n° 1 · capturée sur sw-coeur, lien vers fw-contact · réponse de pc-maxime</p>
         <ul class="couches">
-          <li><b>Ethernet II</b>, 802.1Q VLAN 10 (PROFIL)</li>
+          <li><b>Ethernet II</b>, Src : pc-maxime, Dst : fw-contact (passerelle)</li>
+          <li><b>802.1Q Virtual LAN</b>, PRI : 0, DEI : 0, ID : 10 (VLAN PROFIL)</li>
           <li><b>Internet Protocol Version 4</b>, Src : 10.0.10.11 (pc-maxime), Dst : vous (wan)</li>
-          <li><b>Transmission Control Protocol</b>, port source 443 (HTTPS), drapeaux [PSH, ACK]</li>
-          <li class="charge"><b>Données</b> (TLS déchiffré pour la démonstration)
+          <li><b>Transmission Control Protocol</b>, Src Port : 443 (HTTPS)</li>
+          <li><b>Transport Layer Security</b>, déchiffré pour la démonstration</li>
+          <li class="charge"><b>Hypertext Transfer Protocol</b>, HTTP/1.1 200 OK
             <dl>
               <div><dt>Nom</dt><dd>Maxime Forest</dd></div>
               <div><dt>Formation</dt><dd>BTS SIO option SISR, 2<sup>e</sup> année, à Vernon</dd></div>

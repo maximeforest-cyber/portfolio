@@ -29,7 +29,7 @@ J'ai ajouté quelques petits clins d'œil à mon portfolio, sans rien enlever de
 
 Le plan du site, dessiné comme un schéma réseau, porte maintenant un tampon « Bon pour alternance · sept. 2027 ». Sous le plan, on peut « capturer un paquet » qui passe sur le switch : la trame est décodée couche par couche, comme dans Wireshark, et les données résument mon profil.
 
-Et si vous tapez une adresse qui n'existe pas, la page d'erreur vous montre où le paquet s'est perdu : le nom a été résolu, la connexion HTTPS est établie, seule la page manque.
+Et si vous tapez une adresse qui n'existe pas, la page d'erreur vous montre que le paquet est bien arrivé : le nom a été résolu, la connexion HTTPS est établie, seule la page manque.
 
 Les animations peuvent être mises en pause, et elles s'arrêtent d'elles-mêmes si votre appareil demande moins de mouvement.
 

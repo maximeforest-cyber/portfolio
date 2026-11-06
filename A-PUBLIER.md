@@ -19,6 +19,20 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | mar. 01/12 | Homelab, étape 10 : des services dans Docker, avec un vrai certificat |
 | jeu. 03/12 | Homelab : tout le labo en un schéma cliquable |
 
+## 2026-11-06 : Le portfolio prend des airs de plan réseau, avec quelques clins d'œil
+
+- Statut : à relire
+- Lien : https://forestmaxime-pf.fr/
+- Image proposée : aucune (une capture du plan de l'accueil avec le tampon pourrait être faite, elle n'est pas encore publiée)
+
+J'ai ajouté quelques petits clins d'œil à mon portfolio, sans rien enlever de ce qu'il faut lire en trois minutes.
+
+Le plan du site, dessiné comme un schéma réseau, porte maintenant un tampon « Bon pour alternance · sept. 2027 ». Sous le plan, on peut « capturer un paquet » qui passe sur le switch : la trame est décodée couche par couche, comme dans Wireshark, et les données résument mon profil.
+
+Et si vous tapez une adresse qui n'existe pas, la page d'erreur vous montre où le paquet s'est perdu : le nom a été résolu, la connexion HTTPS est établie, seule la page manque.
+
+Les animations peuvent être mises en pause, et elles s'arrêtent d'elles-mêmes si votre appareil demande moins de mouvement.
+
 ## 2026-11-06 : Homelab : tout le labo en un schéma cliquable
 
 - Statut : à relire

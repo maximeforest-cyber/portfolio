@@ -178,7 +178,7 @@ h3 { font-size: 19px; line-height: 1.28; letter-spacing: -.01em; }
 .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
 .tags li { font-size: 13.5px; border: 1px solid var(--ink); padding: 2px 8px; }
 .tags a { color: var(--cable-text); text-decoration: underline; text-decoration-thickness: 1px; }
-.tags a::after { content: " →"; }
+.tags a::after { content: " →"; content: " →" / ""; }
 .tags a:hover { color: var(--ink); }
 .meta { font-size: 13.5px; font-weight: 600; color: var(--cable-text); margin-bottom: 6px; }
 .resultat { margin-top: 8px; font-size: 15px; }

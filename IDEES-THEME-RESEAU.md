@@ -62,6 +62,41 @@ Le meilleur gain vient de deux choses : rendre exact ce qui existe, et ajouter d
 - **Compétences** : 23 liens « preuve » (dont 4 vers la fiche du stage).
 - **Infra-Site, figure 6** : recadrée, elle montrait la clé publique SSH du switch.
 
+## Éléments « fun » du plan de l'accueil (/idees du 07/11/2026, après-midi)
+
+Recherche avec trois points de vue (recruteuse RH sur téléphone, RSSI, développeuse front), puis une critique. Avis commun : du fun, oui, s'il reste facultatif, exact, et lancé par le visiteur. Les pressés regardent ce qu'ils veulent, les extras sont pour les curieux.
+
+**Fait (commits locaux, à pousser après la relecture de niveau 3)** :
+
+- **Capture** : le bouton s'appelle « Mon profil en bref, façon capture Wireshark ».
+- **LED d'activité** : elles clignotent quand un paquet arrive, et sont allumées et fixes à l'impression.
+- **Étiquette « trunk 802.1Q »** sur le lien sw-coeur–fw-contact (« 802.1Q » sur mobile).
+- **Simulateur « Envoyer un paquet sur le plan »** (`#simulation`) :
+  - un pare-feu à état, avec 4 règles : HTTPS et HTTP depuis le wan vers les 6 équipements, SSH, HTTPS et ping depuis pc-maxime vers fw-contact et le VLAN 20, et un refus par défaut ;
+  - dans le même VLAN, le paquet ne passe pas par fw-contact ;
+  - une phrase dit que c'est une maquette, et qu'en vrai ce serait une DMZ (lien vers Infra-Site partie 9) ;
+  - les 56 combinaisons ont été testées.
+- **Tempête de broadcast** : un câble pend sous sw-coeur. Branché (clic ou clavier), il fait une boucle : des paquets envahissent la page pendant 4 s, puis une phrase explique le rôle du STP. En mouvement réduit, seule la phrase s'affiche.
+- **Console** : un message pour ceux qui ouvrent les outils de développement. **Onglet** : « Connexion perdue… » quand on le quitte.
+- **Compétences** : « SSH » mène au homelab, étape 1. « ACL » n'a plus de lien, parce que la partie 10 d'Infra-Site est le travail du binôme.
+
+**Écarté** :
+
+- **Refus en boucle dans le trafic automatique** : ça ressemble à une panne. Et dans Infra-Site, le filtrage entre VLAN est sur le switch cœur, pas sur le pare-feu.
+- **Refus sur la 404** : une 404 n'est pas un refus.
+- **Tampon cliquable** : il ferait doublon avec « Me contacter ».
+- **Trame « après NAT »** : la preuve citée parlait d'un serveur de DMZ, et le site est servi en HTTP/3.
+- **« Vous êtes ici » qui suit la visite**, **fichier Packet Tracer du plan**, **« Avancer d'un pas »** : coût trop élevé ou effet faux.
+
+**À discuter plus tard** :
+
+- un paquet retour sur le plan ;
+- l'arrêt du trafic en mouvement réduit ;
+- l'objet déjà rempli dans le lien e-mail ;
+- le quiz « Passe ou pas ? » sur la partie 9 d'Infra-Site.
+
+**Remarque** : à l'impression, la page 2 de l'accueil sort vide (le cadre du plan est coupé en deux). C'était déjà le cas avant ces changements.
+
 ## Points ouverts
 
 - **RGPD** : « parcours complet » confirmé par Maxime le 07/11/2026. Les modules se débloquent dans l'ordre et le module 6 est le dernier ; l'attestation du module 6 (19/10/2026, 93 %) est dans `~/badges`.

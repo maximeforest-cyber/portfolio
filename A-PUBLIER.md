@@ -19,6 +19,20 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | mar. 01/12 | Homelab, étape 10 : des services dans Docker, avec un vrai certificat |
 | jeu. 03/12 | Homelab : tout le labo en un schéma cliquable |
 
+## 2026-11-07 : Envoyer un paquet à travers le pare-feu de mon portfolio
+
+- Statut : à relire
+- Lien : https://forestmaxime-pf.fr/#simulation
+- Image proposée : aucune (une capture du simulateur serait à prendre sur le site en ligne)
+
+Sur l'accueil de mon portfolio, le plan du site est dessiné comme un schéma réseau. Il est maintenant possible d'y envoyer un paquet.
+
+On choisit une source, une destination et un service (HTTPS, HTTP, SSH ou ping), et le pare-feu du plan applique ses règles dans l'ordre : la première qui correspond décide, et tout le reste est refusé par défaut. Le paquet part sur le schéma, et le résultat dit quelle règle s'est appliquée.
+
+C'est une maquette, pas mon vrai réseau, et la page le dit : des serveurs joignables depuis Internet iraient en vrai dans une DMZ, comme dans mon projet Infra-Site.
+
+Et pour les plus curieux, il y a un câble qui traîne sur le schéma.
+
 ## 2026-11-07 : Des preuves plutôt que des décors sur mon portfolio
 
 - Statut : à relire

@@ -29,7 +29,7 @@ Je me suis demandé si je devais pousser le thème réseau de mon portfolio enco
 
 Dans les comptes rendus Infra-Site, Maquette RIOCA et GLPI, des encadrés « Vérification » montrent maintenant la vraie commande et ce qu'elle a prouvé : show ip route pour les routes apprises en RIP, show ip ssh pour vérifier que seule la version 2 de SSH est active, un ping entre deux VLAN…
 
-Sur l'accueil, chaque projet affiche son résultat sans avoir à ouvrir la fiche, et les compétences mènent à la partie du compte rendu qui les prouve.
+Sur l'accueil, les projets qui ont un compte rendu affichent leur résultat sans avoir à ouvrir la fiche, et une partie des compétences mène à l'endroit où je les ai mises en pratique.
 
 Et j'ai corrigé mes propres approximations : le tableau de contact est devenu une matrice des flux exacte (ports 587, 465 et 443), et mes certifications indiquent qui les a délivrées et quand.
 

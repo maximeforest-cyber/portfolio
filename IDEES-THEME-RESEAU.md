@@ -59,7 +59,7 @@ Le meilleur gain vient de deux choses : rendre exact ce qui existe, et ajouter d
 - **Contact** : matrice des flux. Envoi par SMTP 587 ou 465, ou par webmail en HTTPS 443, jusqu'au serveur d'envoi du visiteur ; HTTPS 443 vers LinkedIn et GitHub. Pas de port 25 (c'est un échange entre serveurs), pas de ligne de refus (personne ne l'applique). fw-contact · 10.0.10.1.
 - **Projets** : ligne « Résultat » sur les 9 cartes qui ont un compte rendu, et dans l'en-tête d'Infra-Site, de RIOCA et de GLPI. L'encadré « En bref » prévu au départ a été abandonné : l'en-tête des pages avait déjà le résumé et le contexte.
 - **Vérification** : 5 encadrés (Infra-Site parties 6 et 7, RIOCA parties 4 et 5, GLPI partie 3), tirés des captures déjà publiées.
-- **Compétences** : 16 liens « preuve ».
+- **Compétences** : 23 liens « preuve » (dont 4 vers la fiche du stage).
 - **Infra-Site, figure 6** : recadrée, elle montrait la clé publique SSH du switch.
 
 ## Points ouverts

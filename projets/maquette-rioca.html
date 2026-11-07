@@ -42,7 +42,7 @@
     <p class="kicker">Atelier de démarrage · <b>septembre 2026</b> · en binôme</p>
     <h1>Maquette du réseau RIOCA : LAN et infrastructure Windows</h1>
     <p class="lead">Construction du réseau de base de l'entreprise RIOCA, de la baie aux postes clients : switchs Cisco, VLAN par service, routage inter-VLAN et DHCP sur le switch cœur, administration centralisée, sauvegardes, puis hyperviseur Hyper-V et domaine Active Directory.</p>
-    <dl class="facts"><div><dt>Contexte</dt><dd>RIOCA (entreprise fictive) : un réseau local à construire pour ses services, répartis sur trois étages</dd></div><div><dt>Cadre</dt><dd>Premier atelier de 2<sup>e</sup> année de BTS SIO, non noté, en binôme : il sert de socle aux projets Infra-Site puis ArchiSite</dd></div><div><dt>Matériel</dt><dd>Switch cœur Cisco Catalyst 3650 (niveau 3), trois switchs Cisco Catalyst 2960, serveur physique sous Windows Server</dd></div><div><dt>Points clés</dt><dd>VTP, 9 VLAN, trunks, routage inter-VLAN, DHCP, mRemoteNG, TFTP, Hyper-V, Active Directory</dd></div><div><dt>Résultat</dt><dd>Réseau local fonctionnel : services cloisonnés dans leurs VLAN, switchs administrables à distance et sauvegardés, domaine Active Directory en place</dd></div></dl>
+    <dl class="facts"><div><dt>Contexte</dt><dd>RIOCA (entreprise fictive) : un réseau local à construire pour ses services, répartis sur trois étages</dd></div><div><dt>Cadre</dt><dd>Premier atelier de 2<sup>e</sup> année de BTS SIO, non noté, en binôme : il sert de socle aux projets Infra-Site puis ArchiSite</dd></div><div><dt>Matériel</dt><dd>Switch cœur Cisco Catalyst 3650 (niveau 3), trois switchs Cisco Catalyst 2960, serveur physique sous Windows Server</dd></div><div><dt>Points clés</dt><dd>VTP, 9 VLAN, trunks, routage inter-VLAN, DHCP, mRemoteNG, TFTP, Hyper-V, Active Directory</dd></div><div><dt>Résultat</dt><dd>Réseau local fonctionnel : un VLAN par service, routés entre eux par le switch cœur, switchs administrables à distance et sauvegardés, domaine Active Directory en place</dd></div></dl>
     <ul class="tags"><li>Cisco IOS</li><li>VLAN</li><li>Routage inter-VLAN</li><li>DHCP</li><li>Hyper-V</li><li>Active Directory</li></ul>
   </div>
 </div>
@@ -117,7 +117,7 @@ interface vlan 10
 ! ... même logique pour les autres VLAN clients</code></pre>
 <figure class="shot"><a href="img/maquette-05.webp"><img src="img/maquette-05.webp" alt="show ip dhcp pool : pools COMPTA et FABRIC, une adresse déjà attribuée dans chacun." width="800" height="392" loading="lazy"></a><figcaption><b>Fig. 6</b> Les pools DHCP du switch cœur, avec des adresses déjà attribuées.</figcaption></figure>
 <p>Test : un poste du VLAN IT reçoit son adresse (172.19.60.2, passerelle 172.19.60.254) et joint un poste du VLAN Recherche et développement.</p>
-<figure class="shot"><a href="img/maquette-06.webp"><img src="img/maquette-06.webp" alt="ipconfig sur un poste du VLAN IT : adresse 172.19.60.2 reçue par DHCP, puis ping réussi vers 172.19.50.1." width="800" height="629" loading="lazy"></a><figcaption><b>Fig. 7</b> Adresse reçue par DHCP et ping entre deux VLAN.</figcaption></figure>
+<figure class="shot"><a href="img/maquette-06.webp"><img src="img/maquette-06.webp" alt="ipconfig sur un poste du VLAN IT : adresse 172.19.60.2, passerelle 172.19.60.254, puis ping réussi vers 172.19.50.1." width="800" height="629" loading="lazy"></a><figcaption><b>Fig. 7</b> Adresse du poste et ping entre deux VLAN.</figcaption></figure>
 <aside class="verif" aria-label="Vérification">
 <p class="verif-t">Vérification</p>
 <pre class="cmd"><code>C:\Users\maxim&gt;ping 172.19.50.1</code></pre>
@@ -145,7 +145,7 @@ interface vlan 10
 </div>
 <div class="part" id="partie-9">
 <h2><span class="n">09</span>Bilan</h2>
-<p>À la fin de l'atelier, le réseau local de RIOCA était fonctionnel : services cloisonnés dans leurs VLAN, routage et adresses gérés par le switch cœur, switchs administrables à distance et sauvegardés, domaine Active Directory en place.</p>
+<p>À la fin de l'atelier, le réseau local de RIOCA était fonctionnel : chaque service dans son propre VLAN, routage et adresses gérés par le switch cœur, switchs administrables à distance et sauvegardés, domaine Active Directory en place.</p>
 <p>C'est sur cette base qu'Infra-Site a ajouté une DMZ, une zone Internet et un pare-feu, en durcissant au passage ce qui avait été posé ici : SSH à la place de Telnet, ACL entre les services, sauvegardes automatiques.</p>
 </div>
 <nav class="pager" aria-label="Autres comptes rendus"><span></span><a class="next" href="glpi.html"><span>Suivant</span>Serveur GLPI dans Microsoft Azure</a></nav>

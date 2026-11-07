@@ -90,6 +90,7 @@ Recherche avec trois points de vue (recruteuse RH sur téléphone, RSSI, dévelo
 
 **À discuter plus tard** :
 
+- **wan → pc-maxime en HTTPS** est autorisé par la règle 1, alors que c'est un poste de travail. La note sous le tableau le reconnaît maintenant. L'autre option serait de le refuser (« un poste n'est pas joignable depuis Internet »), mais on perdrait le lien vers « À propos ». C'est à Maxime de choisir ;
 - un paquet retour sur le plan ;
 - l'arrêt du trafic en mouvement réduit ;
 - l'objet déjà rempli dans le lien e-mail ;

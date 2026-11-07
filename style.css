@@ -166,6 +166,7 @@ details.capture { margin-top: 12px; border-top: 0; padding-top: 0; }
 .rules tr.touchee td:first-child { white-space: nowrap; }
 .rules tr.touchee td:first-child::after { content: " ◀"; color: var(--cable-text); }
 .plan text.sim-txt { font-family: var(--mono); font-size: 11px; font-weight: 700; fill: var(--cable-text); }
+.sim { pointer-events: none; }
 .sim-x { fill: none; stroke: var(--cable); stroke-width: 2.4; stroke-linecap: round; }
 /* ---------- Page 404 ---------- */
 .lk.coupe { stroke: var(--cable); stroke-width: 2.4; }

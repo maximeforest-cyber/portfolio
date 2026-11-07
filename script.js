@@ -190,8 +190,8 @@
             ' La réponse revient sans règle dans l\'autre sens : le pare-feu garde l\'état de la connexion.' };
       }
       var raison = src !== 'wan' ? 'depuis pc-maxime, l\'administration passe par SSH ou HTTPS, pas par HTTP en clair.' :
-        dst === '#contact' ? 'le pare-feu ne s\'administre pas depuis Internet.' :
-        svc === 'ssh' ? 'SSH n\'est pas ouvert depuis Internet.' : 'le ping depuis Internet n\'est pas autorisé.';
+        svc === 'icmp' ? 'le ping depuis Internet n\'est pas autorisé.' :
+        dst === '#contact' ? 'le pare-feu ne s\'administre pas depuis Internet.' : 'SSH n\'est pas ouvert depuis Internet.';
       return { etat: 'non', regle: 4, titre: 'Refusé', texte: ' par fw-contact, règle 4 (par défaut) : ' + raison };
     };
 
@@ -303,6 +303,7 @@
       minuteur = setTimeout(fin, duree * 1000);
     });
     simu.hidden = false;
+    if (location.hash === '#simulation') { simu.open = true; simu.scrollIntoView(); }
   }
 
   // Plan du site : le câble qui pend sous sw-coeur. Branché, il fait une boucle : tempête de broadcast

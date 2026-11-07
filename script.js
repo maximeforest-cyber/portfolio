@@ -128,8 +128,7 @@
     document.querySelectorAll('main section[id]').forEach(function (s) { obs.observe(s); });
   }
 
-  // Schémas animés : bouton pour arrêter ou relancer le trafic (arrêté d'office si le visiteur réduit les animations)
-  var calme = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Schémas animés : le trafic tourne à l'arrivée sur la page, un bouton permet de l'arrêter ou de le relancer
   document.querySelectorAll('[data-anim]').forEach(function (zone) {
     var bouton = zone.querySelector('.pause');
     if (!bouton) { return; }
@@ -144,7 +143,7 @@
       bouton.textContent = arret ? 'Relancer le trafic' : 'Mettre en pause le trafic';
     }
     bouton.hidden = false;
-    regler(calme);
+    regler(false);
     bouton.addEventListener('click', function () { regler(!zone.classList.contains('en-pause')); });
   });
 

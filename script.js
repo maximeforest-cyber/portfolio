@@ -148,7 +148,6 @@
   });
 
   var plan = document.querySelector('.plan[data-anim]');
-  var calme = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
   var NS = 'http://www.w3.org/2000/svg';
 
   // Plan du site : simulation d'un paquet à travers les règles de fw-contact
@@ -286,7 +285,7 @@
       if (Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0) < r.height / 2) { svg.scrollIntoView({ block: 'nearest' }); }
       var pkt = creer('rect', { 'class': 'pkt sim', x: -3.5, y: -3.5, width: 7, height: 7 });
       var arrivee = pts[pts.length - 1];
-      if (plan.classList.contains('en-pause') || calme.matches || typeof svg.animationsPaused !== 'function') {
+      if (plan.classList.contains('en-pause') || typeof svg.animationsPaused !== 'function') {
         pkt.setAttribute('transform', 'translate(' + arrivee[0] + ' ' + arrivee[1] + ')');
         svg.appendChild(pkt);
         fin();
@@ -356,7 +355,7 @@
       plan.classList.add('boucle');
       tempete.textContent = 'Câble branché : sw-coeur est relié à lui-même…';
       var r = e.currentTarget.getBoundingClientRect();
-      if (calme.matches || !document.body.animate) { setTimeout(tempeteFinie, 1500); return; }
+      if (!document.body.animate) { setTimeout(tempeteFinie, 1500); return; }
       orage([r.left + r.width / 2, r.top]);
     };
     plan.querySelectorAll('.cable-libre').forEach(function (c) {

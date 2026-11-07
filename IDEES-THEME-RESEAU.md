@@ -76,9 +76,11 @@ Recherche avec trois points de vue (recruteuse RH sur téléphone, RSSI, dévelo
   - dans le même VLAN, le paquet ne passe pas par fw-contact ;
   - une phrase dit que c'est une maquette, et qu'en vrai ce serait une DMZ (lien vers Infra-Site partie 9) ;
   - les 56 combinaisons ont été testées.
-- **Tempête de broadcast** : un câble pend sous sw-coeur. Branché (clic ou clavier), il fait une boucle : des paquets envahissent la page pendant 4 s, puis une phrase explique le rôle du STP. En mouvement réduit, seule la phrase s'affiche.
+- **Tempête de broadcast** : un câble pend sous sw-coeur. Branché (clic ou clavier), il fait une boucle : des paquets envahissent la page pendant 4 s, puis une phrase explique le rôle du STP.
 - **Console** : un message pour ceux qui ouvrent les outils de développement. **Onglet** : « Connexion perdue… » quand on le quitte.
 - **Compétences** : « SSH » mène au homelab, étape 1. « ACL » n'a plus de lien, parce que la partie 10 d'Infra-Site est le travail du binôme.
+
+**Animations même en mouvement réduit** (décision de Maxime, 07/11/2026) : la tempête et le paquet du simulateur se lancent même quand le système demande moins d'animations, comme le trafic du plan. Ils ne partent que sur un clic du visiteur et durent moins de 5 s. Seul le bouton pause du plan les arrête (le simulateur affiche alors le verdict sans animation).
 
 **Écarté** :
 
@@ -92,7 +94,6 @@ Recherche avec trois points de vue (recruteuse RH sur téléphone, RSSI, dévelo
 
 - **wan → pc-maxime en HTTPS** est autorisé par la règle 1, alors que c'est un poste de travail. La note sous le tableau le reconnaît maintenant. L'autre option serait de le refuser (« un poste n'est pas joignable depuis Internet »), mais on perdrait le lien vers « À propos ». C'est à Maxime de choisir ;
 - un paquet retour sur le plan ;
-- l'arrêt du trafic en mouvement réduit ;
 - l'objet déjà rempli dans le lien e-mail ;
 - le quiz « Passe ou pas ? » sur la partie 9 d'Infra-Site.
 

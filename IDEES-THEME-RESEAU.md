@@ -120,3 +120,37 @@ Recherche avec trois points de vue (recruteuse RH sur téléphone, RSSI, dévelo
 
 - **RGPD** : « parcours complet » confirmé par Maxime le 07/11/2026. Les modules se débloquent dans l'ordre et le module 6 est le dernier ; l'attestation du module 6 (19/10/2026, 93 %) est dans `~/badges`.
 - **Carte du stage Pyroalliance** : pas de ligne « Résultat » (elle n'a pas de page de compte rendu).
+
+## Surprises cachées (/idees du 08/11/2026)
+
+Recherche avec trois points de vue (RSSI qui fouille le site, développeuse front créative, recruteuse RH sur téléphone), puis une critique. Question de départ : d'autres surprises « cachées », qui ne gênent pas le visiteur pressé, et la POV (caméra qui suit le paquet du simulateur).
+
+**La POV** : une vraie vue à la première personne en 3D est écartée par tous (un tunnel vide, le mal des transports, le plan perdu). Version retenue : d'abord « Ce qu'a vu le paquet », en texte sous le verdict ; plus tard, peut-être, une caméra qui zoome dans le cadre du plan (`viewBox` réécrit à chaque image), en option (case « Suivre le paquet »).
+
+**À faire (gardé par Maxime), dans cet ordre** :
+
+1. **Corriger 3 défauts déjà en ligne** :
+   - même VLAN : le verdict dit que sw-coeur relie les deux équipements, mais le paquet dessiné passe par la barre du VLAN sans toucher sw-coeur (on croirait un hub) ;
+   - en-têtes Cloudflare : `/projets/glpi` (page servie sans `.html`) et les 404 comme `/nexiste-pas` n'ont ni la CSP en en-tête ni `X-Frame-Options` (vérifié par `curl -I`) ; à corriger dans la règle Cloudflare ;
+   - pause pendant le trajet sur le plan : le verdict s'affichait pendant que le paquet restait figé à mi-chemin (`setTimeout` qui continuait).
+2. **L'étiquette « trunk 802.1Q » se déplie** : ses 4 octets (TPID 0x8100, PCP 3 bits, DEI 1 bit, VID 12 bits = 10 ou 20), « elle n'existe que sur ce câble », plus une phrase sur le VLAN natif (sans étiquette). Zone de 24 px au moins à toucher sur mobile, cachée à l'impression.
+3. **Touche « ? » façon aide de Cisco IOS** : la liste des raccourcis (1 à 7 pour les rubriques, P pour la pause) et des surprises cachées. Interrupteur pour couper les raccourcis (WCAG 2.1.4). Piège : en AZERTY, « ? » et les chiffres se tapent avec Maj (tester `e.key` et `e.code`).
+4. **« Ce qu'a vu le paquet »** sous le verdict : règle et table d'état sur fw-contact, TTL −1 et MAC réécrites, étiquette 802.1Q ajoutée puis retirée, rien ne change dans le même VLAN. À trancher par Maxime : le NAT (une adresse en 10.0.x.x n'est pas joignable depuis le wan sans lui) et le double passage par sw-coeur.
+5. **Pour ceux qui lisent le code** : commentaire de 3 lignes en tête d'`index.html` (fait main, CSP en `<meta>` et en en-tête) ; un `robots.txt` à soi (« robots.txt n'est pas un contrôle d'accès, le code est public »). Cloudflare ajoute déjà ses lignes en tête.
+6. **Petites gênes** : la page 2 vide à l'impression de l'accueil ; un lien « Revenir au simulateur » quand le paquet est arrivé.
+
+**À discuter** :
+
+- **Caméra qui zoome** : faisable, mais beaucoup de pièges (`marquer`, `getScreenCTM`, la pause, le plan mobile), et des panneaux qui défilent en 3 s ne se lisent pas.
+- **« Votre vrai paquet »** : les vraies mesures du chargement du visiteur (Performance API : h2 ou h3, DNS, TLS, premier octet). Support Safari non vérifié ; « h3 » (QUIC, UDP 443) à côté de « HTTPS · TCP 443 » demande une nuance.
+- **`security.txt`** (déjà en attente) : `Expires` à refaire chaque année, contact `mailto:` plus clair qu'un lien vers #contact.
+- **Lexique au toucher** (VLAN, 802.1Q, ALLOW/DENY, 443) : utile à une RH, mais pas caché, et du bruit pour le visiteur pressé.
+- **Bouton « Transmettre à l'équipe technique »** (partage du téléphone) : pas une surprise.
+- **QR code sur le CV papier** : plutôt vers l'accueil que vers le simulateur, adresse écrite en clair à côté (un QR inconnu ressemble à de l'hameçonnage).
+- **Idée audacieuse : « Voir ma CSP bloquer »** : 4 ou 5 tentatives figées (script en ligne, `eval`, `onclick` en attribut, `setAttribute('style')`, image externe), avec le vrai rapport `securitypolicyviolation` du navigateur. Aucun champ libre, ne jamais assouplir la CSP ; sans doute deux rapports par tentative (CSP en `<meta>` et en en-tête).
+
+**Écarté** : la POV 3D ; le service worker hors ligne (presque personne ne le verrait, cache périmé) ; la fiche `.vcf` ; le fichier `.pcapng` à ouvrir dans Wireshark (capture fabriquée, adresses impossibles sans NAT ; la vraie preuve Wireshark sera une vraie capture du homelab).
+
+**À retenir** : la carte « Ce portfolio » dit que le site est fait avec l'aide d'une IA. Un effet front très poussé sera donc mis au crédit de Claude : préférer les surprises dont Maxime explique le fond réseau (802.1Q, table d'état, trajet du paquet).
+
+**Non vérifié** : la Performance API sur Safari, le double rapport de la CSP, `e.key` et `e.code` en AZERTY selon les navigateurs, l'onglet « Connexion perdue… » vu depuis un iPhone, la fluidité du zoom sur un vieux téléphone.

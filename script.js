@@ -176,7 +176,7 @@
       }
       if (src !== 'wan' && eqp[dst].vlan === eqp[src].vlan) {
         return { etat: 'local', titre: 'Livré sans passer par fw-contact', lien: dst,
-          texte: ' : pc-maxime et ' + eqp[dst].nom + ' sont dans le même VLAN 10, sw-coeur les relie directement. Aucune règle du pare-feu ne s\'applique.' };
+          texte: ' : pc-maxime et ' + eqp[dst].nom + ' sont dans le même VLAN 10, sw-coeur fait passer la trame de l\'un à l\'autre, sans la remonter à fw-contact. Aucune règle du pare-feu ne s\'applique.' };
       }
       var regle = 4;
       if (src === 'wan' && dst !== '#contact' && svc === 'https') { regle = 1; }
@@ -217,8 +217,7 @@
       }
       var depuis = route(svg, src).reverse();
       if (eqp[dst].vlan === eqp[src].vlan) {
-        var r = route(svg, dst);
-        return [depuis[0], depuis[1], r[r.length - 2], r[r.length - 1]];
+        return depuis.concat(route(svg, dst).slice(1)); // la trame passe par sw-coeur, sans remonter à fw-contact
       }
       var aller = depuis.concat([fwD]);
       return (refus || dst === '#contact') ? aller : aller.concat(route(svg, dst));
@@ -386,7 +385,14 @@
       pkt.appendChild(mouvement);
       svg.appendChild(pkt);
       mouvement.beginElement();
-      minuteur = setTimeout(fin, duree * 1000);
+      // L'arrivée suit l'horloge du schéma : en pause, le paquet est figé et le verdict attend la reprise
+      var t0 = svg.getCurrentTime();
+      var attendre = function () {
+        var reste = t0 + duree - svg.getCurrentTime();
+        if (reste > 0.02) { minuteur = setTimeout(attendre, plan.classList.contains('en-pause') ? 200 : reste * 1000); return; }
+        fin();
+      };
+      minuteur = setTimeout(attendre, duree * 1000);
     });
     simu.hidden = false;
     if (location.hash === '#simulation') { simu.open = true; simu.scrollIntoView(); }

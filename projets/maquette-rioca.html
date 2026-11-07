@@ -120,9 +120,8 @@ interface vlan 10
 <figure class="shot"><a href="img/maquette-06.webp"><img src="img/maquette-06.webp" alt="ipconfig sur un poste du VLAN IT : adresse 172.19.60.2 reçue par DHCP, puis ping réussi vers 172.19.50.1." width="800" height="629" loading="lazy"></a><figcaption><b>Fig. 7</b> Adresse reçue par DHCP et ping entre deux VLAN.</figcaption></figure>
 <aside class="verif" aria-label="Vérification">
 <p class="verif-t">Vérification</p>
-<pre class="cmd"><code>C:\&gt; ipconfig
-C:\&gt; ping 172.19.50.1</code></pre>
-<p>Le poste du VLAN 60 (IT) a reçu l'adresse 172.19.60.2 par DHCP, avec la passerelle 172.19.60.254, et joint une machine du VLAN 50 : 4 réponses sur 4. Le <span class="k">TTL=127</span>, un de moins que la valeur de départ de Windows (128), montre que la réponse a traversé un routeur : le switch cœur, qui route entre les VLAN. Voir la figure 7.</p>
+<pre class="cmd"><code>C:\Users\maxim&gt;ping 172.19.50.1</code></pre>
+<p>Le poste du VLAN 60 (IT), en 172.19.60.2 avec la passerelle 172.19.60.254 (haut de la figure 7), joint une machine du VLAN 50 : 4 réponses sur 4. Pour changer de sous-réseau, il passe par sa passerelle, le switch cœur, qui route entre les VLAN. Le <span class="k">TTL=127</span> est cohérent avec un seul saut de routage si la machine visée part de 128, comme Windows.</p>
 </aside>
 </div>
 <div class="part" id="partie-6">

@@ -191,7 +191,8 @@
       var raison = src !== 'wan' ? 'depuis pc-maxime, l\'administration passe par SSH ou HTTPS, pas par HTTP en clair.' :
         svc === 'icmp' ? 'le ping depuis Internet n\'est pas autorisé.' :
         dst === '#contact' ? 'le pare-feu ne s\'administre pas depuis Internet.' : 'SSH n\'est pas ouvert depuis Internet.';
-      return { etat: 'non', regle: 4, titre: 'Refusé', texte: ' par fw-contact, règle 4 (par défaut) : ' + raison };
+      return { etat: 'non', regle: 4, titre: 'Refusé', texte: ' par fw-contact, règle 4 (par défaut) : ' + raison +
+        ' Le paquet est jeté sans réponse : ' + (svc === 'icmp' ? 'le ping attend un écho qui ne vient pas.' : 'la connexion finit en délai dépassé.') };
     };
 
     // Chemins du plan (commandes M, H, V seulement), lus dans le schéma affiché
@@ -228,8 +229,18 @@
       for (var i = 0; i < l.length; i++) { if (l[i].getBoundingClientRect().width > 0) { return l[i]; } }
       return null;
     };
+    var voyage = null;
+    var arreterVoyage = function () {
+      if (!voyage) { return; }
+      cancelAnimationFrame(voyage.image);
+      voyage.paquet.remove();
+      document.documentElement.style.scrollBehavior = '';
+      voyage = null;
+    };
     var nettoyer = function () {
       clearTimeout(minuteur);
+      arreterVoyage();
+      document.querySelectorAll('.folio.arrivee').forEach(function (e) { e.classList.remove('arrivee'); });
       plan.querySelectorAll('.sim').forEach(function (e) { e.remove(); });
       simu.querySelectorAll('tr.touchee').forEach(function (e) { e.classList.remove('touchee'); });
     };
@@ -272,6 +283,76 @@
       if (v.regle) { simu.querySelector('tr[data-regle="' + v.regle + '"]').classList.add('touchee'); }
     };
 
+    // Paquet autorisé : il sort du plan et file vers la rubrique pendant que la page y défile
+    var arriver = function (section) {
+      var folio = section.querySelector('.folio');
+      folio.classList.add('arrivee');
+      minuteur = setTimeout(function () { folio.classList.remove('arrivee'); }, 1600);
+      var titre = section.querySelector('h2');
+      titre.setAttribute('tabindex', '-1');
+      titre.focus({ preventScroll: true });
+    };
+    var voyager = function (svg, pt, cle) {
+      var section = document.getElementById(cle.slice(1));
+      var cible = section && section.querySelector('.folio .n');
+      var ctm = svg.getScreenCTM();
+      if (!cible || !ctm || !document.body.animate) { return; }
+      var p = svg.createSVGPoint();
+      p.x = pt[0]; p.y = pt[1];
+      p = p.matrixTransform(ctm);
+      // Où sera la rubrique une fois la page défilée (marge du menu fixe, bas de page)
+      var html = document.documentElement;
+      var marge = parseFloat(getComputedStyle(html).scrollPaddingTop) || 0;
+      var y0 = window.pageYOffset;
+      var but = Math.max(0, Math.min(html.scrollHeight - window.innerHeight, y0 + section.getBoundingClientRect().top - marge));
+      var centre = function (decalage) {
+        var r = cible.getBoundingClientRect();
+        return [r.left + r.width / 2, r.top + r.height / 2 - decalage];
+      };
+      var c = centre(but - y0);
+      var place = function (x, y, echelle) { return 'translate(' + (x - 5.5) + 'px, ' + (y - 5.5) + 'px) scale(' + echelle + ')'; };
+      var paquet = document.createElement('span');
+      paquet.className = 'paquet-fou paquet-voyage';
+      paquet.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(paquet);
+      plan.querySelectorAll('.pkt.sim').forEach(function (e) { e.remove(); });
+      voyage = { paquet: paquet, image: 0 };
+      var v = voyage;
+      // La page défile au même rythme que le paquet : ils arrivent ensemble, quel que soit le navigateur
+      var duree = Math.min(1500, 700 + Math.abs(but - y0) / 5);
+      var e0 = 7 * ctm.a / 11, debut = 0, pose = y0, libre = false;
+      var lisse = function (t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(2 - 2 * t, 3) / 2; };
+      html.style.scrollBehavior = 'auto';
+      paquet.style.transform = place(p.x, p.y, e0);
+      var etape = function (maintenant) {
+        if (voyage !== v) { return; }
+        if (plan.classList.contains('en-pause')) { arreterVoyage(); arriver(section); return; }
+        if (!debut) { debut = maintenant; }
+        var t = Math.min(1, (maintenant - debut) / duree), k = lisse(t);
+        if (!libre && Math.abs(window.pageYOffset - pose) > 2) { libre = true; } // le visiteur fait défiler lui-même
+        if (!libre) { pose = y0 + (but - y0) * k; window.scrollTo(0, pose); }
+        paquet.style.transform = place(p.x + (c[0] - p.x) * k, p.y + (c[1] - p.y) * k, e0 + (1.3 - e0) * k);
+        if (t < 1) { v.image = requestAnimationFrame(etape); return; }
+        voyage = null;
+        html.style.scrollBehavior = '';
+        var f = centre(0);
+        paquet.animate([
+          { transform: place(c[0], c[1], 1.3), opacity: 1 },
+          { transform: place(f[0], f[1], 0.4), opacity: 0 }
+        ], { duration: 300, fill: 'forwards' }).onfinish = function () { paquet.remove(); };
+        arriver(section);
+      };
+      v.image = requestAnimationFrame(etape);
+    };
+
+    // Paquet refusé : il bute sur fw-contact, puis il est jeté (rien ne revient)
+    var jeter = function (pkt) {
+      [creer('animateTransform', { attributeName: 'transform', type: 'translate', additive: 'sum', begin: 'indefinite', fill: 'freeze',
+        dur: '0.35s', values: '0 0;-2.5 0;2.5 0;-2.5 0;2.5 0;0 0' }),
+      creer('animate', { attributeName: 'opacity', begin: 'indefinite', fill: 'freeze', dur: '0.8s', values: '1;1;0', keyTimes: '0;.45;1' })
+      ].forEach(function (a) { pkt.appendChild(a); a.beginElement(); });
+    };
+
     document.getElementById('simu-go').addEventListener('click', function () {
       var src = choixSrc.value, dst = choixDst.value;
       var v = juger(src, dst, choixSvc.value);
@@ -280,7 +361,13 @@
       var svg = svgAffiche();
       if (!svg || v.etat === 'meme') { afficher(v); return; }
       var pts = chemin(svg, src, dst, v.etat === 'non');
-      var fin = function () { marquer(svg, pts, v); afficher(v); };
+      var fin = function () {
+        marquer(svg, pts, v);
+        afficher(v);
+        if (plan.classList.contains('en-pause')) { return; }
+        if (v.etat === 'non') { jeter(pkt); return; }
+        minuteur = setTimeout(function () { voyager(svg, arrivee, dst); }, 450);
+      };
       var r = svg.getBoundingClientRect();
       if (Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0) < r.height / 2) { svg.scrollIntoView({ block: 'nearest' }); }
       var pkt = creer('rect', { 'class': 'pkt sim', x: -3.5, y: -3.5, width: 7, height: 7 });

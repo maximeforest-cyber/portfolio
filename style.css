@@ -151,6 +151,12 @@ details.capture { margin-top: 12px; border-top: 0; padding-top: 0; }
 .cable-libre:focus { outline: none; }
 .cable-libre:focus-visible .hit { stroke: var(--cable); stroke-width: 1.2; stroke-dasharray: 3 3; }
 .paquet-fou { position: fixed; top: 0; left: 0; z-index: 60; width: 11px; height: 11px; background: var(--cable); pointer-events: none; }
+.paquet-voyage { z-index: 61; }
+.folio.arrivee .n { animation: arrivee 1.5s ease-out; }
+@keyframes arrivee {
+  0%, 25% { background: var(--cable); box-shadow: 0 0 0 8px rgba(142, 47, 60, .3); }
+  100% { box-shadow: 0 0 0 8px rgba(142, 47, 60, 0); }
+}
 .tempete { margin-top: 10px; max-width: 760px; font-size: 15px; }
 .tempete:empty { margin: 0; }
 .simu-corps { margin-top: 10px; max-width: 760px; }

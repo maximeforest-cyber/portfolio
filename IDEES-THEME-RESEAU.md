@@ -92,7 +92,13 @@ Recherche avec trois points de vue (recruteuse RH sur téléphone, RSSI, dévelo
 
 **wan → pc-maxime en HTTPS : on garde l'autorisation** (choix de Maxime, 07/11/2026). La note sous le tableau des règles reconnaît qu'en vrai, un poste de travail ne serait pas joignable depuis Internet.
 
-**Prochaine tâche (nouvelle session) : le paquet du simulateur voyage jusqu'à la rubrique.** Idée de Maxime, 07/11/2026 :
+**Fait (07/11/2026, commit local, à pousser après la relecture de niveau 3) : le paquet du simulateur voyage jusqu'à la rubrique.**
+- **Autorisé ou livré** : 450 ms après l'arrivée sur l'équipement, le paquet sort du plan (`span.paquet-voyage` en `position: fixed`) et file vers le numéro de la rubrique. La page défile en même temps, pilotée image par image (`requestAnimationFrame`, durée de 0,7 à 1,5 s), pour que le paquet et la page arrivent ensemble dans tous les navigateurs. Le numéro s'allume (classe `arrivee`) et le focus passe sur le titre `h2` de la rubrique, comme après un lien. Si le visiteur fait défiler lui-même pendant le vol, la page le laisse faire.
+- **Refusé : jeté, rien ne revient** (choix de Maxime) : DENY veut dire « jeté sans réponse », un retour vers wan ferait penser à un REJECT. Le paquet tremble contre fw-contact puis disparaît, la croix reste, et le verdict ajoute « Le paquet est jeté sans réponse : la connexion finit en délai dépassé » (« le ping attend un écho qui ne vient pas » pour ICMP).
+- **Pause** : pas de voyage. Une pause en plein vol retire le paquet.
+- **Testé** dans Chromium (Playwright) : les 56 combinaisons sur ordinateur, 8 au téléphone (390 px) et 8 en mouvement réduit, plus la pause avant et pendant le vol, un nouvel envoi pendant un vol et le clavier (Entrée, puis focus sur le titre). Aucune erreur dans la console. Le menu fixe reste en haut pendant tout le vol (mesuré image par image).
+
+**Idée de départ** (Maxime, 07/11/2026) :
 - **autorisé** (ex. : HTTPS vers Compétences) : le paquet arrive sur l'équipement du plan, puis sort du schéma et file vers la rubrique pendant que la page y défile, et la rubrique s'allume brièvement à l'arrivée. Même technique que la tempête (`span` en `position: fixed` + `element.animate()`, compatible CSP) ;
 - **refusé** : pas d'envoi vers une page d'erreur ni vers l'accueil (une 404 veut dire « introuvable », pas « refusé », et le visiteur sortirait du simulateur). Le paquet s'écrase sur fw-contact avec la croix, puis revient vers « wan · Vous êtes ici » ;
 - **à tester** : le défilement sur téléphone (la rubrique peut être loin du schéma), le bouton pause (le simulateur affiche alors le verdict sans animation), le même VLAN, le clavier. Les animations se lancent même en mouvement réduit (voir plus haut) ;

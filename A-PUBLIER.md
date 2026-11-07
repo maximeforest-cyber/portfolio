@@ -27,7 +27,7 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 
 Sur l'accueil de mon portfolio, le plan du site est dessiné comme un schéma réseau. Il est maintenant possible d'y envoyer un paquet.
 
-On choisit une source, une destination et un service (HTTPS, HTTP, SSH ou ping), et le pare-feu du plan applique ses règles dans l'ordre : la première qui correspond décide, et tout le reste est refusé par défaut. Le paquet part sur le schéma, et le résultat dit quelle règle s'est appliquée.
+On choisit une source, une destination et un service (HTTPS, HTTP, SSH ou ping), et le pare-feu du plan applique ses règles dans l'ordre : la première qui correspond décide, et tout le reste est refusé par défaut. Le paquet part sur le schéma, et le résultat dit quelle règle s'est appliquée. S'il passe, il vous emmène jusqu'à la rubrique demandée. S'il est refusé, le pare-feu le jette sans répondre, comme en vrai.
 
 C'est une maquette, pas mon vrai réseau, et la page le dit : des serveurs joignables depuis Internet iraient en vrai dans une DMZ, comme dans mon projet Infra-Site.
 

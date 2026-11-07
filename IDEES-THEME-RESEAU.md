@@ -64,5 +64,5 @@ Le meilleur gain vient de deux choses : rendre exact ce qui existe, et ajouter d
 
 ## Points ouverts
 
-- **RGPD** : le site dit « parcours complet », mais l'attestation n'est que celle du module 6. À confirmer par Maxime.
+- **RGPD** : « parcours complet » confirmé par Maxime le 07/11/2026. Les modules se débloquent dans l'ordre et le module 6 est le dernier ; l'attestation du module 6 (19/10/2026, 93 %) est dans `~/badges`.
 - **Carte du stage Pyroalliance** : pas de ligne « Résultat » (elle n'a pas de page de compte rendu).

@@ -92,7 +92,7 @@ Recherche avec trois points de vue (recruteuse RH sur téléphone, RSSI, dévelo
 
 **wan → pc-maxime en HTTPS : on garde l'autorisation** (choix de Maxime, 07/11/2026). La note sous le tableau des règles reconnaît qu'en vrai, un poste de travail ne serait pas joignable depuis Internet.
 
-**Fait (07/11/2026, commit local, à pousser après la relecture de niveau 3) : le paquet du simulateur voyage jusqu'à la rubrique.**
+**Fait et en ligne (08/11/2026, après relecture de niveau 3) : le paquet du simulateur voyage jusqu'à la rubrique.**
 - **Autorisé ou livré** : 450 ms après l'arrivée sur l'équipement, le paquet sort du plan (`span.paquet-voyage` en `position: fixed`) et file vers le numéro de la rubrique. La page défile en même temps, pilotée image par image (`requestAnimationFrame`, durée de 0,7 à 1,5 s), pour que le paquet et la page arrivent ensemble dans tous les navigateurs. Le numéro s'allume (classe `arrivee`) et le focus passe sur le titre `h2` de la rubrique, comme après un lien. Si le visiteur fait défiler lui-même pendant le vol, la page le laisse faire.
 - **Refusé : jeté, rien ne revient** (choix de Maxime) : DENY veut dire « jeté sans réponse », un retour vers wan ferait penser à un REJECT. Le paquet tremble contre fw-contact puis disparaît, la croix reste, et le verdict ajoute « Le paquet est jeté sans réponse : la connexion finit en délai dépassé » (« le ping attend un écho qui ne vient pas » pour ICMP).
 - **Pause** : pas de voyage. Une pause en plein vol retire le paquet, sans allumer la rubrique ni déplacer le focus (il reste sur le bouton pause).
@@ -106,6 +106,9 @@ Recherche avec trois points de vue (recruteuse RH sur téléphone, RSSI, dévelo
 - effort moyen. Le code du simulateur est dans `script.js` (fonctions `chemin`, `afficher`, et le clic sur `#simu-go`).
 
 **À discuter plus tard** :
+
+- **Verdict qui sort de l'écran** (relecture du 08/11/2026, choix de Maxime en attente) : quand le paquet passe, le verdict disparaît environ 1 s après son affichage, et il faut remonter jusqu'au simulateur pour un 2e essai. Options : garder tel quel, attendre plus longtemps avant le départ, rappeler la règle à l'arrivée, ou ajouter un lien « Revenir au simulateur ».
+- **À essayer sur un vrai téléphone, dans Firefox et Safari, et avec NVDA** (testé seulement dans Chromium). Le script devine que le visiteur reprend la main quand la page bouge sans lui (écart de plus de 2 px). Au téléphone, la barre d'adresse qui se replie pourrait le tromper : la rubrique ne s'allumerait pas et le focus ne bougerait pas, sans autre conséquence.
 
 - un paquet retour sur le plan ;
 - l'objet déjà rempli dans le lien e-mail ;

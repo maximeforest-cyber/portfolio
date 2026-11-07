@@ -34,7 +34,7 @@
   ]
 }
 </script>
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 <a class="skip" href="#contenu">Aller au contenu</a>
@@ -563,7 +563,7 @@
             <p class="where">Pyroalliance (groupe ArianeGroup), Les Mureaux</p>
           </li>
           <li class="now">
-            <p class="when">Depuis octobre 2026</p>
+            <p class="when">Depuis octobre 2026 · <span class="statut">en cours</span></p>
             <h4>Micro-entrepreneur, Site de Poche</h4>
             <p class="where">Création de sites vitrines, Eure</p>
             <ul>
@@ -837,13 +837,12 @@
         <tr><th scope="col">Action</th><th scope="col" class="opt">Source</th><th scope="col">Destination</th><th scope="col" class="opt">Protocole · port</th></tr>
       </thead>
       <tbody>
-        <tr><td><span class="ok">ALLOW</span></td><td class="opt">votre messagerie</td><td><a href="mailto:maxime.foresttt@gmail.com">maxime.foresttt@gmail.com</a></td><td class="opt">SMTP · 25 jusqu'au serveur de gmail.com <span class="rem">(envoi depuis votre messagerie : SMTP · 587, ou HTTPS · 443 en webmail)</span></td></tr>
+        <tr><td><span class="ok">ALLOW</span></td><td class="opt">votre logiciel de messagerie, ou votre webmail</td><td><a href="mailto:maxime.foresttt@gmail.com">maxime.foresttt@gmail.com</a></td><td class="opt">SMTP · 587 ou 465 (logiciel), HTTPS · 443 (webmail) <span class="rem">jusqu'au serveur d'envoi de votre messagerie, qui transmet ensuite à Gmail</span></td></tr>
         <tr><td><span class="ok">ALLOW</span></td><td class="opt">votre navigateur</td><td><a href="https://www.linkedin.com/in/maxime-forest-cyber" rel="noopener">linkedin.com/in/maxime-forest-cyber</a></td><td class="opt">HTTPS · 443</td></tr>
         <tr><td><span class="ok">ALLOW</span></td><td class="opt">votre navigateur</td><td><a href="https://github.com/maximeforest-cyber" rel="noopener">github.com/maximeforest-cyber</a></td><td class="opt">HTTPS · 443</td></tr>
-        <tr><td><span class="ko">DENY</span></td><td class="opt">tout le reste</td><td>tout le reste <span class="rem"># refus par défaut</span></td><td class="opt">tous</td></tr>
       </tbody>
     </table>
-    <p class="note-flux">Ces flux ne traversent pas mon réseau : l'e-mail est livré chez Gmail, les profils sont hébergés par LinkedIn et GitHub.</p>
+    <p class="note-flux">Sur le plan du site, fw-contact est la porte d'entrée. En vrai, ces flux ne passent pas par mon réseau : l'e-mail est livré chez Gmail, les profils sont hébergés par LinkedIn et GitHub.</p>
     <div class="actions">
       <a class="btn main" href="mailto:maxime.foresttt@gmail.com">M'écrire un e-mail</a>
       <button class="btn" type="button" id="copier" data-adresse="maxime.foresttt@gmail.com" hidden>Copier l'adresse</button>

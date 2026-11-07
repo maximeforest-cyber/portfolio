@@ -270,9 +270,8 @@ summary:hover { color: var(--cable-text); }
 .rules th { text-align: left; font-size: 11.5px; letter-spacing: 1.3px; text-transform: uppercase; color: var(--soft); font-weight: 400; }
 .rules th, .rules td { padding: 11px 14px; border-bottom: 1px solid var(--ink); vertical-align: top; }
 .rules tr:last-child td { border-bottom: 0; }
-.rules .ok, .rules .ko { display: inline-block; padding: 1px 8px; font-weight: 700; font-size: 12.5px; }
+.rules .ok { display: inline-block; padding: 1px 8px; font-weight: 700; font-size: 12.5px; }
 .rules .ok { background: var(--ink); color: var(--paper); }
-.rules .ko { border: 1.5px solid var(--ink); padding: 0 7px; }
 .rules a { font-weight: 700; overflow-wrap: anywhere; }
 .rules .rem { display: block; margin-top: 3px; color: var(--soft); font-size: 12.5px; }
 .note-flux { margin-top: 10px; color: var(--soft); font-size: 14.5px; }
@@ -427,4 +426,5 @@ ol.b li::before { display: none; }
   .report .wrap { display: block; }
   body { background: #fff; }
   details > .fiche, details > .cv { display: block; }
+  .rules .opt { display: table-cell; }
 }

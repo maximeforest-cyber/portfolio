@@ -34,7 +34,7 @@
   ]
 }
 </script>
-<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
 <a class="skip" href="#contenu">Aller au contenu</a>
@@ -557,8 +557,8 @@
       <div>
         <h3>Expérience</h3>
         <ul class="line">
-          <li class="now">
-            <p class="when">Janvier – février 2027</p>
+          <li class="next">
+            <p class="when">Janvier – février 2027 · <span class="statut">à venir</span></p>
             <h4>Stage de 2<sup>e</sup> année</h4>
             <p class="where">Pyroalliance (groupe ArianeGroup), Les Mureaux</p>
           </li>
@@ -601,7 +601,7 @@
         <h3>Formation</h3>
         <ul class="line">
           <li class="now">
-            <p class="when">2024 – 2027</p>
+            <p class="when">2024 – 2027 · <span class="statut">en cours</span></p>
             <h4>BTS SIO, option SISR</h4>
             <p class="where">Lycée Saint-Adjutor, Campus Carlo Acutis, Vernon</p>
             <ul><li>Services informatiques aux organisations, solutions d'infrastructure, systèmes et réseaux</li><li>Année de césure en 2025-2026</li></ul>
@@ -631,9 +631,10 @@
         <div class="badge"><img src="badge-cisco-intro.png" alt="" width="96" height="96" loading="lazy" data-secours="CISCO"></div>
         <div>
           <h3>Introduction to Cybersecurity</h3>
+          <p class="cert-desc">Les bases de la cybersécurité : menaces, attaques et bonnes pratiques de protection.</p>
           <dl class="x509">
-            <div><dt>Émis par</dt><dd>Cisco Networking Academy</dd></div>
-            <div><dt>Objet</dt><dd>Les bases de la cybersécurité : menaces, attaques et bonnes pratiques de protection</dd></div>
+            <div><dt>Délivré par</dt><dd>Cisco Networking Academy</dd></div>
+            <div><dt>Délivré le</dt><dd>6 octobre 2024</dd></div>
           </dl>
         </div>
       </div>
@@ -641,9 +642,10 @@
         <div class="badge"><img src="badge-cisco-junior.png" alt="" width="96" height="96" loading="lazy" data-secours="CISCO"></div>
         <div>
           <h3>Junior Cybersecurity Analyst Career Path</h3>
+          <p class="cert-desc">Parcours complet préparant au métier d'analyste en cybersécurité débutant.</p>
           <dl class="x509">
-            <div><dt>Émis par</dt><dd>Cisco Networking Academy</dd></div>
-            <div><dt>Objet</dt><dd>Parcours complet préparant au métier d'analyste en cybersécurité débutant</dd></div>
+            <div><dt>Délivré par</dt><dd>Cisco Networking Academy</dd></div>
+            <div><dt>Délivré le</dt><dd>18 décembre 2024</dd></div>
           </dl>
         </div>
       </div>
@@ -651,9 +653,10 @@
         <div class="badge"><img src="badge-cnil-rgpd.png" alt="" width="96" height="96" loading="lazy" data-secours="CNIL"></div>
         <div>
           <h3>MOOC L'Atelier RGPD</h3>
+          <p class="cert-desc">Parcours complet de formation au RGPD, jusqu'au module Travail et données personnelles.</p>
           <dl class="x509">
-            <div><dt>Émis par</dt><dd>CNIL (Commission nationale de l'informatique et des libertés)</dd></div>
-            <div><dt>Objet</dt><dd>Parcours complet de formation au RGPD, jusqu'au module Travail et données personnelles (octobre 2026)</dd></div>
+            <div><dt>Délivré par</dt><dd>CNIL (Commission nationale de l'informatique et des libertés)</dd></div>
+            <div><dt>Délivré le</dt><dd>19 octobre 2026 (attestation du module 6)</dd></div>
           </dl>
         </div>
       </div>
@@ -661,10 +664,12 @@
         <div class="badge"><img src="badge-cato-zero-trust.png" alt="" width="96" height="96" loading="lazy" data-secours="CATO"></div>
         <div>
           <h3>Zero Trust Security Essentials</h3>
+          <p class="cert-desc">Les principes du modèle Zero Trust : ne faire confiance à aucun accès par défaut et vérifier chaque connexion.</p>
+          <p class="cert-desc">En pratique : avant même la formation, j'avais protégé l'espace de gestion d'un client avec Cloudflare Access. Elle m'a appris que ces réflexes relèvent du Zero Trust.</p>
           <dl class="x509">
-            <div><dt>Émis par</dt><dd>Cato Networks</dd></div>
-            <div><dt>Objet</dt><dd>Les principes du modèle Zero Trust : ne faire confiance à aucun accès par défaut et vérifier chaque connexion (octobre 2026)</dd></div>
-            <div><dt>En pratique</dt><dd>Avant même la formation, j'avais protégé l'espace de gestion d'un client avec Cloudflare Access : elle m'a appris que ces réflexes relèvent du Zero Trust</dd></div>
+            <div><dt>Délivré par</dt><dd>Cato Networks</dd></div>
+            <div><dt>Délivré le</dt><dd>26 octobre 2026</dd></div>
+            <div><dt>Vérifier</dt><dd><a href="https://www.credly.com/badges/778936dc-6cbd-4e73-8672-3e03be5a6731/public_url" rel="noopener">le badge sur Credly</a></dd></div>
           </dl>
         </div>
       </div>
@@ -824,20 +829,21 @@
 
 <section id="contact">
   <div class="wrap">
-    <div class="folio"><span class="n" aria-hidden="true">07</span><div><p class="host">fw-contact · port 25 ouvert</p><h2>Contact</h2></div></div>
+    <div class="folio"><span class="n" aria-hidden="true">07</span><div><p class="host">fw-contact · 10.0.10.1</p><h2>Contact</h2></div></div>
     <p class="sub">Vous avez un stage ou une alternance à proposer, ou une question sur mon parcours ? Écrivez-moi, je réponds rapidement.</p>
     <table class="rules">
-      <caption># Règles de filtrage du pare-feu fw-contact</caption>
+      <caption># Matrice des flux : pour me joindre</caption>
       <thead>
-        <tr><th scope="col">Action</th><th scope="col" class="opt">Source</th><th scope="col">Destination</th><th scope="col" class="opt">Service</th></tr>
+        <tr><th scope="col">Action</th><th scope="col" class="opt">Source</th><th scope="col">Destination</th><th scope="col" class="opt">Protocole · port</th></tr>
       </thead>
       <tbody>
-        <tr><td><span class="ok">ALLOW</span></td><td class="opt">recruteurs, tuteurs</td><td><a href="mailto:maxime.foresttt@gmail.com">maxime.foresttt@gmail.com</a></td><td class="opt">SMTP · 25</td></tr>
-        <tr><td><span class="ok">ALLOW</span></td><td class="opt">tout le monde</td><td><a href="https://www.linkedin.com/in/maxime-forest-cyber" rel="noopener">linkedin.com/in/maxime-forest-cyber</a></td><td class="opt">HTTPS · 443</td></tr>
-        <tr><td><span class="ok">ALLOW</span></td><td class="opt">tout le monde</td><td><a href="https://github.com/maximeforest-cyber" rel="noopener">github.com/maximeforest-cyber</a></td><td class="opt">HTTPS · 443</td></tr>
-        <tr><td><span class="ko">DENY</span></td><td class="opt">démarchage</td><td>toutes</td><td class="opt">tous</td></tr>
+        <tr><td><span class="ok">ALLOW</span></td><td class="opt">votre messagerie</td><td><a href="mailto:maxime.foresttt@gmail.com">maxime.foresttt@gmail.com</a></td><td class="opt">SMTP · 25 jusqu'au serveur de gmail.com <span class="rem">(envoi depuis votre messagerie : SMTP · 587, ou HTTPS · 443 en webmail)</span></td></tr>
+        <tr><td><span class="ok">ALLOW</span></td><td class="opt">votre navigateur</td><td><a href="https://www.linkedin.com/in/maxime-forest-cyber" rel="noopener">linkedin.com/in/maxime-forest-cyber</a></td><td class="opt">HTTPS · 443</td></tr>
+        <tr><td><span class="ok">ALLOW</span></td><td class="opt">votre navigateur</td><td><a href="https://github.com/maximeforest-cyber" rel="noopener">github.com/maximeforest-cyber</a></td><td class="opt">HTTPS · 443</td></tr>
+        <tr><td><span class="ko">DENY</span></td><td class="opt">tout le reste</td><td>tout le reste <span class="rem"># refus par défaut</span></td><td class="opt">tous</td></tr>
       </tbody>
     </table>
+    <p class="note-flux">Ces flux ne traversent pas mon réseau : l'e-mail est livré chez Gmail, les profils sont hébergés par LinkedIn et GitHub.</p>
     <div class="actions">
       <a class="btn main" href="mailto:maxime.foresttt@gmail.com">M'écrire un e-mail</a>
       <button class="btn" type="button" id="copier" data-adresse="maxime.foresttt@gmail.com" hidden>Copier l'adresse</button>

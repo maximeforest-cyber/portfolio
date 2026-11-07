@@ -240,6 +240,8 @@ summary:hover { color: var(--cable-text); }
 .line > li:last-child { padding-bottom: 0; }
 .line > li::before { content: ""; position: absolute; left: -30px; top: 6px; width: 14px; height: 14px; background: var(--paper); border: 2px solid var(--ink); }
 .line > li.now::before { background: var(--cable); }
+.line > li.next::before { border-style: dashed; border-color: var(--cable); }
+.when .statut { font-family: var(--mono); font-size: 12.5px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; }
 .when { font-size: 14px; font-weight: 600; color: var(--cable-text); }
 .line h4 { font-size: 17.5px; line-height: 1.3; margin-top: 2px; }
 .where { color: var(--soft); font-size: 15.5px; }
@@ -253,6 +255,7 @@ summary:hover { color: var(--cable-text); }
 .cert .badge { width: 96px; height: 96px; display: grid; place-items: center; border: 1.5px solid var(--ink); background: var(--paper); font-size: 13px; overflow: hidden; }
 .cert .badge img { width: 100%; height: 100%; object-fit: contain; }
 .x509 { margin-top: 10px; font-size: 14.5px; }
+.cert-desc { margin-top: 8px; font-size: 15px; }
 .x509 div { display: grid; grid-template-columns: 84px minmax(0, 1fr); padding: 4px 0; border-top: 1px dashed var(--hair); }
 .x509 dt { font-size: 13px; font-weight: 600; color: var(--soft); padding-top: 1px; }
 
@@ -271,6 +274,8 @@ summary:hover { color: var(--cable-text); }
 .rules .ok { background: var(--ink); color: var(--paper); }
 .rules .ko { border: 1.5px solid var(--ink); padding: 0 7px; }
 .rules a { font-weight: 700; overflow-wrap: anywhere; }
+.rules .rem { display: block; margin-top: 3px; color: var(--soft); font-size: 12.5px; }
+.note-flux { margin-top: 10px; color: var(--soft); font-size: 14.5px; }
 
 footer { border-top: 2px solid var(--ink); padding: 22px 0 34px; font-size: 14px; color: var(--soft); }
 footer .wrap { display: flex; flex-wrap: wrap; gap: 6px 22px; justify-content: space-between; }

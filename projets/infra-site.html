@@ -42,7 +42,7 @@
     <p class="kicker">Atelier professionnel · <b>septembre – octobre 2026</b> · chef de projet, en binôme</p>
     <h1>Infra-Site : DMZ, pare-feu et routage</h1>
     <p class="lead">Ajout d'une zone DMZ et d'une zone Internet au réseau de l'entreprise RIOCA, derrière un pare-feu Zyxel : routage RIP v2, NAT vers Internet, administration en SSH réservée au service IT et sauvegarde automatique des configurations.</p>
-    <dl class="facts"><div><dt>Contexte</dt><dd>RIOCA (entreprise fictive), dont le réseau local est déjà découpé en VLAN par service</dd></div><div><dt>Cadre</dt><dd>Atelier professionnel de 2<sup>e</sup> année de BTS SIO, 4 semaines, en binôme : chef de projet</dd></div><div><dt>Matériel</dt><dd>Switchs Cisco Catalyst 2960 et 3650, routeur Cisco 2900, pare-feu Zyxel USG Flex 500, serveur Ubuntu</dd></div><div><dt>Points clés</dt><dd>RIP v2, NAT/PAT, règles de pare-feu, ACL, SSH, sauvegardes planifiées</dd></div><div><dt>Résultat</dt><dd>DMZ, pare-feu, NAT, RIP v2, SSH et sauvegardes en place, testés avant puis après la pose des restrictions</dd></div></dl>
+    <dl class="facts"><div><dt>Contexte</dt><dd>RIOCA (entreprise fictive), dont le réseau local est déjà découpé en VLAN par service</dd></div><div><dt>Cadre</dt><dd>Atelier professionnel de 2<sup>e</sup> année de BTS SIO, 4 semaines, en binôme : chef de projet</dd></div><div><dt>Matériel</dt><dd>Switchs Cisco Catalyst 2960 et 3650, routeur Cisco 2900, pare-feu Zyxel USG Flex 500, serveur Ubuntu</dd></div><div><dt>Points clés</dt><dd>RIP v2, NAT/PAT, règles de pare-feu, ACL, SSH, sauvegardes planifiées</dd></div><div><dt>Résultat</dt><dd>Projet terminé en un peu moins de 23 heures pour 27 prévues ; accès à Internet, cloisonnement des services, SSH depuis le service IT et sauvegardes vérifiés dans un rapport de tests</dd></div></dl>
     <ul class="tags"><li>Cisco IOS</li><li>Zyxel</li><li>RIP v2</li><li>NAT</li><li>Pare-feu</li><li>SSH</li><li>Gestion de projet</li></ul>
   </div>
 </div>
@@ -151,7 +151,7 @@ line vty 5 15
 <pre class="cmd"><code>ATTENTION - ACCES RESTREINT ET RESERVE AU SERVICE IT RIOCA
 Toute tentative d'acces non autorisee est interdite,
 journalisee et fera l'objet de poursuites judiciaires.</code></pre>
-<figure class="shot"><a href="img/infra-site-05.webp"><img src="img/infra-site-05.webp" alt="show ip ssh sur SwNET : SSH version 2, clé RSA 2048 bits, chiffrement AES-CTR." width="982" height="417" loading="lazy"></a><figcaption><b>Fig. 6</b> SSH version 2 actif, avec une clé RSA de 2048 bits.</figcaption></figure>
+<figure class="shot"><a href="img/infra-site-05.webp"><img src="img/infra-site-05.webp" alt="show ip ssh sur SwNET : SSH version 2, clé RSA 2048 bits, chiffrement AES-CTR." width="982" height="294" loading="lazy"></a><figcaption><b>Fig. 6</b> SSH version 2 actif, avec une clé RSA de 2048 bits.</figcaption></figure>
 <figure class="shot"><a href="img/infra-site-06.webp"><img src="img/infra-site-06.webp" alt="mRemoteNG : session SSH vers SwNET avec la bannière, et la liste des huit équipements administrés." width="1291" height="689" loading="lazy"></a><figcaption><b>Fig. 7</b> Les huit équipements dans mRemoteNG, ici une session vers SwNET.</figcaption></figure>
 </div>
 <div class="part" id="partie-8">

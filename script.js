@@ -323,7 +323,7 @@
         var a = s.animate([
           { transform: 'translate(' + x + 'px, ' + y + 'px)' },
           { transform: 'translate(' + x2 + 'px, ' + y2 + 'px)' }
-        ], { duration: 450 + Math.random() * 450, fill: 'forwards' });
+        ], { duration: 300 + Math.random() * 350, fill: 'forwards' });
         a.onfinish = function () {
           if (Date.now() - debut > duree) { return; }
           lancer(x2, y2); // chaque trame de broadcast est recopiée
@@ -331,7 +331,7 @@
         };
       };
       var lancer = function (x, y) {
-        if (vol.length >= 64) { return; }
+        if (vol.length >= 96) { return; }
         var s = document.createElement('span');
         s.className = 'paquet-fou';
         s.setAttribute('aria-hidden', 'true');
@@ -339,8 +339,7 @@
         vol.push(s);
         bouger(s, x, y);
       };
-      lancer(depart[0], depart[1]);
-      lancer(depart[0], depart[1]);
+      for (var i = 0; i < 8; i++) { lancer(depart[0], depart[1]); }
       setTimeout(function () {
         vol.forEach(function (s) {
           var a = s.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 400, fill: 'forwards' });

@@ -90,9 +90,16 @@ Recherche avec trois points de vue (recruteuse RH sur téléphone, RSSI, dévelo
 - **Trame « après NAT »** : la preuve citée parlait d'un serveur de DMZ, et le site est servi en HTTP/3.
 - **« Vous êtes ici » qui suit la visite**, **fichier Packet Tracer du plan**, **« Avancer d'un pas »** : coût trop élevé ou effet faux.
 
+**wan → pc-maxime en HTTPS : on garde l'autorisation** (choix de Maxime, 07/11/2026). La note sous le tableau des règles reconnaît qu'en vrai, un poste de travail ne serait pas joignable depuis Internet.
+
+**Prochaine tâche (nouvelle session) : le paquet du simulateur voyage jusqu'à la rubrique.** Idée de Maxime, 07/11/2026 :
+- **autorisé** (ex. : HTTPS vers Compétences) : le paquet arrive sur l'équipement du plan, puis sort du schéma et file vers la rubrique pendant que la page y défile, et la rubrique s'allume brièvement à l'arrivée. Même technique que la tempête (`span` en `position: fixed` + `element.animate()`, compatible CSP) ;
+- **refusé** : pas d'envoi vers une page d'erreur ni vers l'accueil (une 404 veut dire « introuvable », pas « refusé », et le visiteur sortirait du simulateur). Le paquet s'écrase sur fw-contact avec la croix, puis revient vers « wan · Vous êtes ici » ;
+- **à tester** : le défilement sur téléphone (la rubrique peut être loin du schéma), le bouton pause (le simulateur affiche alors le verdict sans animation), le même VLAN, le clavier. Les animations se lancent même en mouvement réduit (voir plus haut) ;
+- effort moyen. Le code du simulateur est dans `script.js` (fonctions `chemin`, `afficher`, et le clic sur `#simu-go`).
+
 **À discuter plus tard** :
 
-- **wan → pc-maxime en HTTPS** est autorisé par la règle 1, alors que c'est un poste de travail. La note sous le tableau le reconnaît maintenant. L'autre option serait de le refuser (« un poste n'est pas joignable depuis Internet »), mais on perdrait le lien vers « À propos ». C'est à Maxime de choisir ;
 - un paquet retour sur le plan ;
 - l'objet déjà rempli dans le lien e-mail ;
 - le quiz « Passe ou pas ? » sur la partie 9 d'Infra-Site.

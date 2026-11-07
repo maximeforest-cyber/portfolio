@@ -95,7 +95,8 @@ Recherche avec trois points de vue (recruteuse RH sur téléphone, RSSI, dévelo
 **Fait (07/11/2026, commit local, à pousser après la relecture de niveau 3) : le paquet du simulateur voyage jusqu'à la rubrique.**
 - **Autorisé ou livré** : 450 ms après l'arrivée sur l'équipement, le paquet sort du plan (`span.paquet-voyage` en `position: fixed`) et file vers le numéro de la rubrique. La page défile en même temps, pilotée image par image (`requestAnimationFrame`, durée de 0,7 à 1,5 s), pour que le paquet et la page arrivent ensemble dans tous les navigateurs. Le numéro s'allume (classe `arrivee`) et le focus passe sur le titre `h2` de la rubrique, comme après un lien. Si le visiteur fait défiler lui-même pendant le vol, la page le laisse faire.
 - **Refusé : jeté, rien ne revient** (choix de Maxime) : DENY veut dire « jeté sans réponse », un retour vers wan ferait penser à un REJECT. Le paquet tremble contre fw-contact puis disparaît, la croix reste, et le verdict ajoute « Le paquet est jeté sans réponse : la connexion finit en délai dépassé » (« le ping attend un écho qui ne vient pas » pour ICMP).
-- **Pause** : pas de voyage. Une pause en plein vol retire le paquet.
+- **Pause** : pas de voyage. Une pause en plein vol retire le paquet, sans allumer la rubrique ni déplacer le focus (il reste sur le bouton pause).
+- **Le visiteur reprend la main pendant le vol** (il défile ou clique dans le menu) : le paquet finit son vol, mais la rubrique ne s'allume pas et le focus ne bouge pas.
 - **Testé** dans Chromium (Playwright) : les 56 combinaisons sur ordinateur, 8 au téléphone (390 px) et 8 en mouvement réduit, plus la pause avant et pendant le vol, un nouvel envoi pendant un vol et le clavier (Entrée, puis focus sur le titre). Aucune erreur dans la console. Le menu fixe reste en haut pendant tout le vol (mesuré image par image).
 
 **Idée de départ** (Maxime, 07/11/2026) :

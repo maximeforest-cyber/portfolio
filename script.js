@@ -326,7 +326,7 @@
       paquet.style.transform = place(p.x, p.y, e0);
       var etape = function (maintenant) {
         if (voyage !== v) { return; }
-        if (plan.classList.contains('en-pause')) { arreterVoyage(); arriver(section); return; }
+        if (plan.classList.contains('en-pause')) { arreterVoyage(); return; } // pause : le paquet disparaît, le focus reste sur le bouton
         if (!debut) { debut = maintenant; }
         var t = Math.min(1, (maintenant - debut) / duree), k = lisse(t);
         if (!libre && Math.abs(window.pageYOffset - pose) > 2) { libre = true; } // le visiteur fait défiler lui-même
@@ -340,7 +340,7 @@
           { transform: place(c[0], c[1], 1.3), opacity: 1 },
           { transform: place(f[0], f[1], 0.4), opacity: 0 }
         ], { duration: 300, fill: 'forwards' }).onfinish = function () { paquet.remove(); };
-        arriver(section);
+        if (!libre) { arriver(section); } // le visiteur est allé ailleurs : on ne lui prend pas le focus
       };
       v.image = requestAnimationFrame(etape);
     };

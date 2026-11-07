@@ -30,7 +30,7 @@ Le meilleur gain vient de deux choses : rendre exact ce qui existe, et ajouter d
 1. **Corriger les 3 erreurs** :
    - stage 2027 affiché « en cours » ;
    - champ « Objet » des certifications (en X.509, c'est le titulaire) ;
-   - contact à rendre exact : matrice des flux, ports 443 / 587 / 25, refus par défaut.
+   - contact à rendre exact : matrice des flux.
 2. **Encadrés « Vérification »** dans les comptes rendus : une vraie commande et ce qu'elle a montré.
 3. **« Résultat »** sur les cartes Projets, et **« En bref »** en haut des pages Homelab, Infra-Site, Maquette RIOCA et GLPI.
 4. **Compétences** : garder les étiquettes, et faire d'une dizaine d'entre elles des liens « preuve » vers les comptes rendus.
@@ -51,3 +51,18 @@ Le meilleur gain vient de deux choses : rendre exact ce qui existe, et ajouter d
 ## Rappels
 
 - **Janvier 2027** : le stage Pyroalliance de 2e année passe de « À venir » à « En cours » (rubrique Parcours de `index.html`).
+
+## Ce qui a été fait (07/11/2026, commits locaux, à pousser après relecture)
+
+- **Parcours** : stage 2027 « à venir », BTS et micro-entreprise « en cours », en toutes lettres.
+- **Certifications** : « Délivré par » et « Délivré le », lien Credly du badge Cato. Pas de « Délivré à », parce que le nom sur les attestations Cisco est à faire corriger. À ajouter, avec les liens de vérification Cisco, quand Cisco aura corrigé le nom.
+- **Contact** : matrice des flux. Envoi par SMTP 587 ou 465, ou par webmail en HTTPS 443, jusqu'au serveur d'envoi du visiteur ; HTTPS 443 vers LinkedIn et GitHub. Pas de port 25 (c'est un échange entre serveurs), pas de ligne de refus (personne ne l'applique). fw-contact · 10.0.10.1.
+- **Projets** : ligne « Résultat » sur les 9 cartes qui ont un compte rendu, et dans l'en-tête d'Infra-Site, de RIOCA et de GLPI. L'encadré « En bref » prévu au départ a été abandonné : l'en-tête des pages avait déjà le résumé et le contexte.
+- **Vérification** : 5 encadrés (Infra-Site parties 6 et 7, RIOCA parties 4 et 5, GLPI partie 3), tirés des captures déjà publiées.
+- **Compétences** : 16 liens « preuve ».
+- **Infra-Site, figure 6** : recadrée, elle montrait la clé publique SSH du switch.
+
+## Points ouverts
+
+- **RGPD** : le site dit « parcours complet », mais l'attestation n'est que celle du module 6. À confirmer par Maxime.
+- **Carte du stage Pyroalliance** : pas de ligne « Résultat » (elle n'a pas de page de compte rendu).

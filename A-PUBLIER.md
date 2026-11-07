@@ -19,6 +19,20 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | mar. 01/12 | Homelab, étape 10 : des services dans Docker, avec un vrai certificat |
 | jeu. 03/12 | Homelab : tout le labo en un schéma cliquable |
 
+## 2026-11-07 : Des preuves plutôt que des décors sur mon portfolio
+
+- Statut : à relire
+- Lien : https://forestmaxime-pf.fr/projets/infra-site.html
+- Image proposée : projets/img/infra-site-04.webp (le show ip route de RNET, déjà publié)
+
+Je me suis demandé si je devais pousser le thème réseau de mon portfolio encore plus loin. J'ai finalement fait l'inverse : rendre exact ce qui existait, et ajouter des preuves.
+
+Dans les comptes rendus Infra-Site, Maquette RIOCA et GLPI, des encadrés « Vérification » montrent maintenant la vraie commande et ce qu'elle a prouvé : show ip route pour les routes apprises en RIP, show ip ssh pour vérifier que seule la version 2 de SSH est active, un ping entre deux VLAN…
+
+Sur l'accueil, chaque projet affiche son résultat sans avoir à ouvrir la fiche, et les compétences mènent à la partie du compte rendu qui les prouve.
+
+Et j'ai corrigé mes propres approximations : le tableau de contact est devenu une matrice des flux exacte (ports 587, 465 et 443), et mes certifications indiquent qui les a délivrées et quand.
+
 ## 2026-11-06 : Quelques clins d'œil réseau sur mon portfolio
 
 - Statut : à relire

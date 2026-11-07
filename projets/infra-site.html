@@ -135,6 +135,11 @@ router rip
 <ul class="b"><li><span class="k">no auto-summary</span> conserve les vrais masques au lieu de résumer par classe d'adresses.</li><li><span class="k">passive-interface</span> évite d'envoyer des annonces RIP dans le VLAN d'administration.</li><li><span class="k">default-information originate</span> diffuse la route par défaut de RNET au reste de la maquette.</li><li>Sur le Zyxel, RIP se déclare par nom d'interface (sfp, dmz, wan1), et une règle de pare-feu autorise ces échanges.</li></ul>
 <div class="tw"><table class="t"><thead><tr><th scope="col">Problème rencontré</th><th scope="col">Cause</th><th scope="col">Correction</th></tr></thead><tbody><tr><td>Lien switch cœur – pare-feu</td><td>Le pare-feu avait la même IP que le switch cœur</td><td>Une IP distincte de chaque côté du lien</td></tr><tr><td>Lien pare-feu – RNET</td><td>Les deux côtés du lien étaient dans des VLAN différents</td><td>Même VLAN des deux côtés</td></tr></tbody></table></div>
 <figure class="shot"><a href="img/infra-site-04.webp"><img src="img/infra-site-04.webp" alt="show ip route sur RNET : routes du réseau local et de la DMZ apprises en RIP (lettre R) via le pare-feu." width="1096" height="811" loading="lazy"></a><figcaption><b>Fig. 5</b> Sur RNET, les réseaux du LAN et de la DMZ sont appris en RIP via le pare-feu.</figcaption></figure>
+<aside class="verif" aria-label="Vérification">
+<p class="verif-t">Vérification</p>
+<pre class="cmd"><code>RNET_GRP3#show ip route</code></pre>
+<p>Les neuf réseaux du LAN (de 172.19.10.0 à 172.19.100.0) et celui de la DMZ (10.3.0.0) apparaissent avec la lettre <span class="k">R</span> : RNET les a appris en RIP, par le pare-feu (192.168.3.253). Voir la figure 5.</p>
+</aside>
 </div>
 <div class="part" id="partie-7">
 <h2><span class="n">07</span>Administration à distance</h2>
@@ -153,6 +158,11 @@ Toute tentative d'acces non autorisee est interdite,
 journalisee et fera l'objet de poursuites judiciaires.</code></pre>
 <figure class="shot"><a href="img/infra-site-05.webp"><img src="img/infra-site-05.webp" alt="show ip ssh sur SwNET : SSH version 2, clé RSA 2048 bits, chiffrement AES-CTR." width="982" height="294" loading="lazy"></a><figcaption><b>Fig. 6</b> SSH version 2 actif, avec une clé RSA de 2048 bits.</figcaption></figure>
 <figure class="shot"><a href="img/infra-site-06.webp"><img src="img/infra-site-06.webp" alt="mRemoteNG : session SSH vers SwNET avec la bannière, et la liste des huit équipements administrés." width="1291" height="689" loading="lazy"></a><figcaption><b>Fig. 7</b> Les huit équipements dans mRemoteNG, ici une session vers SwNET.</figcaption></figure>
+<aside class="verif" aria-label="Vérification">
+<p class="verif-t">Vérification</p>
+<pre class="cmd"><code>SwNET_Grp3#show ip ssh</code></pre>
+<p>La ligne <span class="k">SSH Enabled - version 2.0</span> confirme que seule la version 2 de SSH est active (un équipement qui accepte encore la version 1 affiche 1.99), avec une clé RSA de 2048 bits (<span class="k">Modulus Size</span>). Voir la figure 6.</p>
+</aside>
 </div>
 <div class="part" id="partie-8">
 <h2><span class="n">08</span>Sauvegardes automatiques</h2>

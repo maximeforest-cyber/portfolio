@@ -95,6 +95,12 @@ vtp mode client</code></pre>
  switchport mode access
  switchport access vlan 10</code></pre>
 <p>Enfin, chaque switch a une adresse d'administration dans le VLAN 70 (172.19.70.1 pour le switch cœur, puis les suivantes pour les switchs d'étage), pour pouvoir le gérer à distance.</p>
+<aside class="verif" aria-label="Vérification">
+<p class="verif-t">Vérification</p>
+<pre class="cmd"><code>SW_COEUR_GRP3#show int trunk
+SW_COEUR_GRP3#sh vlan brief</code></pre>
+<p>Les trois ports d'interconnexion du switch cœur (Gi1/1/1, Gi1/1/2 et Te1/1/3) sont en trunk 802.1Q, et les neuf VLAN, de 10 à 100, sont actifs. Voir les figures 3 et 4.</p>
+</aside>
 </div>
 <div class="part" id="partie-5">
 <h2><span class="n">05</span>Routage inter-VLAN et DHCP</h2>
@@ -112,6 +118,12 @@ interface vlan 10
 <figure class="shot"><a href="img/maquette-05.webp"><img src="img/maquette-05.webp" alt="show ip dhcp pool : pools COMPTA et FABRIC, une adresse déjà attribuée dans chacun." width="800" height="392" loading="lazy"></a><figcaption><b>Fig. 6</b> Les pools DHCP du switch cœur, avec des adresses déjà attribuées.</figcaption></figure>
 <p>Test : un poste du VLAN IT reçoit son adresse (172.19.60.2, passerelle 172.19.60.254) et joint un poste du VLAN Recherche et développement.</p>
 <figure class="shot"><a href="img/maquette-06.webp"><img src="img/maquette-06.webp" alt="ipconfig sur un poste du VLAN IT : adresse 172.19.60.2 reçue par DHCP, puis ping réussi vers 172.19.50.1." width="800" height="629" loading="lazy"></a><figcaption><b>Fig. 7</b> Adresse reçue par DHCP et ping entre deux VLAN.</figcaption></figure>
+<aside class="verif" aria-label="Vérification">
+<p class="verif-t">Vérification</p>
+<pre class="cmd"><code>C:\&gt; ipconfig
+C:\&gt; ping 172.19.50.1</code></pre>
+<p>Le poste du VLAN 60 (IT) a reçu l'adresse 172.19.60.2 par DHCP, avec la passerelle 172.19.60.254, et joint une machine du VLAN 50 : 4 réponses sur 4. Le <span class="k">TTL=127</span>, un de moins que la valeur de départ de Windows (128), montre que la réponse a traversé un routeur : le switch cœur, qui route entre les VLAN. Voir la figure 7.</p>
+</aside>
 </div>
 <div class="part" id="partie-6">
 <h2><span class="n">06</span>Administration centralisée</h2>

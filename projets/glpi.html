@@ -99,6 +99,11 @@ sudo a2dissite 000-default
 sudo a2ensite glpi
 sudo systemctl restart apache2</code></pre>
 <p>L'assistant d'installation, dans le navigateur, vérifie les prérequis (tous validés), se connecte à la base <span class="k">glpi</span> avec <span class="k">glpi_user</span> et crée les tables.</p>
+<aside class="verif" aria-label="Vérification">
+<p class="verif-t">Vérification</p>
+<pre class="cmd"><code>azureuser@vm-glpi:~$ apache2 -v &amp;&amp; mariadb --version &amp;&amp; php -v</code></pre>
+<p>Les trois briques de GLPI répondent avec leur version : Apache 2.4.58, MariaDB 10.11.14 et PHP 8.3.6. Voir la figure 3.</p>
+</aside>
 </div>
 <div class="part" id="partie-4">
 <h2><span class="n">04</span>Sécurisation et inventaire</h2>

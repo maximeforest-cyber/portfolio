@@ -138,6 +138,35 @@ details.capture { margin-top: 12px; border-top: 0; padding-top: 0; }
 .couches dt { font-family: var(--mono); font-size: 12px; color: var(--soft); padding-top: 2px; }
 .hex-tete { padding: 6px 12px 0; color: var(--soft); font-size: 11.5px; letter-spacing: .4px; }
 .hex { margin: 0; padding: 8px 12px; overflow-x: auto; color: var(--soft); font: 12px/1.5 var(--mono); }
+/* ---------- Accueil : étiquette trunk, câble qui pend, simulation ---------- */
+.plan text.trunk { font-size: 9.5px; letter-spacing: .4px; }
+.cable-libre { display: none; cursor: pointer; }
+.avec-cable .cable-libre { display: inline; }
+.cable { fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; }
+.rj { fill: var(--sheet); stroke: var(--ink); stroke-width: 1.4; }
+.cable-boucle { display: none; }
+.boucle .cable-boucle { display: inline; stroke: var(--cable); stroke-width: 2.2; }
+.boucle .cable-pend { display: none; }
+.cable-libre:hover .cable, .cable-libre:hover .rj, .cable-libre:focus-visible .cable, .cable-libre:focus-visible .rj { stroke: var(--cable); }
+.cable-libre:focus { outline: none; }
+.cable-libre:focus-visible .hit { stroke: var(--cable); stroke-width: 1.2; stroke-dasharray: 3 3; }
+.paquet-fou { position: fixed; top: 0; left: 0; z-index: 60; width: 8px; height: 8px; background: var(--cable); pointer-events: none; }
+.tempete { margin-top: 10px; max-width: 760px; font-size: 15px; }
+.tempete:empty { margin: 0; }
+.simu-corps { margin-top: 10px; max-width: 760px; }
+.simu-choix { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: flex-end; margin-top: 12px; }
+.simu-choix label { display: grid; gap: 4px; font: 12.5px var(--mono); color: var(--soft); }
+.simu-choix select { min-height: 42px; padding: 6px 8px; background: var(--sheet); color: var(--ink); border: 1.5px solid var(--ink); font: 14px var(--mono); }
+.simu-verdict { margin-top: 12px; font-size: 15.5px; }
+.simu-verdict:empty { margin: 0; }
+.simu-verdict a { margin-left: 6px; font-weight: 600; }
+.rules.simu-regles { margin-top: 16px; }
+.rules .non { display: inline-block; padding: 0 7px; border: 1.5px solid var(--ink); font-weight: 700; font-size: 12.5px; }
+.rules tr.touchee td { background: rgba(142, 47, 60, .09); }
+.rules tr.touchee td:first-child { white-space: nowrap; }
+.rules tr.touchee td:first-child::after { content: " ◀"; color: var(--cable-text); }
+.plan text.sim-txt { font-family: var(--mono); font-size: 11px; font-weight: 700; fill: var(--cable-text); }
+.sim-x { fill: none; stroke: var(--cable); stroke-width: 2.4; stroke-linecap: round; }
 /* ---------- Page 404 ---------- */
 .lk.coupe { stroke: var(--cable); stroke-width: 2.4; }
 .lk.fantome, .ico.fantome * { stroke-dasharray: 5 4; }
@@ -432,7 +461,8 @@ ol.b li::before { display: none; }
   .tampon { animation: none; }
 }
 @media print {
-  .top, .burger, .actions, .pkt, .pause, .toc, .pager, .crumb { display: none; }
+  .top, .burger, .actions, .pkt, .pause, .toc, .pager, .crumb, .avec-cable .cable-libre, .paquet-fou, .tempete, .simu, .sim { display: none; }
+  .ico .led { opacity: 1 !important; }
   .report .wrap { display: block; }
   body { background: #fff; }
   details > .fiche, details > .cv { display: block; }

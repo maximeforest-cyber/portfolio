@@ -147,5 +147,233 @@
     bouton.addEventListener('click', function () { regler(!zone.classList.contains('en-pause')); });
   });
 
+  var plan = document.querySelector('.plan[data-anim]');
+  var calme = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+  var NS = 'http://www.w3.org/2000/svg';
+
+  // Plan du site : simulation d'un paquet à travers les règles de fw-contact
+  var simu = document.getElementById('simulation');
+  if (plan && simu) {
+    var eqp = {
+      '#contact': { nom: 'fw-contact', vlan: 0, rub: 'Contact' },
+      '#a-propos': { nom: 'pc-maxime', vlan: 10, rub: 'À propos' },
+      '#competences': { nom: 'srv-competences', vlan: 10, rub: 'Compétences' },
+      '#parcours': { nom: 'nas-parcours', vlan: 10, rub: 'Parcours' },
+      '#projets': { nom: 'srv-projets', vlan: 20, rub: 'Projets et stages' },
+      '#certifications': { nom: 'pki-certifs', vlan: 20, rub: 'Certifications' },
+      '#veille': { nom: 'ids-veille', vlan: 20, rub: 'Veille' }
+    };
+    var regles = { 1: 'Web_public', 2: 'Web_redirection', 3: 'Admin_poste', 4: 'Défaut' };
+    var choixSrc = document.getElementById('simu-src');
+    var choixDst = document.getElementById('simu-dst');
+    var choixSvc = document.getElementById('simu-svc');
+    var verdict = document.getElementById('simu-verdict');
+    var minuteur;
+
+    // Décision : la première règle qui correspond s'applique
+    var juger = function (src, dst, svc) {
+      if (src === dst) {
+        return { etat: 'meme', titre: 'Rien n\'est parti', texte: ' : la source et la destination sont le même équipement.' };
+      }
+      if (src !== 'wan' && eqp[dst].vlan === eqp[src].vlan) {
+        return { etat: 'local', titre: 'Livré sans passer par fw-contact', lien: dst,
+          texte: ' : pc-maxime et ' + eqp[dst].nom + ' sont dans le même VLAN 10, sw-coeur les relie directement. Aucune règle du pare-feu ne s\'applique.' };
+      }
+      var regle = 4;
+      if (src === 'wan' && dst !== '#contact' && svc === 'https') { regle = 1; }
+      if (src === 'wan' && dst !== '#contact' && svc === 'http') { regle = 2; }
+      if (src !== 'wan' && (dst === '#contact' || eqp[dst].vlan === 20) && svc !== 'http') { regle = 3; }
+      if (regle < 4) {
+        return { etat: 'ok', regle: regle, titre: 'Autorisé', lien: dst,
+          texte: ' par fw-contact, règle ' + regle + ' (' + regles[regle] + ').' +
+            (regle === 2 ? ' Le serveur répond par une redirection 301 vers HTTPS, comme le vrai site.' : '') +
+            ' La réponse revient sans règle dans l\'autre sens : le pare-feu garde l\'état de la connexion.' };
+      }
+      var raison = src !== 'wan' ? 'depuis pc-maxime, l\'administration passe par SSH ou HTTPS, pas par HTTP en clair.' :
+        dst === '#contact' ? 'le pare-feu ne s\'administre pas depuis Internet.' :
+        svc === 'ssh' ? 'SSH n\'est pas ouvert depuis Internet.' : 'le ping depuis Internet n\'est pas autorisé.';
+      return { etat: 'non', regle: 4, titre: 'Refusé', texte: ' par fw-contact, règle 4 (par défaut) : ' + raison };
+    };
+
+    // Chemins du plan (commandes M, H, V seulement), lus dans le schéma affiché
+    var points = function (d) {
+      var pts = [], x = 0, y = 0, re = /([MHV])([\d.]+)(?: ([\d.]+))?/g, m;
+      while ((m = re.exec(d))) {
+        if (m[1] === 'M') { x = +m[2]; y = +m[3]; } else if (m[1] === 'H') { x = +m[2]; } else { y = +m[2]; }
+        pts.push([x, y]);
+      }
+      return pts;
+    };
+    var route = function (svg, cle) {
+      return points(svg.querySelector('a[href="' + cle + '"] .route').getAttribute('d'));
+    };
+    var chemin = function (svg, src, dst, refus) {
+      var c = route(svg, '#contact');
+      var wan = c[0], fwG = c[c.length - 1];
+      var t = /translate\(([\d.]+) ([\d.]+)\)/.exec(svg.querySelector('a[href="#contact"] .ico').getAttribute('transform'));
+      var fwD = [2 * t[1] - fwG[0], fwG[1]];
+      if (src === 'wan') {
+        return (refus || dst === '#contact') ? [wan, fwG] : [wan].concat(route(svg, dst).slice(1));
+      }
+      var depuis = route(svg, src).reverse();
+      if (eqp[dst].vlan === eqp[src].vlan) {
+        var r = route(svg, dst);
+        return [depuis[0], depuis[1], r[r.length - 2], r[r.length - 1]];
+      }
+      var aller = depuis.concat([fwD]);
+      return (refus || dst === '#contact') ? aller : aller.concat(route(svg, dst));
+    };
+
+    var svgAffiche = function () {
+      var l = plan.querySelectorAll('svg');
+      for (var i = 0; i < l.length; i++) { if (l[i].getBoundingClientRect().width > 0) { return l[i]; } }
+      return null;
+    };
+    var nettoyer = function () {
+      clearTimeout(minuteur);
+      plan.querySelectorAll('.sim').forEach(function (e) { e.remove(); });
+      simu.querySelectorAll('tr.touchee').forEach(function (e) { e.classList.remove('touchee'); });
+    };
+    var creer = function (nom, attrs) {
+      var e = document.createElementNS(NS, nom);
+      Object.keys(attrs).forEach(function (k) { e.setAttribute(k, attrs[k]); });
+      return e;
+    };
+    // Repère final sur le plan : une croix (refusé) ou une coche (arrivé), avec un mot
+    var marquer = function (svg, pts, v) {
+      var fin = pts[pts.length - 1], avant = pts[pts.length - 2];
+      var sens = fin[0] === avant[0] ? 0 : (fin[0] > avant[0] ? 1 : -1);
+      var g = creer('g', { 'class': 'sim', 'aria-hidden': 'true' });
+      var x = fin[0], y = fin[1];
+      if (v.etat === 'non') {
+        x -= sens * 10;
+        g.appendChild(creer('path', { 'class': 'sim-x', d: 'M' + (x - 5) + ' ' + (y - 5) + 'L' + (x + 5) + ' ' + (y + 5) + 'M' + (x + 5) + ' ' + (y - 5) + 'L' + (x - 5) + ' ' + (y + 5) }));
+      }
+      // Le mot se place du côté libre : à gauche près du bord droit du schéma, et jamais sur l'icône du pare-feu
+      var aGauche = sens === 0 ? x > svg.viewBox.baseVal.width * 0.7 : sens === 1;
+      var txt = creer('text', { 'class': 'sim-txt', x: sens === 0 ? x + (aGauche ? -8 : 8) : x + (aGauche ? 4 : -4),
+        y: y - (sens === 0 ? 4 : 12), 'text-anchor': aGauche ? 'end' : 'start' });
+      txt.textContent = v.etat === 'non' ? 'refusé' : (v.etat === 'local' ? '✓ livré' : '✓ autorisé');
+      g.appendChild(txt);
+      svg.appendChild(g);
+    };
+    var afficher = function (v) {
+      verdict.textContent = '';
+      var b = document.createElement('strong');
+      b.textContent = v.titre;
+      verdict.appendChild(b);
+      verdict.appendChild(document.createTextNode(v.texte));
+      var a;
+      if (v.etat === 'non') {
+        a = document.createElement('a'); a.href = '#contact'; a.textContent = 'Demander l\'ouverture du flux';
+      } else if (v.lien) {
+        a = document.createElement('a'); a.href = v.lien; a.textContent = 'Ouvrir la rubrique ' + eqp[v.lien].rub;
+      }
+      if (a) { verdict.appendChild(document.createTextNode(' ')); verdict.appendChild(a); }
+      if (v.regle) { simu.querySelector('tr[data-regle="' + v.regle + '"]').classList.add('touchee'); }
+    };
+
+    document.getElementById('simu-go').addEventListener('click', function () {
+      var src = choixSrc.value, dst = choixDst.value;
+      var v = juger(src, dst, choixSvc.value);
+      nettoyer();
+      verdict.textContent = '';
+      var svg = svgAffiche();
+      if (!svg || v.etat === 'meme') { afficher(v); return; }
+      var pts = chemin(svg, src, dst, v.etat === 'non');
+      var fin = function () { marquer(svg, pts, v); afficher(v); };
+      var r = svg.getBoundingClientRect();
+      if (Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0) < r.height / 2) { svg.scrollIntoView({ block: 'nearest' }); }
+      var pkt = creer('rect', { 'class': 'pkt sim', x: -3.5, y: -3.5, width: 7, height: 7 });
+      var arrivee = pts[pts.length - 1];
+      if (plan.classList.contains('en-pause') || calme.matches || typeof svg.animationsPaused !== 'function') {
+        pkt.setAttribute('transform', 'translate(' + arrivee[0] + ' ' + arrivee[1] + ')');
+        svg.appendChild(pkt);
+        fin();
+        return;
+      }
+      var longueur = 0;
+      for (var i = 1; i < pts.length; i++) { longueur += Math.abs(pts[i][0] - pts[i - 1][0]) + Math.abs(pts[i][1] - pts[i - 1][1]); }
+      var duree = Math.max(1.2, longueur / 320);
+      var mouvement = creer('animateMotion', { dur: duree + 's', begin: 'indefinite', fill: 'freeze',
+        path: 'M' + pts.map(function (p) { return p[0] + ' ' + p[1]; }).join('L') });
+      pkt.appendChild(mouvement);
+      svg.appendChild(pkt);
+      mouvement.beginElement();
+      minuteur = setTimeout(fin, duree * 1000);
+    });
+    simu.hidden = false;
+  }
+
+  // Plan du site : le câble qui pend sous sw-coeur. Branché, il fait une boucle : tempête de broadcast
+  var tempete = document.getElementById('tempete');
+  if (plan && tempete && plan.querySelector('.cable-libre')) {
+    var enCours = false;
+    var tempeteFinie = function () {
+      plan.classList.remove('boucle');
+      enCours = false;
+      tempete.textContent = 'Tempête de broadcast : ce câble reliait deux ports de sw-coeur et formait une boucle. Sans Spanning Tree (STP) pour bloquer l\'un des deux ports, chaque trame de broadcast est recopiée sans fin et sature le réseau. Câble débranché, le calme revient.';
+    };
+    var orage = function (depart) {
+      var largeur = window.innerWidth - 8, hauteur = window.innerHeight - 8;
+      var vol = [], debut = Date.now(), duree = 4000;
+      var bouger = function (s, x, y) {
+        var x2 = Math.random() * largeur, y2 = Math.random() * hauteur;
+        var a = s.animate([
+          { transform: 'translate(' + x + 'px, ' + y + 'px)' },
+          { transform: 'translate(' + x2 + 'px, ' + y2 + 'px)' }
+        ], { duration: 450 + Math.random() * 450, fill: 'forwards' });
+        a.onfinish = function () {
+          if (Date.now() - debut > duree) { return; }
+          lancer(x2, y2); // chaque trame de broadcast est recopiée
+          bouger(s, x2, y2);
+        };
+      };
+      var lancer = function (x, y) {
+        if (vol.length >= 64) { return; }
+        var s = document.createElement('span');
+        s.className = 'paquet-fou';
+        s.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(s);
+        vol.push(s);
+        bouger(s, x, y);
+      };
+      lancer(depart[0], depart[1]);
+      lancer(depart[0], depart[1]);
+      setTimeout(function () {
+        vol.forEach(function (s) {
+          var a = s.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 400, fill: 'forwards' });
+          a.onfinish = function () { s.remove(); };
+        });
+        setTimeout(tempeteFinie, 420);
+      }, duree);
+    };
+    var brancher = function (e) {
+      if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') { return; }
+      e.preventDefault();
+      if (enCours) { return; }
+      enCours = true;
+      plan.classList.add('boucle');
+      tempete.textContent = 'Câble branché : sw-coeur est relié à lui-même…';
+      var r = e.currentTarget.getBoundingClientRect();
+      if (calme.matches || !document.body.animate) { setTimeout(tempeteFinie, 1500); return; }
+      orage([r.left + r.width / 2, r.top]);
+    };
+    plan.querySelectorAll('.cable-libre').forEach(function (c) {
+      c.addEventListener('click', brancher);
+      c.addEventListener('keydown', brancher);
+    });
+    plan.classList.add('avec-cable');
+  }
+
+  // Pour les curieux qui ouvrent les outils de développement, et pour l'onglet laissé de côté
+  if (window.console && console.log) {
+    console.log('Vous inspectez le trafic de ce site ? Parlons-en : https://forestmaxime-pf.fr/#contact\nLe code source est ouvert : https://github.com/maximeforest-cyber/portfolio');
+  }
+  var titre = document.title;
+  document.addEventListener('visibilitychange', function () {
+    document.title = document.hidden ? 'Connexion perdue… | Maxime Forest' : titre;
+  });
+
   document.getElementById('annee').textContent = new Date().getFullYear();
 })();

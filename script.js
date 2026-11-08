@@ -356,7 +356,11 @@
       var titre = section.querySelector('h2');
       titre.setAttribute('tabindex', '-1');
       titre.focus({ preventScroll: true });
-      // Lien pour refaire un essai sans remonter à la main ; il disparaît au prochain envoi
+      ajouterRetour(section);
+    };
+    // Lien pour refaire un essai sans remonter à la main ; il disparaît au prochain envoi
+    var ajouterRetour = function (section) {
+      var titre = section.querySelector('h2');
       var retour = document.createElement('a');
       retour.className = 'retour-simu';
       retour.href = '#simulation';
@@ -418,7 +422,7 @@
           { transform: place(c[0], c[1], 1.3), opacity: 1 },
           { transform: place(f[0], f[1], 0.4), opacity: 0 }
         ], { duration: 300, fill: 'forwards' }).onfinish = function () { paquet.remove(); };
-        if (!libre) { arriver(section); } // le visiteur est allé ailleurs : on ne lui prend pas le focus
+        if (!libre) { arriver(section); } else { ajouterRetour(section); } // le visiteur est allé ailleurs : on ne lui prend pas le focus, mais le lien de retour est là
       };
       v.image = requestAnimationFrame(etape);
     };

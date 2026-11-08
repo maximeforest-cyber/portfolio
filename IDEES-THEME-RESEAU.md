@@ -154,3 +154,12 @@ Recherche avec trois points de vue (RSSI qui fouille le site, développeuse fron
 **À retenir** : la carte « Ce portfolio » dit que le site est fait avec l'aide d'une IA. Un effet front très poussé sera donc mis au crédit de Claude : préférer les surprises dont Maxime explique le fond réseau (802.1Q, table d'état, trajet du paquet).
 
 **Non vérifié** : la Performance API sur Safari, le double rapport de la CSP, `e.key` et `e.code` en AZERTY selon les navigateurs, l'onglet « Connexion perdue… » vu depuis un iPhone, la fluidité du zoom sur un vieux téléphone.
+
+**Avancement des 3 défauts (08/11/2026)** :
+
+- **En-têtes Cloudflare : corrigé et en ligne.** Deux règles « Response Header Transform Rules » dans Cloudflare :
+  1. « En-têtes de sécurité (toutes les réponses) » : HSTS, nosniff, Referrer-Policy, Permissions-Policy ;
+  2. « CSP et anti-cadre (pages HTML) » : Content-Security-Policy (avec `frame-ancestors 'none'`) et `X-Frame-Options: DENY`. Son filtre était « chemin = `/`, finit par `/` ou par `.html` » ; il est maintenant `(http.response.content_type.media_type eq "text/html")` (accepté avec l'offre gratuite).
+
+  Vérifié par `curl -I` : CSP et anti-cadre sur `/`, `/projets/glpi` (sans `.html`), `/projets/glpi.html`, les 404 (`/nexiste-pas`, `/truc.php`) ; rien sur le CSS, les images ni le PDF du CV (ce ne sont pas des pages).
+- **Même VLAN et pause pendant le trajet : corrigés, commit local** (`script.js` en v=8), en attente de la relecture de niveau 3. Le paquet du même VLAN passe maintenant par le port de sw-coeur. En pause, le paquet est figé et le verdict attend la reprise. Testé dans Chromium : trajet relevé image par image (ordinateur et 390 px), pause en plein trajet (autorisé et refusé), nouvel envoi pendant la pause. Sur les 56 combinaisons, seuls les 8 verdicts du même VLAN changent ; aucune erreur dans la console.

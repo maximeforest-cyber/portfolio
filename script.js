@@ -169,6 +169,7 @@
     var verdict = document.getElementById('simu-verdict');
     var vu = document.getElementById('simu-vu');
     var minuteur;
+    var dernierBouton = null; // « Envoyer » ou « Suivre pas à pas » : le lien de retour y remet le focus
 
     // Décision : la première règle qui correspond s'applique
     var juger = function (src, dst, svc) {
@@ -211,8 +212,9 @@
       };
       if (src === 'wan') {
         dire('depart', 'Votre machine envoie ' + premier + ' vers l\'adresse publique de ' + d.nom + (svc === 'icmp' ? '.' : ', depuis un port source choisi au hasard.'));
+        // Le NAT de destination se fait avant la lecture des règles, même pour un paquet qui sera refusé ; fw-contact n'en a pas besoin pour sa propre adresse
+        if (dst !== '#contact') { dire('fw', 'fw-contact fait le NAT de destination : l\'adresse publique de ' + d.nom + ' devient ' + d.ip + '.'); }
         if (v.etat === 'non') { jete(' : rien n\'arrive sur sw-coeur'); return { e: e, fin: fin }; }
-        dire('fw', 'fw-contact fait le NAT de destination : l\'adresse publique de ' + d.nom + ' devient ' + d.ip + '.');
         dire('fw', regle + etat + ' Le TTL baisse de 1. Adresses MAC réécrites : source fw-contact, destination ' + d.nom + '.');
         dire('trunk', 'De fw-contact à sw-coeur, sur le trunk : étiquette 802.1Q ajoutée, VID ' + d.vlan + '.');
         dire('arrivee', 'sw-coeur retire l\'étiquette et livre la trame à ' + d.nom + ', sur son port d\'accès du VLAN ' + d.vlan + '.');
@@ -298,6 +300,7 @@
       arreterVoyage();
       arreterPas();
       document.querySelectorAll('.folio.arrivee').forEach(function (e) { e.classList.remove('arrivee'); });
+      document.querySelectorAll('.retour-simu').forEach(function (e) { e.remove(); });
       plan.querySelectorAll('.sim').forEach(function (e) { e.remove(); });
       simu.querySelectorAll('tr.touchee').forEach(function (e) { e.classList.remove('touchee'); });
     };
@@ -353,6 +356,19 @@
       var titre = section.querySelector('h2');
       titre.setAttribute('tabindex', '-1');
       titre.focus({ preventScroll: true });
+      // Lien pour refaire un essai sans remonter à la main ; il disparaît au prochain envoi
+      var retour = document.createElement('a');
+      retour.className = 'retour-simu';
+      retour.href = '#simulation';
+      retour.textContent = 'Revenir au simulateur';
+      retour.addEventListener('click', function (e) {
+        e.preventDefault();
+        retour.remove();
+        simu.open = true;
+        verdict.scrollIntoView({ block: 'center' });
+        (dernierBouton || choixSrc).focus({ preventScroll: true });
+      });
+      titre.insertAdjacentElement('afterend', retour);
     };
     var voyager = function (svg, pt, cle) {
       var section = document.getElementById(cle.slice(1));
@@ -425,6 +441,7 @@
     };
 
     document.getElementById('simu-go').addEventListener('click', function () {
+      dernierBouton = this;
       var src = choixSrc.value, dst = choixDst.value;
       var v = juger(src, dst, choixSvc.value);
       var recit = raconter(src, dst, choixSvc.value, v);
@@ -579,6 +596,7 @@
       }, montrer);
     };
     boutonPas.addEventListener('click', function () {
+      dernierBouton = boutonPas;
       var src = choixSrc.value, dst = choixDst.value;
       var v = juger(src, dst, choixSvc.value);
       var recit = raconter(src, dst, choixSvc.value, v);

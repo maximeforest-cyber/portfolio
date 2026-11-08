@@ -19,29 +19,17 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | mar. 01/12 | Homelab, étape 10 : des services dans Docker, avec un vrai certificat |
 | jeu. 03/12 | Homelab : tout le labo en un schéma cliquable |
 
-## 2026-11-08 : Suivre le paquet pas à pas sur le plan
+## 2026-11-08 : Suivre un paquet pas à pas sur le plan du portfolio
 
 - Statut : à relire
 - Lien : https://forestmaxime-pf.fr/#simulation
 - Image proposée : aucune (une capture du paquet arrêté sur le trunk, avec son étiquette VID, serait à prendre sur le site en ligne)
 
-Sur le plan de mon portfolio, on peut maintenant suivre un paquet pas à pas. La vue zoome sur lui, il avance de câble en câble, et à chaque arrêt un court texte explique ce qui se passe : le NAT et la règle sur le pare-feu, l'étiquette 802.1Q qui apparaît sur le trunk (VID 10 ou 20) et disparaît dès que la trame quitte le trunk, le TTL qui ne baisse que sur le pare-feu.
+Le simulateur de paquets de mon portfolio ne dit plus seulement « autorisé » ou « refusé » : on peut maintenant suivre le paquet pas à pas. La vue zoome sur lui, il avance de câble en câble, et à chaque arrêt un court texte explique ce qui se passe. On avance avec « Continuer », à son rythme.
 
-On avance avec « Continuer », à son rythme. À la fin, le paquet arrive sur l'équipement, puis il emmène jusqu'à la rubrique du site.
+Depuis Internet, le paquet vise une adresse publique, que le pare-feu traduit en adresse privée (NAT de destination), avant de lire ses règles et de noter la connexion dans sa table d'état. Entre deux VLAN, il monte jusqu'au pare-feu dans une trame qui porte l'étiquette 802.1Q du VLAN 10, puis redescend sur le même câble dans une nouvelle trame, avec celle du VLAN 20 : il passe deux fois par le switch, mais le TTL ne baisse qu'une fois, parce qu'un switch ne touche pas au paquet IP. Dans le même VLAN, rien ne change dans la trame, et le pare-feu ne la voit même pas.
 
-C'est une maquette, pas mon vrai réseau, mais chaque arrêt est une étape que je sais expliquer.
-
-## 2026-11-08 : « Ce qu'a vu le paquet » dans le simulateur du plan
-
-- Statut : à relire
-- Lien : https://forestmaxime-pf.fr/#simulation
-- Image proposée : aucune (une capture du récit déplié serait à prendre sur le site en ligne)
-
-Le simulateur de paquets de mon portfolio ne dit plus seulement « autorisé » ou « refusé » : il raconte aussi le trajet, étape par étape.
-
-Depuis Internet, le paquet vise une adresse publique, que le pare-feu traduit en adresse privée (NAT de destination), avant de lire ses règles et de noter la connexion dans sa table d'état. Entre deux VLAN, le paquet monte jusqu'au pare-feu dans une trame qui porte l'étiquette 802.1Q du VLAN 10, puis redescend sur le même câble dans une nouvelle trame, avec celle du VLAN 20 : il passe deux fois par le switch, mais le TTL ne baisse qu'une fois, parce qu'un switch ne touche pas au paquet IP. Dans le même VLAN, rien ne change dans la trame, et le pare-feu ne la voit même pas.
-
-C'est une maquette, pas mon vrai réseau, mais chaque étape est celle que je décrirais en entretien.
+S'il passe, le paquet emmène jusqu'à la rubrique du site. C'est une maquette, pas mon vrai réseau, mais chaque arrêt est une étape que je sais expliquer.
 
 ## 2026-11-08 : L'étiquette 802.1Q du plan se déplie
 

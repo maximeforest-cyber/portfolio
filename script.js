@@ -463,10 +463,14 @@
   if (plan && etiquette && plan.querySelector('.trunk-tag')) {
     var trunks = plan.querySelectorAll('.trunk-tag');
     var deplier = function (e) {
-      if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') { return; }
+      if (e.type === 'keydown' && ((e.key !== 'Enter' && e.key !== ' ') || e.repeat)) { return; }
       e.preventDefault();
       etiquette.hidden = !etiquette.hidden;
       trunks.forEach(function (t) { t.setAttribute('aria-expanded', String(!etiquette.hidden)); });
+      // Le panneau s'ouvre sous le plan, parfois hors de l'écran (surtout sur téléphone) : on l'amène à l'écran
+      if (!etiquette.hidden && etiquette.getBoundingClientRect().bottom > window.innerHeight) {
+        etiquette.scrollIntoView({ block: 'nearest' });
+      }
     };
     trunks.forEach(function (t) {
       t.setAttribute('tabindex', '0');

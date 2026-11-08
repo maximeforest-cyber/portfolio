@@ -29,7 +29,7 @@ Sur le plan de mon portfolio, le câble entre le pare-feu et le switch porte une
 
 Le TPID 0x8100 annonce une trame étiquetée, puis viennent la priorité (3 bits), un bit qui dit si la trame peut être jetée en premier, et le numéro du VLAN sur 12 bits. Cette étiquette n'existe que sur le trunk : elle disparaît dès que la trame ressort vers un poste.
 
-Et une exception à connaître : le VLAN natif passe sans étiquette. C'est pour ça qu'on le met sur un VLAN où il n'y a aucun poste.
+Et une exception à connaître : le VLAN natif passe sans étiquette. On le met donc sur un VLAN où il n'y a aucun poste, pour qu'une trame à double étiquette ne puisse pas sauter d'un VLAN à l'autre.
 
 ## 2026-11-07 : Envoyer un paquet à travers le pare-feu de mon portfolio
 

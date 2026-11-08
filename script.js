@@ -154,19 +154,20 @@
   var simu = document.getElementById('simulation');
   if (plan && simu) {
     var eqp = {
-      '#contact': { nom: 'fw-contact', vlan: 0, rub: 'Contact' },
-      '#a-propos': { nom: 'pc-maxime', vlan: 10, rub: 'À propos' },
-      '#competences': { nom: 'srv-competences', vlan: 10, rub: 'Compétences' },
-      '#parcours': { nom: 'nas-parcours', vlan: 10, rub: 'Parcours' },
-      '#projets': { nom: 'srv-projets', vlan: 20, rub: 'Projets et stages' },
-      '#certifications': { nom: 'pki-certifs', vlan: 20, rub: 'Certifications' },
-      '#veille': { nom: 'ids-veille', vlan: 20, rub: 'Veille' }
+      '#contact': { nom: 'fw-contact', vlan: 0, ip: '10.0.10.1', rub: 'Contact' },
+      '#a-propos': { nom: 'pc-maxime', vlan: 10, ip: '10.0.10.11', rub: 'À propos' },
+      '#competences': { nom: 'srv-competences', vlan: 10, ip: '10.0.10.12', rub: 'Compétences' },
+      '#parcours': { nom: 'nas-parcours', vlan: 10, ip: '10.0.10.13', rub: 'Parcours' },
+      '#projets': { nom: 'srv-projets', vlan: 20, ip: '10.0.20.11', rub: 'Projets et stages' },
+      '#certifications': { nom: 'pki-certifs', vlan: 20, ip: '10.0.20.12', rub: 'Certifications' },
+      '#veille': { nom: 'ids-veille', vlan: 20, ip: '10.0.20.13', rub: 'Veille' }
     };
     var regles = { 1: 'Web_public', 2: 'Web_redirection', 3: 'Admin_poste', 4: 'Défaut' };
     var choixSrc = document.getElementById('simu-src');
     var choixDst = document.getElementById('simu-dst');
     var choixSvc = document.getElementById('simu-svc');
     var verdict = document.getElementById('simu-verdict');
+    var vu = document.getElementById('simu-vu');
     var minuteur;
 
     // Décision : la première règle qui correspond s'applique
@@ -193,6 +194,61 @@
         dst === '#contact' ? 'le pare-feu ne s\'administre pas depuis Internet.' : 'SSH n\'est pas ouvert depuis Internet.';
       return { etat: 'non', regle: 4, titre: 'Refusé', texte: ' par fw-contact, règle 4 (par défaut) : ' + raison +
         ' Le paquet est jeté sans réponse : ' + (svc === 'icmp' ? 'le ping attend un écho qui ne vient pas.' : 'la connexion finit en délai dépassé.') };
+    };
+
+    // « Ce qu'a vu le paquet » : le trajet étape par étape, avec ce qui change dans la trame
+    var raconter = function (src, dst, svc, v) {
+      var d = eqp[dst], e = [], fin = [];
+      if (v.etat === 'meme') { return { e: e, fin: fin }; }
+      var port = { https: 443, http: 80, ssh: 22 }[svc];
+      var premier = svc === 'icmp' ? 'un ping (ICMP echo request)' : 'un segment TCP SYN (début de connexion), port ' + port + ',';
+      var regle = v.regle ? 'Règle ' + v.regle + ' (' + (v.regle === 4 ? 'par défaut' : regles[v.regle]) + ') : ' + (v.etat === 'non' ? 'DENY.' : 'ALLOW.') : '';
+      var etat = ' Une ligne entre dans sa table d\'état (' + (svc === 'icmp' ? 'adresses et identifiant du ping' : 'adresses et ports des deux côtés') + ').';
+      var jete = function (ici) {
+        e.push('fw-contact lit ses règles dans l\'ordre : aucune des règles 1 à 3 ne correspond. ' + regle);
+        e.push('Le paquet est jeté sans réponse' + ici + ', et rien n\'entre dans la table d\'état.');
+      };
+      if (src === 'wan') {
+        e.push('Votre machine envoie ' + premier + ' vers l\'adresse publique de ' + d.nom + (svc === 'icmp' ? '.' : ', depuis un port source choisi au hasard.'));
+        if (v.etat === 'non') { jete(' : rien n\'arrive sur sw-coeur'); return { e: e, fin: fin }; }
+        e.push('fw-contact fait le NAT de destination : l\'adresse publique de ' + d.nom + ' devient ' + d.ip + '.');
+        e.push(regle + etat + ' Le TTL baisse de 1. Adresses MAC réécrites : source fw-contact, destination ' + d.nom + '.');
+        e.push('fw-contact → sw-coeur, sur le trunk : étiquette 802.1Q ajoutée, VID ' + d.vlan + '.');
+        e.push('sw-coeur retire l\'étiquette et livre la trame à ' + d.nom + ', sur son port d\'accès du VLAN ' + d.vlan + '.');
+        fin.push('Retour : la table d\'état reconnaît la réponse et la laisse passer, et le NAT remet l\'adresse publique de ' + d.nom + ' en source.' +
+          (svc === 'http' ? ' Cette réponse est une redirection 301 vers HTTPS.' : ''));
+        return { e: e, fin: fin };
+      }
+      // Depuis pc-maxime (VLAN 10)
+      if (v.etat === 'local') {
+        e.push('pc-maxime voit que ' + d.ip + ' est dans son propre réseau, 10.0.10.0/24 : il envoie ' + premier + ' directement à l\'adresse MAC de ' + d.nom + ', trouvée par ARP, sans passer par sa passerelle.');
+        e.push('sw-coeur reçoit la trame sur le port d\'accès de pc-maxime (VLAN 10, sans étiquette), trouve l\'adresse MAC de destination dans sa table et la fait sortir par le port de ' + d.nom + '.');
+        e.push('Rien n\'a changé dans la trame : pas d\'étiquette 802.1Q, mêmes adresses MAC, même TTL. Un switch ne touche pas au paquet IP, et fw-contact ne l\'a pas vu.');
+        fin.push('Retour : la réponse fait le même trajet à l\'envers, toujours sans fw-contact.');
+        return { e: e, fin: fin };
+      }
+      var pourLui = dst === '#contact';
+      e.push(pourLui ? 'pc-maxime envoie ' + premier + ' à fw-contact, sa passerelle (10.0.10.1).' :
+        'pc-maxime voit que ' + d.ip + ' n\'est pas dans son réseau, 10.0.10.0/24 : il envoie ' + premier + ' à l\'adresse MAC de sa passerelle, fw-contact (10.0.10.1). L\'adresse IP de destination reste ' + d.ip + '.');
+      e.push('pc-maxime → sw-coeur : trame sans étiquette, sur le port d\'accès du VLAN 10.');
+      e.push('sw-coeur → fw-contact, sur le trunk : étiquette 802.1Q ajoutée, VID 10.');
+      if (v.etat === 'non') {
+        e.push('fw-contact retire l\'étiquette et lit ses règles dans l\'ordre : la règle 3 n\'autorise pas HTTP. ' + regle);
+        e.push('Le paquet est jeté sans réponse' + (pourLui ? '' : ' : il ne repart pas vers le VLAN 20') + ', et rien n\'entre dans la table d\'état.');
+        return { e: e, fin: fin };
+      }
+      if (pourLui) {
+        e.push('fw-contact retire l\'étiquette : le paquet est pour lui (10.0.10.1), il n\'est pas routé et le TTL ne baisse pas. ' + regle + etat);
+        fin.push('Retour : fw-contact répond par le même câble, avec l\'étiquette 10 ; sw-coeur la retire et livre la réponse à pc-maxime.');
+        return { e: e, fin: fin };
+      }
+      e.push('fw-contact retire l\'étiquette et route le paquet du VLAN 10 au VLAN 20 (il a une sous-interface par VLAN, sur le même câble). ' + regle + etat +
+        ' Le TTL baisse de 1. Adresses MAC réécrites : source fw-contact, destination ' + d.nom + '.');
+      e.push('fw-contact → sw-coeur, sur le même câble : étiquette 802.1Q, VID 20.');
+      e.push('sw-coeur retire l\'étiquette et livre la trame à ' + d.nom + ', sur son port d\'accès du VLAN 20.');
+      fin.push('La trame est passée deux fois par sw-coeur, mais le TTL n\'a baissé qu\'une fois, sur fw-contact : un switch n\'y touche pas.');
+      fin.push('Retour : la réponse fait le chemin à l\'envers (étiquette 20 en montant, 10 en descendant), et la table d\'état la laisse passer.');
+      return { e: e, fin: fin };
     };
 
     // Chemins du plan (commandes M, H, V seulement), lus dans le schéma affiché
@@ -266,8 +322,13 @@
       g.appendChild(txt);
       svg.appendChild(g);
     };
-    var afficher = function (v) {
+    var afficher = function (v, recit) {
       verdict.textContent = '';
+      var liste = document.getElementById('simu-etapes');
+      liste.textContent = '';
+      recit.e.forEach(function (t) { var li = document.createElement('li'); li.textContent = t; liste.appendChild(li); });
+      document.getElementById('simu-fin').textContent = recit.fin.join(' ');
+      vu.hidden = v.etat === 'meme';
       var b = document.createElement('strong');
       b.textContent = v.titre;
       verdict.appendChild(b);
@@ -355,14 +416,16 @@
     document.getElementById('simu-go').addEventListener('click', function () {
       var src = choixSrc.value, dst = choixDst.value;
       var v = juger(src, dst, choixSvc.value);
+      var recit = raconter(src, dst, choixSvc.value, v);
       nettoyer();
       verdict.textContent = '';
+      vu.hidden = true;
       var svg = svgAffiche();
-      if (!svg || v.etat === 'meme') { afficher(v); return; }
+      if (!svg || v.etat === 'meme') { afficher(v, recit); return; }
       var pts = chemin(svg, src, dst, v.etat === 'non');
       var fin = function () {
         marquer(svg, pts, v);
-        afficher(v);
+        afficher(v, recit);
         if (plan.classList.contains('en-pause')) { return; }
         if (v.etat === 'non') { jeter(pkt); return; }
         minuteur = setTimeout(function () { voyager(svg, arrivee, dst); }, 450);

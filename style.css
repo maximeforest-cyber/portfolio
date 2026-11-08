@@ -140,6 +140,23 @@ details.capture { margin-top: 12px; border-top: 0; padding-top: 0; }
 .hex { margin: 0; padding: 8px 12px; overflow-x: auto; color: var(--soft); font: 12px/1.5 var(--mono); }
 /* ---------- Accueil : étiquette trunk, câble qui pend, simulation ---------- */
 .plan text.trunk { font-size: 9.5px; letter-spacing: .4px; }
+.avec-trunk .trunk-tag { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.avec-trunk .trunk-tag:hover text, .avec-trunk .trunk-tag:focus-visible text, .avec-trunk .trunk-tag[aria-expanded="true"] text { fill: var(--cable-text); text-decoration: underline; }
+.trunk-tag:focus { outline: none; }
+.trunk-tag:focus-visible .hit { stroke: var(--cable); stroke-width: 1.2; stroke-dasharray: 3 3; }
+.etiquette { margin-top: 10px; max-width: 760px; border: 1.5px solid var(--ink); background: var(--sheet); }
+.etiquette-tete { padding: 8px 12px; border-bottom: 1px solid var(--ink); font: 12.5px/1.45 var(--mono); color: var(--soft); }
+.octets { display: grid; grid-template-columns: 16fr minmax(54px, 3fr) minmax(48px, 1fr) 12fr; margin: 12px 12px 0; padding: 0; list-style: none; border: 1.5px solid var(--ink); }
+.octets li { display: grid; gap: 2px; padding: 6px 4px; text-align: center; border-left: 1px solid var(--ink); font: 12px var(--mono); color: var(--soft); }
+.octets li:first-child { border-left: 0; }
+.octets b { color: var(--ink); font-size: 13px; }
+.octets span, .octets code { white-space: nowrap; }
+.octets code { color: var(--cable-text); font-weight: 700; font-size: 13px; }
+.octets .vid { background: rgba(142, 47, 60, .09); }
+.octets-hex { margin: 6px 12px 0; font: 12.5px var(--mono); color: var(--soft); }
+.octets-hex code { color: var(--ink); }
+.etiquette-texte { margin: 10px 0 0; padding: 0 12px 12px 30px; font-size: 15px; }
+.etiquette-texte li + li { margin-top: 6px; }
 .cable-libre { display: none; cursor: pointer; }
 .avec-cable .cable-libre { display: inline; }
 .cable { fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; }
@@ -468,7 +485,7 @@ ol.b li::before { display: none; }
   .tampon { animation: none; }
 }
 @media print {
-  .top, .burger, .actions, .pkt, .pause, .toc, .pager, .crumb, .avec-cable .cable-libre, .paquet-fou, .tempete, .simu, .sim { display: none; }
+  .top, .burger, .actions, .pkt, .pause, .toc, .pager, .crumb, .avec-cable .cable-libre, .etiquette, .paquet-fou, .tempete, .simu, .sim { display: none; }
   .ico .led { opacity: 1 !important; }
   .report .wrap { display: block; }
   body { background: #fff; }

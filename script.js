@@ -458,6 +458,31 @@
     plan.classList.add('avec-cable');
   }
 
+  // Plan du site : l'étiquette « trunk 802.1Q » se déplie et montre ses 4 octets
+  var etiquette = document.getElementById('etiquette-8021q');
+  if (plan && etiquette && plan.querySelector('.trunk-tag')) {
+    var trunks = plan.querySelectorAll('.trunk-tag');
+    var deplier = function (e) {
+      if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') { return; }
+      e.preventDefault();
+      etiquette.hidden = !etiquette.hidden;
+      trunks.forEach(function (t) { t.setAttribute('aria-expanded', String(!etiquette.hidden)); });
+    };
+    trunks.forEach(function (t) {
+      t.setAttribute('tabindex', '0');
+      t.setAttribute('role', 'button');
+      t.setAttribute('aria-label', 'trunk 802.1Q : déplier son étiquette');
+      t.setAttribute('aria-controls', 'etiquette-8021q');
+      t.setAttribute('aria-expanded', 'false');
+      var bulle = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      bulle.textContent = 'Que contient l\'étiquette 802.1Q ?';
+      t.insertBefore(bulle, t.firstChild);
+      t.addEventListener('click', deplier);
+      t.addEventListener('keydown', deplier);
+    });
+    plan.classList.add('avec-trunk');
+  }
+
   // Pour les curieux qui ouvrent les outils de développement, et pour l'onglet laissé de côté
   if (window.console && console.log) {
     console.log('Vous inspectez le trafic de ce site ? Parlons-en : https://forestmaxime-pf.fr/#contact\nLe code source est ouvert : https://github.com/maximeforest-cyber/portfolio');

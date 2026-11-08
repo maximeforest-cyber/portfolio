@@ -19,6 +19,18 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | mar. 01/12 | Homelab, étape 10 : des services dans Docker, avec un vrai certificat |
 | jeu. 03/12 | Homelab : tout le labo en un schéma cliquable |
 
+## 2026-11-08 : L'étiquette 802.1Q du plan se déplie
+
+- Statut : à relire
+- Lien : https://forestmaxime-pf.fr/
+- Image proposée : aucune (une capture de l'étiquette dépliée serait à prendre sur le site en ligne)
+
+Sur le plan de mon portfolio, le câble entre le pare-feu et le switch porte une petite étiquette « trunk 802.1Q ». En cliquant dessus, elle se déplie et montre ce qu'elle contient vraiment : 4 octets ajoutés dans la trame Ethernet.
+
+Le TPID 0x8100 annonce une trame étiquetée, puis viennent la priorité (3 bits), un bit qui dit si la trame peut être jetée en premier, et le numéro du VLAN sur 12 bits. Cette étiquette n'existe que sur le trunk : elle disparaît dès que la trame ressort vers un poste.
+
+Et une exception à connaître : le VLAN natif passe sans étiquette. C'est pour ça qu'on le met sur un VLAN où il n'y a aucun poste.
+
 ## 2026-11-07 : Envoyer un paquet à travers le pare-feu de mon portfolio
 
 - Statut : à relire

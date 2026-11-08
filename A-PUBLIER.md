@@ -25,7 +25,7 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 - Lien : https://forestmaxime-pf.fr/#simulation
 - Image proposée : aucune (une capture du paquet arrêté sur le trunk, avec son étiquette VID, serait à prendre sur le site en ligne)
 
-Sur le plan de mon portfolio, on peut maintenant suivre un paquet pas à pas. La vue zoome sur lui, il avance de câble en câble, et à chaque arrêt un court texte explique ce qui se passe : le NAT et la règle sur le pare-feu, l'étiquette 802.1Q qui apparaît sur le trunk (VID 10 ou 20) et disparaît à la sortie du switch, le TTL qui ne baisse que sur le pare-feu.
+Sur le plan de mon portfolio, on peut maintenant suivre un paquet pas à pas. La vue zoome sur lui, il avance de câble en câble, et à chaque arrêt un court texte explique ce qui se passe : le NAT et la règle sur le pare-feu, l'étiquette 802.1Q qui apparaît sur le trunk (VID 10 ou 20) et disparaît dès que la trame quitte le trunk, le TTL qui ne baisse que sur le pare-feu.
 
 On avance avec « Continuer », à son rythme. À la fin, le paquet arrive sur l'équipement, puis il emmène jusqu'à la rubrique du site.
 

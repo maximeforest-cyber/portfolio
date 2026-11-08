@@ -558,12 +558,12 @@
         var p0 = pas.dernier;
         animer(600, function (k) { cadrer(p0[0], p0[1], 1 - k); }, function () {
           var s = pas, garde = s.pkt;
+          boutonPas.focus({ preventScroll: true }); // avant de cacher le panneau, qui a le focus ; arriver() le mettra ensuite sur le titre de la rubrique
           s.svg.setAttribute('viewBox', s.baseTxt);
           s.tag.remove();
           panneau.hidden = true;
           plan.classList.remove('pas-en-cours');
           pas = null;
-          if (s.v.etat === 'non') { boutonPas.focus({ preventScroll: true }); }
           conclure(s.svg, s.pts, s.v, s.recit, garde, s.dst);
         });
         return;
@@ -591,7 +591,10 @@
       var c = route(svg, '#contact');
       var t = /translate\(([\d.]+) ([\d.]+)\)/.exec(svg.querySelector('a[href="#contact"] .ico').getAttribute('transform'));
       var fwG = c[c.length - 1], fwD = [2 * t[1] - fwG[0], fwG[1]], sw = route(svg, '#a-propos')[0];
-      var lieux = { depart: pts[0], sw: sw, trunk: [(fwD[0] + sw[0]) / 2, sw[1]], fw: src === 'wan' ? fwG : fwD, arrivee: pts[pts.length - 1] };
+      var ts = [].filter.call(svg.querySelectorAll('text.h'), function (x) { return x.textContent === 'sw-coeur'; })[0];
+      var cs = /translate\(([\d.]+) /.exec(ts.previousElementSibling.getAttribute('transform'));
+      var swG = 2 * cs[1] - sw[0]; // bord gauche de l'icône de sw-coeur (sw est son bord droit)
+      var lieux = { depart: pts[0], sw: sw, trunk: [(fwD[0] + swG) / 2, sw[1]], fw: src === 'wan' ? fwG : fwD, arrivee: pts[pts.length - 1] };
       var l = longueurs(pts), arrets = [], apres = 0;
       recit.e.forEach(function (e) { var d = distanceDe(pts, l, lieux[e.lieu], apres); if (d >= 0) { apres = d; } arrets.push(apres); });
       var baseTxt = svg.getAttribute('viewBox');
@@ -604,18 +607,21 @@
       svg.appendChild(tag);
       pas = { svg: svg, base: baseTxt.split(' ').map(Number), baseTxt: baseTxt, cam: CAMERA[svg.getAttribute('class')] || CAMERA.desktop,
         pts: pts, l: l, arrets: arrets, i: 0, d: 0, v: v, recit: recit, dst: dst, pkt: pkt, tag: tag, tagTxt: tagTxt,
-        trunk: { y: sw[1], x1: fwD[0], x2: sw[0] }, dernier: null, monte: true, image: 0, finir: null };
+        trunk: { y: sw[1], x1: fwD[0], x2: swG }, dernier: null, monte: true, image: 0, finir: null };
       placer(pts[0]);
       plan.classList.add('pas-en-cours');
+      pasTete.textContent = pasTexte.textContent = pasFin.textContent = '';
       panneau.hidden = false;
-      montrer();
+      pasSuite.textContent = 'Continuer';
       pasSuite.focus({ preventScroll: true });
+      requestAnimationFrame(function () { if (pas) { montrer(); } }); // la zone aria-live doit exister avant son texte, sinon l'étape 1 n'est pas lue
       plan.scrollIntoView({ block: 'start' });
       animer(600, function (k) { cadrer(pts[0][0], pts[0][1], k); }, function () {});
     });
     pasSuite.addEventListener('click', avancer);
     document.getElementById('pas-stop').addEventListener('click', function () { arreterPas(); boutonPas.focus(); });
-    panneau.addEventListener('keydown', function (e) { if (e.key === 'Escape') { arreterPas(); boutonPas.focus(); } });
+    document.addEventListener('keydown', function (e) { if (pas && e.key === 'Escape') { arreterPas(); boutonPas.focus(); } });
+    plan.addEventListener('click', function (e) { if (pas && e.target.closest('a')) { arreterPas(); } }); // le visiteur part vers une rubrique
     simu.hidden = false;
     if (location.hash === '#simulation') { simu.open = true; simu.scrollIntoView(); }
   }

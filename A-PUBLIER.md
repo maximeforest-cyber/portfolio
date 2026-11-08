@@ -27,7 +27,7 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 
 Le simulateur de paquets de mon portfolio ne dit plus seulement « autorisé » ou « refusé » : il raconte aussi le trajet, étape par étape.
 
-Depuis Internet, le paquet vise une adresse publique, que le pare-feu traduit en adresse privée (NAT de destination), avant de lire ses règles et de noter la connexion dans sa table d'état. Entre deux VLAN, la trame monte jusqu'au pare-feu avec l'étiquette 802.1Q du VLAN 10, puis redescend sur le même câble avec celle du VLAN 20 : elle passe deux fois par le switch, mais le TTL ne baisse qu'une fois, parce qu'un switch ne touche pas au paquet IP. Dans le même VLAN, rien ne change dans la trame, et le pare-feu ne la voit même pas.
+Depuis Internet, le paquet vise une adresse publique, que le pare-feu traduit en adresse privée (NAT de destination), avant de lire ses règles et de noter la connexion dans sa table d'état. Entre deux VLAN, le paquet monte jusqu'au pare-feu dans une trame qui porte l'étiquette 802.1Q du VLAN 10, puis redescend sur le même câble dans une nouvelle trame, avec celle du VLAN 20 : il passe deux fois par le switch, mais le TTL ne baisse qu'une fois, parce qu'un switch ne touche pas au paquet IP. Dans le même VLAN, rien ne change dans la trame, et le pare-feu ne la voit même pas.
 
 C'est une maquette, pas mon vrai réseau, mais chaque étape est celle que je décrirais en entretien.
 

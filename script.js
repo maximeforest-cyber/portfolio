@@ -213,15 +213,15 @@
         if (v.etat === 'non') { jete(' : rien n\'arrive sur sw-coeur'); return { e: e, fin: fin }; }
         e.push('fw-contact fait le NAT de destination : l\'adresse publique de ' + d.nom + ' devient ' + d.ip + '.');
         e.push(regle + etat + ' Le TTL baisse de 1. Adresses MAC réécrites : source fw-contact, destination ' + d.nom + '.');
-        e.push('fw-contact → sw-coeur, sur le trunk : étiquette 802.1Q ajoutée, VID ' + d.vlan + '.');
+        e.push('De fw-contact à sw-coeur, sur le trunk : étiquette 802.1Q ajoutée, VID ' + d.vlan + '.');
         e.push('sw-coeur retire l\'étiquette et livre la trame à ' + d.nom + ', sur son port d\'accès du VLAN ' + d.vlan + '.');
         fin.push('Retour : la table d\'état reconnaît la réponse et la laisse passer, et le NAT remet l\'adresse publique de ' + d.nom + ' en source.' +
-          (svc === 'http' ? ' Cette réponse est une redirection 301 vers HTTPS.' : ''));
+          (svc === 'http' ? ' Une fois la connexion ouverte, le serveur répond à la requête HTTP par une redirection 301 vers HTTPS.' : ''));
         return { e: e, fin: fin };
       }
       // Depuis pc-maxime (VLAN 10)
       if (v.etat === 'local') {
-        e.push('pc-maxime voit que ' + d.ip + ' est dans son propre réseau, 10.0.10.0/24 : il envoie ' + premier + ' directement à l\'adresse MAC de ' + d.nom + ', trouvée par ARP, sans passer par sa passerelle.');
+        e.push('pc-maxime voit que ' + d.ip + ' est dans son propre réseau, 10.0.10.0/24 : il envoie ' + premier + ' dans une trame adressée directement à l\'adresse MAC de ' + d.nom + ', trouvée par ARP, sans passer par sa passerelle.');
         e.push('sw-coeur reçoit la trame sur le port d\'accès de pc-maxime (VLAN 10, sans étiquette), trouve l\'adresse MAC de destination dans sa table et la fait sortir par le port de ' + d.nom + '.');
         e.push('Rien n\'a changé dans la trame : pas d\'étiquette 802.1Q, mêmes adresses MAC, même TTL. Un switch ne touche pas au paquet IP, et fw-contact ne l\'a pas vu.');
         fin.push('Retour : la réponse fait le même trajet à l\'envers, toujours sans fw-contact.');
@@ -229,9 +229,9 @@
       }
       var pourLui = dst === '#contact';
       e.push(pourLui ? 'pc-maxime envoie ' + premier + ' à fw-contact, sa passerelle (10.0.10.1).' :
-        'pc-maxime voit que ' + d.ip + ' n\'est pas dans son réseau, 10.0.10.0/24 : il envoie ' + premier + ' à l\'adresse MAC de sa passerelle, fw-contact (10.0.10.1). L\'adresse IP de destination reste ' + d.ip + '.');
-      e.push('pc-maxime → sw-coeur : trame sans étiquette, sur le port d\'accès du VLAN 10.');
-      e.push('sw-coeur → fw-contact, sur le trunk : étiquette 802.1Q ajoutée, VID 10.');
+        'pc-maxime voit que ' + d.ip + ' n\'est pas dans son réseau, 10.0.10.0/24 : il envoie ' + premier + ' dans une trame adressée à l\'adresse MAC de sa passerelle, fw-contact (10.0.10.1). L\'adresse IP de destination reste ' + d.ip + '.');
+      e.push('De pc-maxime à sw-coeur : trame sans étiquette, sur le port d\'accès du VLAN 10.');
+      e.push('De sw-coeur à fw-contact, sur le trunk : étiquette 802.1Q ajoutée, VID 10.');
       if (v.etat === 'non') {
         e.push('fw-contact retire l\'étiquette et lit ses règles dans l\'ordre : la règle 3 n\'autorise pas HTTP. ' + regle);
         e.push('Le paquet est jeté sans réponse' + (pourLui ? '' : ' : il ne repart pas vers le VLAN 20') + ', et rien n\'entre dans la table d\'état.');
@@ -244,9 +244,9 @@
       }
       e.push('fw-contact retire l\'étiquette et route le paquet du VLAN 10 au VLAN 20 (il a une sous-interface par VLAN, sur le même câble). ' + regle + etat +
         ' Le TTL baisse de 1. Adresses MAC réécrites : source fw-contact, destination ' + d.nom + '.');
-      e.push('fw-contact → sw-coeur, sur le même câble : étiquette 802.1Q, VID 20.');
+      e.push('De fw-contact à sw-coeur, sur le même câble : étiquette 802.1Q, VID 20.');
       e.push('sw-coeur retire l\'étiquette et livre la trame à ' + d.nom + ', sur son port d\'accès du VLAN 20.');
-      fin.push('La trame est passée deux fois par sw-coeur, mais le TTL n\'a baissé qu\'une fois, sur fw-contact : un switch n\'y touche pas.');
+      fin.push('Le paquet est passé deux fois par sw-coeur, dans deux trames différentes, mais le TTL n\'a baissé qu\'une fois, sur fw-contact : un switch n\'y touche pas.');
       fin.push('Retour : la réponse fait le chemin à l\'envers (étiquette 20 en montant, 10 en descendant), et la table d\'état la laisse passer.');
       return { e: e, fin: fin };
     };

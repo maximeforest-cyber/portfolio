@@ -188,6 +188,7 @@ details.capture { margin-top: 12px; border-top: 0; padding-top: 0; }
 .simu-etapes { margin: 10px 0 0; padding-left: 26px; font-size: 15px; }
 .simu-etapes li + li { margin-top: 6px; }
 .simu-fin { margin-top: 10px; font-size: 15px; }
+.simu-fin:empty { margin: 0; }
 .rules .non { display: inline-block; padding: 0 7px; border: 1.5px solid var(--ink); font-weight: 700; font-size: 12.5px; }
 .rules tr.touchee td { background: rgba(142, 47, 60, .09); }
 .rules tr.touchee td:first-child { white-space: nowrap; }

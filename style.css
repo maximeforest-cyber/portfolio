@@ -207,7 +207,7 @@ details.capture { margin-top: 12px; border-top: 0; padding-top: 0; }
 .hit { fill: transparent; stroke: none; }
 
 /* ---------- Rubriques ---------- */
-section { padding-block: 64px; }
+section { padding-block: 64px 32px; }
 .folio { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: center; border-top: 2px solid var(--ink); padding-top: 18px; }
 .folio .n { display: grid; place-items: center; width: 54px; height: 54px; background: var(--ink); color: var(--paper); font-family: var(--mono); font-size: 20px; font-weight: 700; border-bottom: 5px solid var(--cable); }
 .folio .host { font-family: var(--mono); font-size: 12.5px; letter-spacing: 1px; color: var(--soft); }
@@ -450,7 +450,7 @@ ol.b li::before { display: none; }
   .plan .desktop { display: none; }
   .plan .mobile { display: block; }
   .about { grid-template-columns: 1fr; gap: 24px; }
-  section { padding-block: 46px; }
+  section { padding-block: 46px 24px; }
   .folio .n { width: 46px; height: 46px; font-size: 17px; }
   .rules .opt { display: none; }
   .rules th, .rules td { padding: 10px; }

@@ -34,7 +34,7 @@
   ]
 }
 </script>
-<link rel="stylesheet" href="style.css?v=12">
+<link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
 <a class="skip" href="#contenu">Aller au contenu</a>
@@ -92,6 +92,17 @@
 <button class="pause" type="button" hidden>Mettre en pause le trafic</button>
       </div>
     </nav>
+    <div class="pas-a-pas" id="pas-a-pas" hidden>
+      <div class="pas-corps" aria-live="polite">
+        <p class="pas-tete" id="pas-tete"></p>
+        <p class="pas-texte" id="pas-texte"></p>
+        <p class="pas-fin" id="pas-fin"></p>
+      </div>
+      <div class="pas-boutons">
+        <button class="btn main" type="button" id="pas-suite">Continuer</button>
+        <button class="btn" type="button" id="pas-stop">Arrêter</button>
+      </div>
+    </div>
     <div class="etiquette" id="etiquette-8021q" hidden>
       <p class="etiquette-tete">Étiquette 802.1Q · 4 octets glissés dans la trame Ethernet, entre l'adresse MAC source et l'EtherType</p>
       <ol class="octets">
@@ -136,7 +147,7 @@
     <details class="capture simu" id="simulation" hidden>
       <summary>Envoyer un paquet sur le plan (simulation)</summary>
       <div class="simu-corps">
-        <p>Choisissez un flux et envoyez-le : fw-contact lit ses règles dans l'ordre, et la première qui correspond décide. Le paquet part sur le plan ci-dessus et, s'il passe, vous emmène jusqu'à la rubrique.</p>
+        <p>Choisissez un flux et envoyez-le : fw-contact lit ses règles dans l'ordre, et la première qui correspond décide. Le paquet part sur le plan ci-dessus et, s'il passe, vous emmène jusqu'à la rubrique. En pas à pas, la caméra le suit et il s'arrête à chaque étape.</p>
         <div class="simu-choix">
           <label>Source
             <select id="simu-src">
@@ -164,6 +175,7 @@
             </select>
           </label>
           <button class="btn" type="button" id="simu-go">Envoyer</button>
+          <button class="btn" type="button" id="simu-pas">Suivre pas à pas</button>
         </div>
         <p class="simu-verdict" id="simu-verdict" role="status"></p>
         <details class="simu-vu" id="simu-vu" hidden>
@@ -939,6 +951,6 @@
   </div>
 </footer>
 
-<script src="script.js?v=10"></script>
+<script src="script.js?v=11"></script>
 </body>
 </html>

@@ -19,6 +19,18 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | mar. 01/12 | Homelab, étape 10 : des services dans Docker, avec un vrai certificat |
 | jeu. 03/12 | Homelab : tout le labo en un schéma cliquable |
 
+## 2026-11-08 : Suivre le paquet pas à pas sur le plan
+
+- Statut : à relire
+- Lien : https://forestmaxime-pf.fr/#simulation
+- Image proposée : aucune (une capture du paquet arrêté sur le trunk, avec son étiquette VID, serait à prendre sur le site en ligne)
+
+Sur le plan de mon portfolio, on peut maintenant suivre un paquet pas à pas. La vue zoome sur lui, il avance de câble en câble, et à chaque arrêt un court texte explique ce qui se passe : le NAT et la règle sur le pare-feu, l'étiquette 802.1Q qui apparaît sur le trunk (VID 10 ou 20) et disparaît à la sortie du switch, le TTL qui ne baisse que sur le pare-feu.
+
+On avance avec « Continuer », à son rythme. À la fin, le paquet arrive sur l'équipement, puis il emmène jusqu'à la rubrique du site.
+
+C'est une maquette, pas mon vrai réseau, mais chaque arrêt est une étape que je sais expliquer.
+
 ## 2026-11-08 : « Ce qu'a vu le paquet » dans le simulateur du plan
 
 - Statut : à relire

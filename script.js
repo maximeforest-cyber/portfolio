@@ -199,53 +199,54 @@
     // « Ce qu'a vu le paquet » : le trajet étape par étape, avec ce qui change dans la trame
     var raconter = function (src, dst, svc, v) {
       var d = eqp[dst], e = [], fin = [];
+      var dire = function (lieu, t) { e.push({ lieu: lieu, t: t }); }; // lieu : où le paquet s'arrête sur le plan, en pas à pas
       if (v.etat === 'meme') { return { e: e, fin: fin }; }
       var port = { https: 443, http: 80, ssh: 22 }[svc];
       var premier = svc === 'icmp' ? 'un ping (ICMP echo request)' : 'un segment TCP SYN (début de connexion), port ' + port + ',';
       var regle = v.regle ? 'Règle ' + v.regle + ' (' + (v.regle === 4 ? 'par défaut' : regles[v.regle]) + ') : ' + (v.etat === 'non' ? 'DENY.' : 'ALLOW.') : '';
       var etat = ' Une ligne entre dans sa table d\'état (' + (svc === 'icmp' ? 'adresses et identifiant du ping' : 'adresses et ports des deux côtés') + ').';
       var jete = function (ici) {
-        e.push('fw-contact lit ses règles dans l\'ordre : aucune des règles 1 à 3 ne correspond. ' + regle);
-        e.push('Le paquet est jeté sans réponse' + ici + ', et rien n\'entre dans la table d\'état.');
+        dire('fw', 'fw-contact lit ses règles dans l\'ordre : aucune des règles 1 à 3 ne correspond. ' + regle);
+        dire('fw', 'Le paquet est jeté sans réponse' + ici + ', et rien n\'entre dans la table d\'état.');
       };
       if (src === 'wan') {
-        e.push('Votre machine envoie ' + premier + ' vers l\'adresse publique de ' + d.nom + (svc === 'icmp' ? '.' : ', depuis un port source choisi au hasard.'));
+        dire('depart', 'Votre machine envoie ' + premier + ' vers l\'adresse publique de ' + d.nom + (svc === 'icmp' ? '.' : ', depuis un port source choisi au hasard.'));
         if (v.etat === 'non') { jete(' : rien n\'arrive sur sw-coeur'); return { e: e, fin: fin }; }
-        e.push('fw-contact fait le NAT de destination : l\'adresse publique de ' + d.nom + ' devient ' + d.ip + '.');
-        e.push(regle + etat + ' Le TTL baisse de 1. Adresses MAC réécrites : source fw-contact, destination ' + d.nom + '.');
-        e.push('De fw-contact à sw-coeur, sur le trunk : étiquette 802.1Q ajoutée, VID ' + d.vlan + '.');
-        e.push('sw-coeur retire l\'étiquette et livre la trame à ' + d.nom + ', sur son port d\'accès du VLAN ' + d.vlan + '.');
+        dire('fw', 'fw-contact fait le NAT de destination : l\'adresse publique de ' + d.nom + ' devient ' + d.ip + '.');
+        dire('fw', regle + etat + ' Le TTL baisse de 1. Adresses MAC réécrites : source fw-contact, destination ' + d.nom + '.');
+        dire('trunk', 'De fw-contact à sw-coeur, sur le trunk : étiquette 802.1Q ajoutée, VID ' + d.vlan + '.');
+        dire('arrivee', 'sw-coeur retire l\'étiquette et livre la trame à ' + d.nom + ', sur son port d\'accès du VLAN ' + d.vlan + '.');
         fin.push('Retour : la table d\'état reconnaît la réponse et la laisse passer, et le NAT remet l\'adresse publique de ' + d.nom + ' en source.' +
           (svc === 'http' ? ' Une fois la connexion ouverte, le serveur répond à la requête HTTP par une redirection 301 vers HTTPS.' : ''));
         return { e: e, fin: fin };
       }
       // Depuis pc-maxime (VLAN 10)
       if (v.etat === 'local') {
-        e.push('pc-maxime voit que ' + d.ip + ' est dans son propre réseau, 10.0.10.0/24 : il envoie ' + premier + ' dans une trame adressée directement à l\'adresse MAC de ' + d.nom + ', trouvée par ARP, sans passer par sa passerelle.');
-        e.push('sw-coeur reçoit la trame sur le port d\'accès de pc-maxime (VLAN 10, sans étiquette), trouve l\'adresse MAC de destination dans sa table et la fait sortir par le port de ' + d.nom + '.');
-        e.push('Rien n\'a changé dans la trame : pas d\'étiquette 802.1Q, mêmes adresses MAC, même TTL. Un switch ne touche pas au paquet IP, et fw-contact ne l\'a pas vu.');
+        dire('depart', 'pc-maxime voit que ' + d.ip + ' est dans son propre réseau, 10.0.10.0/24 : il envoie ' + premier + ' dans une trame adressée directement à l\'adresse MAC de ' + d.nom + ', trouvée par ARP, sans passer par sa passerelle.');
+        dire('sw', 'sw-coeur reçoit la trame sur le port d\'accès de pc-maxime (VLAN 10, sans étiquette), trouve l\'adresse MAC de destination dans sa table et la fait sortir par le port de ' + d.nom + '.');
+        dire('arrivee', 'Rien n\'a changé dans la trame : pas d\'étiquette 802.1Q, mêmes adresses MAC, même TTL. Un switch ne touche pas au paquet IP, et fw-contact ne l\'a pas vu.');
         fin.push('Retour : la réponse fait le même trajet à l\'envers, toujours sans fw-contact.');
         return { e: e, fin: fin };
       }
       var pourLui = dst === '#contact';
-      e.push(pourLui ? 'pc-maxime envoie ' + premier + ' à fw-contact, sa passerelle (10.0.10.1).' :
+      dire('depart', pourLui ? 'pc-maxime envoie ' + premier + ' à fw-contact, sa passerelle (10.0.10.1).' :
         'pc-maxime voit que ' + d.ip + ' n\'est pas dans son réseau, 10.0.10.0/24 : il envoie ' + premier + ' dans une trame adressée à l\'adresse MAC de sa passerelle, fw-contact (10.0.10.1). L\'adresse IP de destination reste ' + d.ip + '.');
-      e.push('De pc-maxime à sw-coeur : trame sans étiquette, sur le port d\'accès du VLAN 10.');
-      e.push('De sw-coeur à fw-contact, sur le trunk : étiquette 802.1Q ajoutée, VID 10.');
+      dire('sw', 'De pc-maxime à sw-coeur : trame sans étiquette, sur le port d\'accès du VLAN 10.');
+      dire('trunk', 'De sw-coeur à fw-contact, sur le trunk : étiquette 802.1Q ajoutée, VID 10.');
       if (v.etat === 'non') {
-        e.push('fw-contact retire l\'étiquette et lit ses règles dans l\'ordre : la règle 3 n\'autorise pas HTTP. ' + regle);
-        e.push('Le paquet est jeté sans réponse' + (pourLui ? '' : ' : il ne repart pas vers le VLAN 20') + ', et rien n\'entre dans la table d\'état.');
+        dire('fw', 'fw-contact retire l\'étiquette et lit ses règles dans l\'ordre : la règle 3 n\'autorise pas HTTP. ' + regle);
+        dire('fw', 'Le paquet est jeté sans réponse' + (pourLui ? '' : ' : il ne repart pas vers le VLAN 20') + ', et rien n\'entre dans la table d\'état.');
         return { e: e, fin: fin };
       }
       if (pourLui) {
-        e.push('fw-contact retire l\'étiquette : le paquet est pour lui (10.0.10.1), il n\'est pas routé et le TTL ne baisse pas. ' + regle + etat);
+        dire('fw', 'fw-contact retire l\'étiquette : le paquet est pour lui (10.0.10.1), il n\'est pas routé et le TTL ne baisse pas. ' + regle + etat);
         fin.push('Retour : fw-contact répond par le même câble, avec l\'étiquette 10 ; sw-coeur la retire et livre la réponse à pc-maxime.');
         return { e: e, fin: fin };
       }
-      e.push('fw-contact retire l\'étiquette et route le paquet du VLAN 10 au VLAN 20 (il a une sous-interface par VLAN, sur le même câble). ' + regle + etat +
+      dire('fw', 'fw-contact retire l\'étiquette et route le paquet du VLAN 10 au VLAN 20 (il a une sous-interface par VLAN, sur le même câble). ' + regle + etat +
         ' Le TTL baisse de 1. Adresses MAC réécrites : source fw-contact, destination ' + d.nom + '.');
-      e.push('De fw-contact à sw-coeur, sur le même câble : étiquette 802.1Q, VID 20.');
-      e.push('sw-coeur retire l\'étiquette et livre la trame à ' + d.nom + ', sur son port d\'accès du VLAN 20.');
+      dire('trunk', 'De fw-contact à sw-coeur, sur le même câble : étiquette 802.1Q, VID 20.');
+      dire('arrivee', 'sw-coeur retire l\'étiquette et livre la trame à ' + d.nom + ', sur son port d\'accès du VLAN 20.');
       fin.push('Le paquet est passé deux fois par sw-coeur, dans deux trames différentes, mais le TTL n\'a baissé qu\'une fois, sur fw-contact : un switch n\'y touche pas.');
       fin.push('Retour : la réponse fait le chemin à l\'envers (étiquette 20 en montant, 10 en descendant), et la table d\'état la laisse passer.');
       return { e: e, fin: fin };
@@ -295,6 +296,7 @@
     var nettoyer = function () {
       clearTimeout(minuteur);
       arreterVoyage();
+      arreterPas();
       document.querySelectorAll('.folio.arrivee').forEach(function (e) { e.classList.remove('arrivee'); });
       plan.querySelectorAll('.sim').forEach(function (e) { e.remove(); });
       simu.querySelectorAll('tr.touchee').forEach(function (e) { e.classList.remove('touchee'); });
@@ -326,7 +328,7 @@
       verdict.textContent = '';
       var liste = document.getElementById('simu-etapes');
       liste.textContent = '';
-      recit.e.forEach(function (t) { var li = document.createElement('li'); li.textContent = t; liste.appendChild(li); });
+      recit.e.forEach(function (p) { var li = document.createElement('li'); li.textContent = p.t; liste.appendChild(li); });
       document.getElementById('simu-fin').textContent = recit.fin.join(' ');
       vu.hidden = v.etat === 'meme';
       var b = document.createElement('strong');
@@ -413,6 +415,15 @@
       ].forEach(function (a) { pkt.appendChild(a); a.beginElement(); });
     };
 
+    // Fin commune : repère sur le plan, verdict, puis le paquet est jeté ou file vers la rubrique
+    var conclure = function (svg, pts, v, recit, pkt, dst) {
+      marquer(svg, pts, v);
+      afficher(v, recit);
+      if (plan.classList.contains('en-pause')) { return; }
+      if (v.etat === 'non') { jeter(pkt); return; }
+      minuteur = setTimeout(function () { voyager(svg, pts[pts.length - 1], dst); }, 450);
+    };
+
     document.getElementById('simu-go').addEventListener('click', function () {
       var src = choixSrc.value, dst = choixDst.value;
       var v = juger(src, dst, choixSvc.value);
@@ -423,13 +434,7 @@
       var svg = svgAffiche();
       if (!svg || v.etat === 'meme') { afficher(v, recit); return; }
       var pts = chemin(svg, src, dst, v.etat === 'non');
-      var fin = function () {
-        marquer(svg, pts, v);
-        afficher(v, recit);
-        if (plan.classList.contains('en-pause')) { return; }
-        if (v.etat === 'non') { jeter(pkt); return; }
-        minuteur = setTimeout(function () { voyager(svg, arrivee, dst); }, 450);
-      };
+      var fin = function () { conclure(svg, pts, v, recit, pkt, dst); };
       var r = svg.getBoundingClientRect();
       if (Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0) < r.height / 2) { svg.scrollIntoView({ block: 'nearest' }); }
       var pkt = creer('rect', { 'class': 'pkt sim', x: -3.5, y: -3.5, width: 7, height: 7 });
@@ -457,6 +462,160 @@
       };
       minuteur = setTimeout(attendre, duree * 1000);
     });
+
+    // Pas à pas : la caméra suit le paquet sur le plan, il s'arrête à chaque étape du récit, « Continuer » le fait avancer
+    var panneau = document.getElementById('pas-a-pas');
+    var pasTete = document.getElementById('pas-tete');
+    var pasTexte = document.getElementById('pas-texte');
+    var pasFin = document.getElementById('pas-fin');
+    var pasSuite = document.getElementById('pas-suite');
+    var boutonPas = document.getElementById('simu-pas');
+    var pas = null;
+    var CAMERA = { desktop: [520, 200], mobile: [220, 170] }; // taille de la vue zoomée (sur mobile, plus large que haute : le texte reste sous le plan)
+    var longueurs = function (pts) {
+      var l = [0];
+      for (var i = 1; i < pts.length; i++) { l.push(l[i - 1] + Math.abs(pts[i][0] - pts[i - 1][0]) + Math.abs(pts[i][1] - pts[i - 1][1])); }
+      return l;
+    };
+    var pointA = function (pts, l, d) {
+      for (var i = 1; i < pts.length; i++) {
+        if (d <= l[i] || i === pts.length - 1) {
+          var k = l[i] === l[i - 1] ? 1 : Math.max(0, Math.min(1, (d - l[i - 1]) / (l[i] - l[i - 1])));
+          return [pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * k, pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * k];
+        }
+      }
+      return pts[0];
+    };
+    // Distance, le long du trajet, du premier passage par le point q après la distance « apres »
+    var distanceDe = function (pts, l, q, apres) {
+      for (var i = 1; i < pts.length; i++) {
+        var a = pts[i - 1], b = pts[i];
+        var dedans = (a[0] === b[0] && q[0] === a[0] && q[1] >= Math.min(a[1], b[1]) && q[1] <= Math.max(a[1], b[1])) ||
+          (a[1] === b[1] && q[1] === a[1] && q[0] >= Math.min(a[0], b[0]) && q[0] <= Math.max(a[0], b[0]));
+        if (!dedans) { continue; }
+        var d = l[i - 1] + Math.abs(q[0] - a[0]) + Math.abs(q[1] - a[1]);
+        if (d >= apres - 0.01) { return d; }
+      }
+      return -1;
+    };
+    var cadrer = function (x, y, k) { // k : 0 = plan entier, 1 = vue zoomée centrée sur (x, y)
+      var b = pas.base, w = b[2] + (pas.cam[0] - b[2]) * k, h = b[3] + (pas.cam[1] - b[3]) * k;
+      var vx = Math.max(0, Math.min(b[2] - w, x - w / 2)), vy = Math.max(0, Math.min(b[3] - h, y - h / 2));
+      pas.svg.setAttribute('viewBox', vx + ' ' + vy + ' ' + w + ' ' + h);
+    };
+    // L'étiquette 802.1Q n'est visible que sur le trunk : VID 10 en montant vers fw-contact, VID de la destination en descendant
+    var placer = function (p) {
+      pas.pkt.setAttribute('transform', 'translate(' + p[0] + ' ' + p[1] + ')');
+      var t = pas.trunk;
+      if (pas.dernier && p[0] !== pas.dernier[0]) { pas.monte = p[0] < pas.dernier[0]; }
+      pas.dernier = p;
+      var sur = Math.abs(p[1] - t.y) < 0.5 && p[0] > t.x1 + 1 && p[0] < t.x2 - 1;
+      pas.tag.style.display = sur ? '' : 'none';
+      if (sur) {
+        pas.tag.setAttribute('transform', 'translate(' + p[0] + ' ' + (p[1] - 13) + ')');
+        pas.tagTxt.textContent = 'VID ' + (pas.monte ? 10 : eqp[pas.dst].vlan);
+      }
+    };
+    // Animation pilotée image par image ; elle n'avance pas quand le plan est en pause
+    var animer = function (duree, image, fini) {
+      var ecoule = 0, avant = 0;
+      var etape = function (maintenant) {
+        if (!pas) { return; }
+        if (avant && !plan.classList.contains('en-pause')) { ecoule += maintenant - avant; }
+        avant = maintenant;
+        var t = Math.min(1, ecoule / duree);
+        image(t < 0.5 ? 2 * t * t : 1 - Math.pow(2 - 2 * t, 2) / 2);
+        if (t < 1) { pas.image = requestAnimationFrame(etape); return; }
+        pas.image = 0;
+        pas.finir = null;
+        fini();
+      };
+      pas.finir = function () { ecoule = duree; }; // « Continuer » pendant le trajet : le paquet arrive tout de suite
+      pas.image = requestAnimationFrame(etape);
+    };
+    var montrer = function () {
+      var n = pas.i, total = pas.recit.e.length, dernier = n === total - 1;
+      pasTete.textContent = 'Étape ' + (n + 1) + ' sur ' + total;
+      pasTexte.textContent = pas.recit.e[n].t;
+      pasFin.textContent = dernier ? pas.recit.fin.join(' ') : '';
+      pasSuite.textContent = !dernier ? 'Continuer' : (pas.v.etat === 'non' ? 'Voir le verdict' : 'Arriver à la rubrique');
+    };
+    var arreterPas = function () {
+      if (!pas) { return; }
+      cancelAnimationFrame(pas.image);
+      pas.svg.setAttribute('viewBox', pas.baseTxt);
+      pas.tag.remove();
+      pas.pkt.remove();
+      panneau.hidden = true;
+      plan.classList.remove('pas-en-cours');
+      pas = null;
+    };
+    var avancer = function () {
+      if (!pas) { return; }
+      if (pas.finir) { pas.finir(); return; }
+      if (svgAffiche() !== pas.svg) { arreterPas(); boutonPas.focus(); return; } // la fenêtre a changé de taille : le plan affiché n'est plus le même
+      if (pas.i === pas.recit.e.length - 1) { // fin : la caméra recule, puis la fin habituelle
+        var p0 = pas.dernier;
+        animer(600, function (k) { cadrer(p0[0], p0[1], 1 - k); }, function () {
+          var s = pas, garde = s.pkt;
+          s.svg.setAttribute('viewBox', s.baseTxt);
+          s.tag.remove();
+          panneau.hidden = true;
+          plan.classList.remove('pas-en-cours');
+          pas = null;
+          if (s.v.etat === 'non') { boutonPas.focus({ preventScroll: true }); }
+          conclure(s.svg, s.pts, s.v, s.recit, garde, s.dst);
+        });
+        return;
+      }
+      pas.i++;
+      var d0 = pas.d, d1 = pas.arrets[pas.i];
+      if (d1 === d0) { montrer(); return; }
+      animer(Math.max(400, Math.abs(d1 - d0) / 0.26), function (k) {
+        pas.d = d0 + (d1 - d0) * k;
+        var p = pointA(pas.pts, pas.l, pas.d);
+        placer(p);
+        cadrer(p[0], p[1], 1);
+      }, montrer);
+    };
+    boutonPas.addEventListener('click', function () {
+      var src = choixSrc.value, dst = choixDst.value;
+      var v = juger(src, dst, choixSvc.value);
+      var recit = raconter(src, dst, choixSvc.value, v);
+      nettoyer();
+      verdict.textContent = '';
+      vu.hidden = true;
+      var svg = svgAffiche();
+      if (!svg || v.etat === 'meme') { afficher(v, recit); return; }
+      var pts = chemin(svg, src, dst, v.etat === 'non');
+      var c = route(svg, '#contact');
+      var t = /translate\(([\d.]+) ([\d.]+)\)/.exec(svg.querySelector('a[href="#contact"] .ico').getAttribute('transform'));
+      var fwG = c[c.length - 1], fwD = [2 * t[1] - fwG[0], fwG[1]], sw = route(svg, '#a-propos')[0];
+      var lieux = { depart: pts[0], sw: sw, trunk: [(fwD[0] + sw[0]) / 2, sw[1]], fw: src === 'wan' ? fwG : fwD, arrivee: pts[pts.length - 1] };
+      var l = longueurs(pts), arrets = [], apres = 0;
+      recit.e.forEach(function (e) { var d = distanceDe(pts, l, lieux[e.lieu], apres); if (d >= 0) { apres = d; } arrets.push(apres); });
+      var baseTxt = svg.getAttribute('viewBox');
+      var tag = creer('g', { 'class': 'sim sim-tag', 'aria-hidden': 'true' });
+      tag.appendChild(creer('rect', { x: -17, y: -6.5, width: 34, height: 11 }));
+      var tagTxt = creer('text', { x: 0, y: 1.5, 'text-anchor': 'middle' });
+      tag.appendChild(tagTxt);
+      var pkt = creer('rect', { 'class': 'pkt sim', x: -3.5, y: -3.5, width: 7, height: 7 });
+      svg.appendChild(pkt);
+      svg.appendChild(tag);
+      pas = { svg: svg, base: baseTxt.split(' ').map(Number), baseTxt: baseTxt, cam: CAMERA[svg.getAttribute('class')] || CAMERA.desktop,
+        pts: pts, l: l, arrets: arrets, i: 0, d: 0, v: v, recit: recit, dst: dst, pkt: pkt, tag: tag, tagTxt: tagTxt,
+        trunk: { y: sw[1], x1: fwD[0], x2: sw[0] }, dernier: null, monte: true, image: 0, finir: null };
+      placer(pts[0]);
+      plan.classList.add('pas-en-cours');
+      panneau.hidden = false;
+      montrer();
+      pasSuite.focus({ preventScroll: true });
+      plan.scrollIntoView({ block: 'start' });
+      animer(600, function (k) { cadrer(pts[0][0], pts[0][1], k); }, function () {});
+    });
+    pasSuite.addEventListener('click', avancer);
+    document.getElementById('pas-stop').addEventListener('click', function () { arreterPas(); boutonPas.focus(); });
+    panneau.addEventListener('keydown', function (e) { if (e.key === 'Escape') { arreterPas(); boutonPas.focus(); } });
     simu.hidden = false;
     if (location.hash === '#simulation') { simu.open = true; simu.scrollIntoView(); }
   }

@@ -27,7 +27,7 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 
 Nouvelle fiche de veille sur la sécurité de la messagerie : où en est DMARC en France ?
 
-D'après l'Afnic (septembre 2025), un domaine en .fr sur cinq a un DMARC (19,5 %, contre 7,3 % en 2023, sur moins de domaines). Mais parmi eux, près des deux tiers sont en p=none : un e-mail usurpé est quand même livré. Et la moitié n'a même pas d'adresse pour recevoir les rapports.
+D'après l'Afnic (septembre 2025), un domaine en .fr sur cinq a un DMARC (19,5 %, contre 7,3 % en 2023). Mais parmi eux, près des deux tiers sont en p=none : un e-mail usurpé est quand même livré. Et la moitié n'a même pas d'adresse pour recevoir les rapports.
 
 J'ai fait mon propre relevé le 20 novembre : google.com, laposte.net et impots.gouv.fr refusent les e-mails usurpés (p=reject), orange.fr les met en spam (quarantine)… et gmail.com reste en p=none.
 

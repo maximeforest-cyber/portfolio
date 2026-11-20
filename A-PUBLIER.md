@@ -19,6 +19,18 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | mar. 01/12 | Homelab, étape 10 : des services dans Docker, avec un vrai certificat |
 | jeu. 03/12 | Homelab : tout le labo en un schéma cliquable |
 
+## 2026-11-20 : ArchiSite : un site HTTPS dans la DMZ (projet de BTS)
+
+- Statut : à relire
+- Lien : https://forestmaxime-pf.fr/projets/archisite.html
+- Image proposée : projets/img/archisite-09.webp (la case « Enable Policy Control » décochée trouvée pendant l'audit), ou projets/img/apercu-archisite.jpg
+
+Nouveau compte rendu sur mon portfolio : ArchiSite, un projet de BTS en binôme. Le but : mettre en ligne le site d'une entreprise en HTTPS, dans une DMZ, avec la base de données isolée dans une seconde DMZ, comme le recommande l'ANSSI.
+
+De mon côté : le serveur web Apache, une autorité de certification interne déployée sur les postes par GPO, un HTTPS durci (TLS 1.2 et 1.3 seulement, HSTS) et un serveur FTPS pour que les développeurs déposent le site.
+
+Le moment le plus utile a été un test qui aurait dû échouer : la base de données arrivait à joindre le serveur web. En relisant le pare-feu, j'ai trouvé le filtrage désactivé, les deux DMZ dans la même zone et la base publiée sur le Wi-Fi du campus. Tout a été corrigé, puis vérifié dans le journal du pare-feu. Une règle bien écrite ne protège rien tant qu'on n'a pas testé ce qui doit être refusé.
+
 ## 2026-11-20 : Homelab n°2, étape 2 : le pare-feu et la segmentation
 
 - Statut : à relire

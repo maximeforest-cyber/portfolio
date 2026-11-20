@@ -266,7 +266,7 @@
               <li><b>Maquette du réseau RIOCA</b> : VLAN, routage inter-VLAN, DHCP, Hyper-V, Active Directory</li>
               <li><b>Gestion de parc avec GLPI</b> : serveur GLPI 12 sur Azure, inventaire automatique (GLPI Agent)</li>
               <li><b>Infra-Site, chef de projet en binôme</b> : DMZ, pare-feu Zyxel, routage RIP v2, NAT, SSH, sauvegardes TFTP</li>
-              <li><b>ArchiSite</b> (en cours) : serveur web HTTPS, base de données et FTPS dans la DMZ</li>
+              <li><b>ArchiSite</b> : site HTTPS avec autorité de certification interne, FTPS et base de données isolée dans la DMZ</li>
               <li><b>Cloud privé Nextcloud et intranet web / FTP</b> sous Linux, à accès restreints</li>
             </ul>
             <h4>Compétences techniques</h4>
@@ -443,23 +443,27 @@
       </article>
 
       <article class="card project" id="projet-archisite">
-        <p class="meta">Atelier professionnel · en cours</p>
+        <p class="meta">Atelier professionnel · 2026 · en binôme</p>
         <h3>ArchiSite : site web sécurisé dans la DMZ</h3>
-        <p>Mise en ligne d'un site web interne en HTTPS, avec base de données et serveur FTPS, dans la DMZ créée par Infra-Site.</p>
+        <p>Mise en ligne du site de l'entreprise en HTTPS, avec un dépôt des fichiers en FTPS pour les développeurs et une base de données isolée dans une seconde DMZ, derrière le pare-feu Zyxel d'Infra-Site.</p>
+        <p class="resultat"><b>Résultat :</b> le site des développeurs, déposé en FTPS, s'affiche en HTTPS sans alerte et lit sa base de données ; l'audit du pare-feu a corrigé un filtrage désactivé et une base exposée.</p>
         <details>
           <summary>Voir la fiche</summary>
           <div class="fiche">
             <h4>Contexte</h4>
             <p>RIOCA veut héberger elle-même un site web réservé à ses salariés, en suivant les recommandations de l'ANSSI sur la répartition des services entre les zones du réseau.</p>
-            <h4>En cours</h4>
+            <h4>Ce que j'ai fait</h4>
             <ul>
-              <li>Serveurs web, base de données et FTPS sous Linux</li>
-              <li>Autorité de certification interne et HTTPS</li>
-              <li>Serveur DNS dans la DMZ et nouvelles règles de pare-feu</li>
+              <li>Serveur web Debian : Apache et PHP, choix d'Apache argumenté face à Nginx</li>
+              <li>Autorité de certification interne avec OpenSSL, déployée sur les postes par GPO</li>
+              <li>HTTPS durci : TLS 1.2 et 1.3 seulement, redirection et HSTS, version masquée</li>
+              <li>Serveur FTPS vsftpd : chiffrement obligatoire, compte unique enfermé dans le dossier du site</li>
+              <li>Audit et correction du pare-feu, rapport de tests et documentation pour les développeurs</li>
             </ul>
           </div>
         </details>
-        <ul class="tags"><li>Linux</li><li>HTTPS</li><li>Certificats</li><li>FTPS</li><li>DNS</li></ul>
+        <a class="doc" href="projets/archisite.html">Lire le compte rendu</a>
+        <ul class="tags"><li>Linux</li><li>Apache</li><li>HTTPS</li><li>Certificats</li><li>FTPS</li><li>MariaDB</li></ul>
       </article>
 
     </div>

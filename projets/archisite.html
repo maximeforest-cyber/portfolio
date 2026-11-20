@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ArchiSite : site web sécurisé dans la DMZ | Maxime Forest</title>
+<meta name="description" content="Compte rendu du projet ArchiSite : site web de l&#x27;entreprise RIOCA en HTTPS dans une DMZ, autorité de certification interne déployée par GPO, TLS durci et HSTS, FTPS pour les développeurs, base MariaDB isolée dans une seconde DMZ, pare-feu Zyxel audité.">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#efe9df">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/archisite.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/archisite.html">
+<meta property="og:title" content="ArchiSite : site web sécurisé dans la DMZ | Maxime Forest">
+<meta property="og:description" content="Compte rendu du projet ArchiSite : site web de l&#x27;entreprise RIOCA en HTTPS dans une DMZ, autorité de certification interne déployée par GPO, TLS durci et HSTS, FTPS pour les développeurs, base MariaDB isolée dans une seconde DMZ, pare-feu Zyxel audité.">
+<meta property="og:image" content="https://forestmaxime-pf.fr/projets/img/apercu-archisite.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="ArchiSite : un site HTTPS dans la DMZ, sur le portfolio de Maxime Forest">
+<link rel="stylesheet" href="../style.css?v=13">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="../#projet-archisite">← Projets et stages</a></p>
+    <p class="kicker">Atelier professionnel · <b>octobre – novembre 2026</b> · en binôme</p>
+    <h1>ArchiSite : site web sécurisé dans la DMZ</h1>
+    <p class="lead">Mise en ligne du site de l'entreprise RIOCA en HTTPS, avec une autorité de certification interne, un dépôt des fichiers en FTPS pour les développeurs et une base de données isolée dans une seconde DMZ, derrière le pare-feu Zyxel mis en place lors d'Infra-Site.</p>
+    <dl class="facts"><div><dt>Contexte</dt><dd>RIOCA (entreprise fictive) veut héberger elle-même un site réservé à ses salariés, en suivant les recommandations de l'ANSSI</dd></div><div><dt>Cadre</dt><dd>Atelier professionnel de 2<sup>e</sup> année de BTS SIO, 4 semaines, en binôme</dd></div><div><dt>Matériel</dt><dd>Debian 13 sous Hyper-V, pare-feu Zyxel USG Flex 500, routeurs Cisco, postes Windows 11</dd></div><div><dt>Points clés</dt><dd>Apache, PHP, OpenSSL, GPO, TLS 1.2 et 1.3, HSTS, vsftpd, MariaDB, phpMyAdmin, DNS, NAT</dd></div><div><dt>Résultat</dt><dd>Le site des développeurs, déposé en FTPS, s'affiche en HTTPS sans alerte et lit sa base de données ; tests consignés dans un rapport de tests</dd></div></dl>
+    <ul class="tags"><li>Linux</li><li>Apache</li><li>HTTPS</li><li>Certificats</li><li>FTPS</li><li>MariaDB</li><li>Zyxel</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Contexte et rôle</a></li><li><a href="#partie-2"><span>02</span>Architecture</a></li><li><a href="#partie-3"><span>03</span>Choix du serveur web</a></li><li><a href="#partie-4"><span>04</span>Autorité de certification</a></li><li><a href="#partie-5"><span>05</span>HTTPS durci</a></li><li><a href="#partie-6"><span>06</span>Dépôt des fichiers en FTPS</a></li><li><a href="#partie-7"><span>07</span>Base de données</a></li><li><a href="#partie-8"><span>08</span>Pare-feu : règles et audit</a></li><li><a href="#partie-9"><span>09</span>Accès des développeurs</a></li><li><a href="#partie-10"><span>10</span>Tests et bilan</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Contexte et rôle</h2>
+<p>Lors d'<a href="infra-site.html">Infra-Site</a>, nous avions ajouté une DMZ et une zone Internet au réseau de RIOCA. ArchiSite y installe le site de l'entreprise, accessible par le nom <span class="k">www.rioca-corp.com</span> et réservé aux salariés. Le site et sa base de données sont écrits par des étudiants de l'option SLAM, qui jouent l'équipe de développement.</p>
+<p>La lettre de mission impose :</p>
+<ul class="b"><li>un serveur Linux, avec un serveur web sécurisé (HTTPS) qui exécute des pages PHP, une base de données et un serveur FTPS ;</li><li>la répartition de ces services entre les zones du réseau selon les recommandations de l'ANSSI ;</li><li>un certificat géré par l'équipe pour authentifier le serveur, et des échanges qui ne peuvent pas être interceptés ;</li><li>la communication des accès aux développeurs avant la date de mise en production ;</li><li>des fichiers de configuration commentés, un rapport de tests et une fiche de configuration.</li></ul>
+<p>Le travail s'est fait en binôme, avec un diagramme de Gantt construit ensemble et un suivi des tâches sur Trello.</p>
+<div class="tw"><table class="t duo"><thead><tr><th scope="col">Moi</th><th scope="col">Mon binôme</th></tr></thead><tbody><tr><td>Serveur web : Apache, PHP, autorité de certification, certificats, durcissement TLS, phpMyAdmin</td><td>Serveur de base de données : MariaDB, base du site, compte limité, pare-feu local</td></tr><tr><td>Serveur FTPS et son certificat</td><td>Switch et hyperviseur de la seconde DMZ</td></tr><tr><td>Interfaces du pare-feu, routage RIP et NAT pour les deux DMZ</td><td>Règles du pare-feu pour les développeurs et la base de données</td></tr><tr><td>Audit du pare-feu et corrections (voir partie 8)</td><td>Tests des règles du pare-feu</td></tr><tr><td>Rapport de tests, fiche de configuration, documentation pour les développeurs</td><td>Serveur DNS dans la DMZ, puis enregistrement du site sur le DNS du contrôleur de domaine</td></tr></tbody></table></div>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>Architecture</h2>
+<p>Le site est le seul service exposé : c'est lui qui risque d'être attaqué. Suivant l'ANSSI, la base de données est donc placée plus loin, dans une seconde DMZ. Si le serveur web est compromis, l'attaquant n'atteint pas le réseau local, et il ne peut joindre la base que sur son port MariaDB.</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Zone</th><th scope="col">Machines</th><th scope="col">Qui peut y entrer</th></tr></thead><tbody><tr><td>Réseau local (LAN)</td><td>Postes des salariés, contrôleur de domaine (DNS, GPO)</td><td>Personne depuis les DMZ</td></tr><tr><td>DMZ intermédiaire</td><td>SRV-WEB1 (Debian 13) : Apache, PHP, phpMyAdmin et FTPS</td><td>Le LAN et le Wi-Fi des développeurs, en HTTP, HTTPS et FTPS</td></tr><tr><td>DMZ interne</td><td>Serveur de base de données MariaDB (Debian)</td><td>SRV-WEB1 seulement, sur le port 3306</td></tr><tr><td>Extérieur</td><td>Wi-Fi du campus, où travaillent les développeurs</td><td>Arrive par les routeurs Cisco, qui publient SRV-WEB1 par NAT statique</td></tr></tbody></table></div>
+<p>Au départ, les deux DMZ n'en faisaient qu'une. Nous l'avons découpée : nouvelles interfaces sur le Zyxel, routage RIP pour que les routeurs Cisco apprennent les deux réseaux, puis déplacement des machines virtuelles.</p>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>Choix du serveur web</h2>
+<p>La lettre de mission laissait le choix du serveur web. J'ai comparé les deux plus répandus sous Linux et rédigé une note de choix :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Critère</th><th scope="col">Apache 2.4</th><th scope="col">Nginx</th></tr></thead><tbody><tr><td>Exécution de PHP</td><td>Intégrée (module mod_php)</td><td>Service séparé obligatoire (PHP-FPM)</td></tr><tr><td>Configuration</td><td>Par site, et réglable dossier par dossier</td><td>Centralisée</td></tr><tr><td>Performances</td><td>Suffisantes pour un site interne</td><td>Meilleures sous très forte charge</td></tr><tr><td>Maintenance</td><td>Un seul service</td><td>Deux services (Nginx et PHP-FPM)</td></tr><tr><td>Sécurité</td><td>Plus de failles (nombreux modules), corrigées vite par Debian ; risque réduit par le durcissement</td><td>Surface d'attaque plus réduite</td></tr></tbody></table></div>
+<p>Apache a été retenu : pour un site interne destiné à 42 salariés, la charge reste faible, et la simplicité de mise en œuvre et de maintenance l'emporte. Sur SRV-WEB1 (Debian 13), j'ai installé Apache, PHP 8.4 et son extension MySQL, puis créé un site dédié à <span class="k">www.rioca-corp.com</span> dans <span class="k">/var/www/rioca</span>, avec le site par défaut désactivé et le dossier appartenant au compte du service web.</p>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>Autorité de certification</h2>
+<p>Un navigateur n'accepte un certificat que s'il connaît l'autorité qui l'a signé. Un site interne ne peut pas obtenir de certificat d'une autorité publique : j'ai donc créé avec OpenSSL l'autorité de certification de l'entreprise, <b>RIOCA Root CA</b>.</p>
+<ul class="b"><li>Clé privée RSA 4096 bits, protégée par une phrase de passe et lisible par root seulement ; certificat racine valable 10 ans.</li><li>Certificat du site signé par cette autorité : clé RSA 2048 bits, nom <span class="k">www.rioca-corp.com</span> dans le CN et le SAN (le nom alternatif, que les navigateurs vérifient), validité de 825 jours.</li><li>Second certificat, signé de la même façon, pour le serveur FTPS.</li></ul>
+<p>Pour que les postes fassent confiance au site, le certificat racine leur est distribué par une GPO côté ordinateur, dans le magasin « Autorités de certification racines de confiance » : il vaut ainsi pour tous les utilisateurs du poste. Les développeurs, dont les PC ne sont pas dans le domaine, l'importent avec un script fourni, sans droits d'administrateur (<span class="k">certutil -addstore -user Root rioca-ca.crt</span>).</p>
+<figure class="shot"><a href="img/archisite-01.webp"><img src="img/archisite-01.webp" alt="Éditeur de stratégie de groupe : RIOCA Root CA dans Autorités de certification racines de confiance, expiration le 31/10/2036." width="1563" height="845" loading="lazy"></a><figcaption><b>Fig. 1</b> Le certificat racine dans la GPO de déploiement.</figcaption></figure>
+<figure class="shot"><a href="img/archisite-02.webp"><img src="img/archisite-02.webp" alt="Le site ouvert en HTTPS sur un poste du domaine, et la visionneuse de certificat : émis pour www.rioca-corp.com, émis par RIOCA Root CA. Empreintes masquées." width="960" height="655" loading="lazy"></a><figcaption><b>Fig. 2</b> Sur un poste du domaine, le site s'ouvre sans alerte : le certificat est émis par RIOCA Root CA.</figcaption></figure>
+</div>
+<div class="part" id="partie-5">
+<h2><span class="n">05</span>HTTPS durci</h2>
+<p>Une fois le HTTPS en place, j'ai durci la configuration du site :</p>
+<pre class="cmd"><code>SSLProtocol -all +TLSv1.2 +TLSv1.3
+SSLCipherSuite ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:...
+Header always set Strict-Transport-Security "max-age=63072000"
+&lt;Directory /var/www/rioca&gt;
+    Options -Indexes
+    AllowOverride None
+&lt;/Directory&gt;
+
+# Site du port 80
+Redirect permanent / https://www.rioca-corp.com/</code></pre>
+<ul class="b"><li><span class="k">SSLProtocol</span> n'accepte que TLS 1.2 et 1.3 : les versions plus anciennes ont des failles connues.</li><li>Seules des suites de chiffrement fortes sont proposées (échange de clés ECDHE, chiffrement AES-GCM ou ChaCha20).</li><li>L'en-tête HSTS demande au navigateur de ne revenir qu'en HTTPS pendant deux ans, et tout ce qui arrive en HTTP est redirigé (code 301).</li><li><span class="k">Options -Indexes</span> empêche Apache d'afficher le contenu d'un dossier.</li><li>Apache cache sa version (<span class="k">ServerTokens Prod</span>, <span class="k">ServerSignature Off</span>), et les modules inutiles (autoindex, status) sont désactivés.</li></ul>
+<figure class="shot"><a href="img/archisite-03.webp"><img src="img/archisite-03.webp" alt="Terminal de SRV-WEB1 : configuration HTTPS d'Apache avec protocoles, suites de chiffrement et HSTS, site du port 80 qui redirige vers HTTPS, puis apache2ctl configtest qui répond Syntax OK." width="1182" height="982" loading="lazy"></a><figcaption><b>Fig. 3</b> La configuration HTTPS et la redirection, validées par <span class="k">apache2ctl configtest</span>.</figcaption></figure>
+<aside class="verif" aria-label="Vérification">
+<p class="verif-t">Vérification</p>
+<pre class="cmd"><code>openssl s_client -connect 127.0.0.1:443 -tls1_1
+openssl s_client -connect 127.0.0.1:443 -tls1_2
+curl.exe -I http://www.rioca-corp.com</code></pre>
+<p>TLS 1.1 est refusé (<span class="k">alert protocol version</span>), TLS 1.2 et 1.3 sont acceptés. En HTTP, le site répond <span class="k">301 Moved Permanently</span> vers l'adresse en HTTPS, qui renvoie l'en-tête <span class="k">Strict-Transport-Security</span>. Voir les figures 4 et 5.</p>
+</aside>
+<div class="shots"><figure class="shot"><a href="img/archisite-04.webp"><img src="img/archisite-04.webp" alt="openssl s_client : TLS 1.1 refusé avec alert protocol version, TLS 1.2 et TLS 1.3 acceptés." width="1197" height="516" loading="lazy"></a><figcaption><b>Fig. 4</b> TLS 1.1 refusé, TLS 1.2 et 1.3 acceptés.</figcaption></figure><figure class="shot"><a href="img/archisite-05.webp"><img src="img/archisite-05.webp" alt="curl -I : réponse 301 vers https en HTTP, puis 200 avec l'en-tête Strict-Transport-Security en HTTPS." width="639" height="218" loading="lazy"></a><figcaption><b>Fig. 5</b> Redirection 301 et en-tête HSTS.</figcaption></figure></div>
+</div>
+<div class="part" id="partie-6">
+<h2><span class="n">06</span>Dépôt des fichiers en FTPS</h2>
+<p>Les développeurs déposent le site avec FileZilla. Le FTP classique envoie le mot de passe en clair : j'ai installé vsftpd en FTPS, c'est-à-dire du FTP chiffré par TLS, sur SRV-WEB1, pour que les fichiers arrivent directement dans le dossier du site. Extrait de la configuration :</p>
+<pre class="cmd"><code>anonymous_enable=NO
+write_enable=YES
+local_umask=002
+userlist_enable=YES
+userlist_deny=NO
+chroot_local_user=YES
+allow_writeable_chroot=YES
+ssl_enable=YES
+force_local_logins_ssl=YES
+force_local_data_ssl=YES
+rsa_cert_file=/etc/ssl/certs/vsftpd.crt
+pasv_min_port=40000
+pasv_max_port=40100</code></pre>
+<ul class="b"><li>Pas de connexion anonyme, et une liste blanche : seul le compte des développeurs peut se connecter. Ce compte n'a pas de shell, il ne peut pas servir à ouvrir une session SSH.</li><li>Le compte est enfermé (chroot) dans le dossier du site : il ne voit rien d'autre du serveur.</li><li>Le chiffrement est obligatoire, pour l'identification comme pour les fichiers : une connexion en clair est refusée.</li><li>Le mode passif utilise une plage de ports fixe, que l'on peut ouvrir précisément sur le pare-feu.</li></ul>
+<div class="shots"><figure class="shot"><a href="img/archisite-06.webp"><img src="img/archisite-06.webp" alt="FileZilla affiche le certificat du serveur FTPS : sujet www.rioca-corp.com, émetteur RIOCA Root CA, numéro de série 10:01, connexion en TLS 1.3. Empreintes et adresse IP masquées." width="615" height="657" loading="lazy"></a><figcaption><b>Fig. 6</b> Le certificat FTPS, signé par RIOCA Root CA, en TLS 1.3.</figcaption></figure><figure class="shot"><a href="img/archisite-07.webp"><img src="img/archisite-07.webp" alt="FileZilla en FTP simple : le serveur répond 530 Non-anonymous sessions must use encryption." width="726" height="200" loading="lazy"></a><figcaption><b>Fig. 7</b> Une connexion non chiffrée est refusée (530).</figcaption></figure></div>
+</div>
+<div class="part" id="partie-7">
+<h2><span class="n">07</span>Base de données</h2>
+<p>Mon binôme a installé MariaDB dans la DMZ interne et importé la base du site. Elle est protégée à trois niveaux :</p>
+<ul class="b"><li>le pare-feu Zyxel n'autorise vers elle que SRV-WEB1, sur le port 3306 ;</li><li>le pare-feu local du serveur (ufw) n'ouvre le port 3306 qu'à SRV-WEB1, plus SSH pour l'administration ;</li><li>le compte utilisé par le site a tous les droits, mais sur sa seule base, et MariaDB ne l'accepte que s'il vient de SRV-WEB1.</li></ul>
+<p>Pendant mes tests de la base, un ancien compte utilisable depuis n'importe quelle adresse (hôte <span class="k">%</span>) est apparu : je l'ai supprimé.</p>
+<figure class="shot"><a href="img/archisite-08.webp"><img src="img/archisite-08.webp" alt="Sur le serveur de base de données : liste des comptes MariaDB (le compte du site, limité à l'adresse de SRV-WEB1, et les comptes locaux), puis ufw qui n'autorise le port 3306 que depuis SRV-WEB1. Adresses masquées." width="1332" height="457" loading="lazy"></a><figcaption><b>Fig. 8</b> Après le nettoyage : un seul compte distant, limité à SRV-WEB1, et le port 3306 ouvert pour SRV-WEB1 seulement.</figcaption></figure>
+</div>
+<div class="part" id="partie-8">
+<h2><span class="n">08</span>Pare-feu : règles et audit</h2>
+<p>Le Zyxel applique la première règle qui correspond, et tout ce qui n'est pas autorisé tombe sur la règle par défaut, qui refuse et journalise. Les règles du projet :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Règle</th><th scope="col">Flux</th><th scope="col">Action</th></tr></thead><tbody><tr><td>Campus_vers_WebFTPS</td><td>Wi-Fi des développeurs vers SRV-WEB1 (HTTP, HTTPS, FTPS)</td><td>Autoriser</td></tr><tr><td>LAN_to_SRV-WEB1_FTPS</td><td>LAN vers SRV-WEB1 (FTP 21 et ports passifs)</td><td>Autoriser</td></tr><tr><td>DMZ_WEB_to_BDD</td><td>SRV-WEB1 vers la base (3306)</td><td>Autoriser</td></tr><tr><td>DMZINT_to_DMZWEB_Deny</td><td>DMZ interne vers SRV-WEB1</td><td>Refuser</td></tr><tr><td>DMZINT_to_Internet</td><td>DMZ interne vers Internet (mises à jour, heure)</td><td>Autoriser</td></tr><tr><td>LAN_to_WebServ</td><td>LAN vers SRV-WEB1 (HTTP, HTTPS)</td><td>Autoriser</td></tr><tr><td>Isolation_DMZ_LAN</td><td>DMZ vers LAN</td><td>Refuser</td></tr></tbody></table></div>
+<p>Un premier test a montré que la base pouvait joindre le serveur web, alors qu'aucune règle ne l'autorisait. J'ai donc relu la configuration du pare-feu et des routeurs : cet audit a révélé plusieurs problèmes.</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Problème trouvé</th><th scope="col">Risque</th><th scope="col">Correction</th></tr></thead><tbody><tr><td>« Enable Policy Control » décoché</td><td>Aucune règle n'était appliquée : tout passait</td><td>Filtrage réactivé</td></tr><tr><td>Les deux DMZ dans la même zone du Zyxel</td><td>Le trafic entre elles n'était pas filtré : la base pouvait joindre le serveur web</td><td>Zone DMZ_INT créée pour la DMZ interne, et règle de refus</td></tr><tr><td>Base publiée sur le Wi-Fi du campus (NAT du port 3306 et règle associée)</td><td>Base joignable sans passer par le serveur web</td><td>NAT et règle supprimés</td></tr><tr><td>Objet FTPS du Zyxel sur le port TCP 990 au lieu de 21</td><td>FTPS impossible depuis le Wi-Fi</td><td>Objet corrigé</td></tr><tr><td>Synchronisation de l'heure bloquée pour la DMZ interne</td><td>Serveur de base à l'heure fausse</td><td>NTP ajouté à la règle de sortie</td></tr></tbody></table></div>
+<figure class="shot"><a href="img/archisite-09.webp"><img src="img/archisite-09.webp" alt="Policy Control du Zyxel avec la case Enable Policy Control décochée, et les premières règles du projet, dont Campus_vers_MariaDB inactive." width="2158" height="380" loading="lazy"></a><figcaption><b>Fig. 9</b> Le problème trouvé pendant l'audit : « Enable Policy Control » décoché, donc aucune règle appliquée.</figcaption></figure>
+<aside class="verif" aria-label="Vérification">
+<p class="verif-t">Vérification</p>
+<pre class="cmd"><code>curl -k -m 5 https://&lt;adresse de SRV-WEB1&gt;    # depuis le serveur de base de données</code></pre>
+<p>Après les corrections, la commande échoue au bout de 5 secondes, et le journal du Zyxel affiche la ligne <span class="k">from DMZ_INT to DMZ, TCP, service others, DROP</span> : la base ne peut plus joindre le serveur web. Les autres lignes montrent la synchronisation de l'heure, encore bloquée par la règle par défaut avant l'ajout de NTP. Voir la figure 10.</p>
+</aside>
+<figure class="shot"><a href="img/archisite-10.webp"><img src="img/archisite-10.webp" alt="Journal du Zyxel : ligne from DMZ_INT to DMZ, TCP, service others, DROP, et lignes Match default rule, DROP. Adresses source et destination masquées." width="2190" height="192" loading="lazy"></a><figcaption><b>Fig. 10</b> Le flux de la base vers le serveur web est bloqué et journalisé.</figcaption></figure>
+</div>
+<div class="part" id="partie-9">
+<h2><span class="n">09</span>Accès des développeurs</h2>
+<p>Les développeurs travaillent sur le Wi-Fi du campus, avec des PC hors du domaine. Le chemin quand l'un d'eux ouvre le site :</p>
+<ol class="b"><li>Le DNS du campus lui donne l'adresse publiée du site.</li><li>Le routeur Cisco traduit cette adresse vers SRV-WEB1 (NAT statique).</li><li>Le Zyxel laisse passer grâce à la règle Campus_vers_WebFTPS.</li><li>Le certificat est accepté, puisque le développeur a importé RIOCA Root CA.</li></ol>
+<p>Les postes du LAN, eux, interrogent le DNS du contrôleur de domaine, qui porte la zone <span class="k">rioca-corp.com</span> : le nom donne directement l'adresse de SRV-WEB1 dans la DMZ. Le fichier <span class="k">hosts</span>, utilisé au début, n'est plus nécessaire : je l'ai retiré des postes et du pack des développeurs.</p>
+<p>Pour gérer leur base sans jamais la joindre directement, les développeurs passent par phpMyAdmin, installé sur SRV-WEB1 :</p>
+<ul class="b"><li>à l'adresse <span class="k">/gestion-bdd</span> plutôt que <span class="k">/phpmyadmin</span>, la première adresse que testent les robots ;</li><li>en HTTPS seulement, et uniquement depuis le LAN et le Wi-Fi des développeurs ;</li><li>avec la connexion du compte root refusée : le compte du site ne voit que sa base.</li></ul>
+<p>Pour la mise en production, j'ai envoyé aux développeurs un pack : la procédure, le certificat racine et le script d'import. Chaque service (FTPS, base) a son propre mot de passe, transmis à part.</p>
+<figure class="shot"><a href="img/archisite-11.webp"><img src="img/archisite-11.webp" alt="Photo d'écran : phpMyAdmin à l'adresse /gestion-bdd, tentative de connexion avec le compte root, message Accès refusé." width="1200" height="786" loading="lazy"></a><figcaption><b>Fig. 11</b> phpMyAdmin sur <span class="k">/gestion-bdd</span> : le compte root est refusé.</figcaption></figure>
+</div>
+<div class="part" id="partie-10">
+<h2><span class="n">10</span>Tests et bilan</h2>
+<p>J'ai rédigé le rapport de tests : chaque test donne la commande, le résultat attendu et une capture.</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Test</th><th scope="col">Résultat</th></tr></thead><tbody><tr><td>Site en HTTPS sans alerte depuis un poste du domaine</td><td>Conforme</td></tr><tr><td>TLS 1.1 refusé, TLS 1.2 et 1.3 acceptés, HTTP redirigé vers HTTPS, HSTS présent</td><td>Conforme</td></tr><tr><td>Page PHP du serveur web connectée à la base</td><td>Conforme</td></tr><tr><td>Port 3306 depuis le LAN ou le Wi-Fi</td><td>Refusé, comme voulu</td></tr><tr><td>Base de données vers serveur web</td><td>Refusé et journalisé</td></tr><tr><td>DMZ vers LAN</td><td>Refusé et journalisé</td></tr><tr><td>FTPS depuis le Wi-Fi : connexion et dépôt d'un fichier, visible ensuite sur le site</td><td>Conforme</td></tr><tr><td>FTP sans chiffrement, ou avec un autre compte</td><td>Refusé (530)</td></tr><tr><td>phpMyAdmin : seule la base du site visible, root refusé, <span class="k">/phpmyadmin</span> en 404</td><td>Conforme</td></tr><tr><td>Résolution du nom depuis le LAN et le Wi-Fi</td><td>Conforme</td></tr><tr><td>Site des développeurs et connexion d'un utilisateur de leur base</td><td>Conforme</td></tr></tbody></table></div>
+<p>Le test final réunit toute la chaîne : les développeurs ont déposé leur site en FTPS depuis le Wi-Fi. Depuis un poste du LAN, il s'affiche en HTTPS, et la connexion d'un utilisateur fonctionne, ce qui prouve que PHP lit bien la base.</p>
+<figure class="shot"><a href="img/archisite-12.webp"><img src="img/archisite-12.webp" alt="Le site de RIOCA réalisé par les développeurs SLAM, ouvert à l'adresse rioca-corp.com." width="1600" height="811" loading="lazy"></a><figcaption><b>Fig. 12</b> Le site des développeurs SLAM, en production sur SRV-WEB1.</figcaption></figure>
+<p>Deux problèmes sont apparus quand les développeurs ont commencé à travailler. En mode passif, vsftpd donnait son adresse interne, injoignable depuis le Wi-Fi : je l'ai réglé pour annoncer l'adresse publiée par le NAT. Ensuite, le refus de connexion qu'ils signalaient venait d'une confusion entre le mot de passe du FTPS et celui de la base.</p>
+<p>Limites connues, notées dans la documentation :</p>
+<ul class="b"><li>la liste des fichiers en FTPS ne fonctionne pas depuis le LAN, conséquence du réglage du mode passif : c'est assumé, le FTPS sert aux développeurs, qui sont sur le Wi-Fi ;</li><li>l'autorité de certification ne publie pas de liste de révocation ;</li><li>un seul serveur web : s'il tombe, le site et le FTPS tombent ensemble.</li></ul>
+<p>Ce que j'en retiens : une règle de pare-feu bien écrite ne protège rien si le filtrage est désactivé ou si deux zones sont confondues. Seuls les tests de refus, vérifiés dans le journal, le montrent.</p>
+</div>
+<nav class="pager" aria-label="Autres comptes rendus"><a href="infra-site.html"><span>Précédent</span>Infra-Site : DMZ, pare-feu et routage</a><a class="next" href="nextcloud.html"><span>Suivant</span>Cloud interne sécurisé avec Nextcloud</a></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js?v=11"></script>
+</body>
+</html>

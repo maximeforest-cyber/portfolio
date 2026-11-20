@@ -19,6 +19,30 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | mar. 01/12 | Homelab, étape 10 : des services dans Docker, avec un vrai certificat |
 | jeu. 03/12 | Homelab : tout le labo en un schéma cliquable |
 
+## 2026-11-20 : Audit de sécurité de l'Active Directory avec PingCastle (projet de BTS, en cours)
+
+- Statut : à relire (mieux vaut peut-être attendre le contre-audit, après la séance du 26/11, pour poster avec la note finale)
+- Lien : https://forestmaxime-pf.fr/projets/audit-ad.html
+- Image proposée : projets/img/audit-ad-03.webp (la note de 85 sur 100 dans PingCastle), ou projets/img/apercu-audit-ad.jpg
+
+En ce moment en BTS, nous auditons en binôme l'Active Directory de notre entreprise fictive, avec PingCastle.
+
+Avant de lancer quoi que ce soit : une autorisation signée, un périmètre écrit et un instantané du contrôleur de domaine. L'audit se fait avec un simple compte utilisateur, sans droits d'administration : c'est ce que verrait quelqu'un qui aurait volé le mot de passe d'un salarié.
+
+Résultat : 85 sur 100, sachant que plus c'est bas, mieux c'est. La note globale n'est pas une moyenne, c'est la pire des quatre catégories, et chez nous ce sont les comptes d'administration. Nous avons analysé les 34 règles déclenchées (point ANSSI, technique d'attaque MITRE, risque), puis écrit un plan de 17 corrections, chacune avec son test et son retour arrière. Objectif : 59 au plus. Les corrections et le contre-audit arrivent la semaine prochaine.
+
+## 2026-11-20 : Serveur NAS TrueNAS et GPO (TP de BTS)
+
+- Statut : à relire
+- Lien : https://forestmaxime-pf.fr/projets/nas-gpo.html
+- Image proposée : projets/img/nas-gpo-13.webp (le NAS qui se croit en 2025), ou projets/img/apercu-nas-gpo.jpg
+
+Nouveau compte rendu sur mon portfolio : un serveur de fichiers et des GPO, en TP de BTS, en binôme.
+
+Sur un vrai serveur Dell, nous avons installé TrueNAS sur deux disques en RAID 1, joint au domaine Active Directory, avec quatre partages : un dossier par utilisateur, un par service, les outils et les sauvegardes. Ensuite, des GPO préparent chaque poste tout seul : lecteurs réseau, fond d'écran imposé, panneau de configuration bloqué, Firefox et VLC installés au démarrage.
+
+Deux pannes m'ont appris le plus. Le NAS refusait de rejoindre le domaine : il se croyait en 2025, et Kerberos refuse un écart de plus de 5 minutes. Et les logiciels ne s'installaient jamais : le port du poste était protégé par le 802.1X de notre TP précédent, qui reste fermé tant que personne ne s'est connecté. C'est le journal Windows qui l'a montré.
+
 ## 2026-11-20 : Spanning Tree : des liens de secours sur le LAN (TP de BTS)
 
 - Statut : à relire

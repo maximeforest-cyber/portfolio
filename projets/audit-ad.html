@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audit de sécurité de l'Active Directory avec PingCastle | Maxime Forest</title>
+<meta name="description" content="Projet en cours : audit de sécurité de l&#x27;Active Directory de l&#x27;entreprise RIOCA avec PingCastle, cadré par une autorisation signée. Note initiale de 85 sur 100, 34 règles analysées avec l&#x27;ANSSI et MITRE ATT&amp;CK, plan de 17 corrections pour descendre à 59 au plus.">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#efe9df">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/audit-ad.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/audit-ad.html">
+<meta property="og:title" content="Audit de sécurité de l'Active Directory avec PingCastle | Maxime Forest">
+<meta property="og:description" content="Projet en cours : audit de sécurité de l&#x27;Active Directory de l&#x27;entreprise RIOCA avec PingCastle, cadré par une autorisation signée. Note initiale de 85 sur 100, 34 règles analysées avec l&#x27;ANSSI et MITRE ATT&amp;CK, plan de 17 corrections pour descendre à 59 au plus.">
+<meta property="og:image" content="https://forestmaxime-pf.fr/projets/img/apercu-audit-ad.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="Audit de sécurité de l'Active Directory avec PingCastle, sur le portfolio de Maxime Forest">
+<link rel="stylesheet" href="../style.css?v=13">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="../#projet-audit-ad">← Projets et stages</a></p>
+    <p class="kicker">Atelier professionnel · <b>novembre 2026</b> · en binôme · en cours</p>
+    <h1>Audit de sécurité de l'Active Directory avec PingCastle</h1>
+    <p class="lead">L'Active Directory de RIOCA donne accès à tout le reste : comptes, postes, serveurs. Nous l'avons audité avec PingCastle, comme le ferait un prestataire, avec une autorisation signée et un périmètre écrit. Le diagnostic et le plan de correction sont faits ; les corrections et le contre-audit sont en cours.</p>
+    <dl class="facts"><div><dt>Contexte</dt><dd>Le domaine RIOCA.local a été monté au fil des TP, sans jamais être audité : personne ne savait ce qu'un attaquant y trouverait</dd></div><div><dt>Cadre</dt><dd>Projet de 2<sup>e</sup> année de BTS SIO (bloc 3, cybersécurité) sur la maquette de RIOCA, en binôme, en trois séances</dd></div><div><dt>Matériel</dt><dd>Contrôleur de domaine Windows Server 2025 sous Hyper-V, poste client Windows 11, PingCastle 4.1.2.0</dd></div><div><dt>Points clés</dt><dd>Autorisation d'audit, périmètre, PingCastle, ANSSI, MITRE ATT&amp;CK, analyse de risque, plan de remédiation, retour arrière</dd></div><div><dt>Où on en est</dt><dd>Audit initial : 85 sur 100 (plus c'est bas, mieux c'est), maturité ANSSI 1 sur 5, 34 règles analysées ; objectif : 59 au plus</dd></div></dl>
+    <ul class="tags"><li>Active Directory</li><li>PingCastle</li><li>Audit</li><li>ANSSI</li><li>Durcissement</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Cadrer avant d'auditer</a></li><li><a href="#partie-2"><span>02</span>L'audit initial</a></li><li><a href="#partie-3"><span>03</span>Analyse des 34 règles</a></li><li><a href="#partie-4"><span>04</span>Le plan de remédiation</a></li><li><a href="#partie-5"><span>05</span>Risques acceptés</a></li><li><a href="#partie-6"><span>06</span>La suite</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Cadrer avant d'auditer</h2>
+<p>Un audit de sécurité ne se lance pas sans accord, même sur une maquette. La règle du projet : rien n'est lancé avant la signature de l'autorisation d'audit par le commanditaire. Ce document fixe ce qui est permis (lire l'annuaire, puis appliquer les corrections une fois le plan validé), les dates des trois séances et la sauvegarde faite avant de commencer.</p>
+<p>La fiche périmètre décrit ce qui est audité :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Élément</th><th scope="col">Valeur</th></tr></thead><tbody><tr><td>Domaine</td><td>RIOCA.local, niveau fonctionnel Windows Server 2025</td></tr><tr><td>Contrôleur de domaine</td><td>Un seul, srv-ad-rioca, qui porte tous les rôles</td></tr><tr><td>Comptes</td><td>47 comptes utilisateurs dont 45 actifs, 1 poste client joint</td></tr><tr><td>Compte d'audit</td><td><span class="k">audit-ad</span>, simple utilisateur du domaine, sans aucun droit d'administration</td></tr><tr><td>Outil</td><td>PingCastle 4.1.2.0, téléchargé depuis le dépôt officiel netwrix/pingcastle sur GitHub</td></tr><tr><td>Inclus</td><td>Le contrôleur et ses services, les objets de l'annuaire (comptes, groupes, ordinateurs, GPO), la configuration de sécurité du domaine, les postes pour les corrections par GPO</td></tr><tr><td>Exclu</td><td>Le réseau de l'établissement (PingCastle n'y est jamais lancé), les switchs, routeurs et pare-feu, les serveurs hors AD, et toute attaque : aucun test d'intrusion</td></tr></tbody></table></div>
+<p>Le compte d'audit est volontairement un simple utilisateur : c'est ce que verrait un attaquant qui aurait volé le mot de passe de n'importe quel salarié. Avant l'audit, un instantané de la machine virtuelle du contrôleur a été pris, pour pouvoir revenir en arrière.</p>
+<figure class="shot"><a href="img/audit-ad-01.webp"><img src="img/audit-ad-01.webp" alt="PowerShell sur l'hôte Hyper-V : Checkpoint-VM -Name srv-dc-rioca -SnapshotName AVANT_AUDIT_PingCastle, puis Get-VMSnapshot affiche l'instantané AVANT_AUDIT_PingCastle, type Standard, créé le 12/11/2026 à 17:02:09." width="1438" height="195" loading="lazy"></a><figcaption><b>Fig. 1</b> L'instantané du contrôleur de domaine, pris avant l'audit.</figcaption></figure>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>L'audit initial</h2>
+<p>PingCastle a été lancé depuis le poste client, dans une console ouverte avec le compte d'audit :</p>
+<pre class="cmd"><code>runas /user:RIOCA\audit-ad powershell
+cd C:\Audit\PingCastle
+.\PingCastle.exe --healthcheck --server RIOCA.local</code></pre>
+<p>Il lit l'annuaire et produit un rapport HTML et un fichier XML. Il ne modifie rien et ne lance aucune attaque.</p>
+<figure class="shot"><a href="img/audit-ad-02.webp"><img src="img/audit-ad-02.webp" alt="Photo de l'écran : console PowerShell en tant qu'utilisateur RIOCA\audit-ad, PingCastle collecte les objets, les délégations, la PKI, le DNS et les données du contrôleur, puis génère les rapports XML et HTML : Task Perform analysis for RIOCA.local completed." width="1200" height="694" loading="lazy"></a><figcaption><b>Fig. 2</b> L'audit lancé avec le simple compte audit-ad.</figcaption></figure>
+<p>Le résultat :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Catégorie</th><th scope="col">Ce qu'elle regarde</th><th scope="col">Note</th><th scope="col">Règles</th></tr></thead><tbody><tr><td>Stale Objects</td><td>Les vieux objets et réglages : comptes, protocoles anciens</td><td>31</td><td>10</td></tr><tr><td>Privileged Accounts</td><td>Les comptes d'administration</td><td>85</td><td>7</td></tr><tr><td>Trusts</td><td>Les liens avec d'autres domaines</td><td>0</td><td>0</td></tr><tr><td>Anomalies</td><td>Des points de contrôle précis</td><td>53</td><td>17</td></tr><tr><td><b>Note globale</b></td><td></td><td><b>85 / 100</b></td><td><b>34</b></td></tr></tbody></table></div>
+<p>La note va de 0 (parfait) à 100 (très mauvais), et la note globale n'est pas une moyenne : c'est la <b>plus haute</b> des quatre catégories. Ici, ce sont les comptes d'administration qui la fixent. Le niveau de maturité ANSSI est de 1 sur 5, le plus bas : un seul point de niveau 1 suffit, et nos administrateurs avaient un mot de passe qui n'expire jamais.</p>
+<figure class="shot"><a href="img/audit-ad-03.webp"><img src="img/audit-ad-03.webp" alt="Photo de l'écran : rapport PingCastle, Domain Risk Level 85 sur 100 ; Stale Object 31 avec 10 règles, Privileged Accounts 85 avec 7 règles, Trusts 0 avec 0 règle, Anomalies 53 avec 17 règles." width="1300" height="550" loading="lazy"></a><figcaption><b>Fig. 3</b> La note de départ : 85 sur 100, fixée par les comptes d'administration.</figcaption></figure>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>Analyse des 34 règles</h2>
+<p>Sur les 34 règles déclenchées, 18 retirent des points et 16 sont à 0 point (de simples conseils). Pour chacune, notre tableau d'analyse donne :</p>
+<ul class="b"><li>le point de contrôle de l'ANSSI quand il existe (vuln1 = très grave, vuln2 = grave…) ;</li><li>la technique d'attaque correspondante dans MITRE ATT&amp;CK ;</li><li>un scénario : comment un attaquant s'en servirait, en une ou deux phrases ;</li><li>le risque, coté avec la matrice vraisemblance × impact du cours.</li></ul>
+<p>Les points PingCastle et notre risque ne disent pas la même chose. LLMNR, par exemple, ne coûte aucun point, mais nous l'avons coté élevé : c'est une attaque très simple sur le réseau local. Les risques les plus importants :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Règle</th><th scope="col">Risque</th><th scope="col">Le problème</th></tr></thead><tbody><tr><td>P-AdminLogin</td><td>Critique</td><td>Le compte Administrateur servait tous les jours. Son mot de passe volé, c'est tout le domaine perdu</td></tr><tr><td>P-ServiceDomainAdmin</td><td>Critique</td><td>6 administrateurs avaient un mot de passe qui n'expire jamais : un mot de passe volé reste valable pour toujours. C'est le point ANSSI de niveau 1</td></tr><tr><td>S-OldNtlm</td><td>Élevé</td><td>Le domaine accepte encore NTLMv1, un vieux protocole facile à casser</td></tr><tr><td>A-LAPS-Not-Installed</td><td>Élevé</td><td>Le mot de passe de l'administrateur local peut être le même sur tous les postes : un poste piraté ouvre les autres</td></tr><tr><td>A-MinPwdLen</td><td>Élevé</td><td>Les mots de passe peuvent faire moins de 8 caractères</td></tr><tr><td>A-NoGPOLLMNR</td><td>Élevé</td><td>LLMNR est actif : un attaquant sur le réseau peut répondre à la place d'un serveur et récupérer des empreintes de mots de passe</td></tr></tbody></table></div>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>Le plan de remédiation</h2>
+<p>Objectif fixé par le cahier des charges : faire baisser la note globale d'au moins 30 %, donc à 59 au plus, et corriger tous les points ANSSI de niveau 1 et 2. Comme la note globale est la plus haute des catégories, on commence par les comptes d'administration.</p>
+<p>Les règles de travail, écrites avant de toucher à quoi que ce soit :</p>
+<ul class="b"><li>un nouvel instantané du contrôleur au début de la séance de corrections ;</li><li>un compte de secours, administrateur du domaine, créé et testé avant de modifier les groupes à privilèges ;</li><li>une correction à la fois : on applique, on teste, on note dans le journal des modifications, puis on passe à la suivante ;</li><li>une GPO séparée pour chaque durcissement : pour revenir en arrière, il suffit de désactiver son lien.</li></ul>
+<div class="tw"><table class="t"><thead><tr><th scope="col">N°</th><th scope="col">Priorité</th><th scope="col">Correction</th><th scope="col">Règle(s)</th></tr></thead><tbody><tr><td>0</td><td>Prérequis</td><td>Instantané et compte de secours</td><td>—</td></tr><tr><td>1</td><td>1</td><td>Un compte d'administration dédié par personne ; les comptes de tous les jours sortent des Admins du domaine</td><td>P-AdminLogin, P-ServiceDomainAdmin</td></tr><tr><td>2</td><td>1</td><td>Plus de mot de passe qui n'expire jamais</td><td>P-ServiceDomainAdmin, S-PwdNeverExpires</td></tr><tr><td>3</td><td>1</td><td>Mots de passe de 12 caractères au moins, verrouillage après 10 essais</td><td>A-MinPwdLen</td></tr><tr><td>4</td><td>1</td><td>Comptes admin « sensibles, ne peuvent pas être délégués »</td><td>P-Delegated</td></tr><tr><td>5</td><td>1</td><td>Comptes admin dans le groupe Utilisateurs protégés</td><td>P-ProtectedUsers</td></tr><tr><td>6</td><td>1</td><td>Groupe Administrateurs du schéma vidé</td><td>P-SchemaAdmin</td></tr><tr><td>7</td><td>2</td><td>LM et NTLMv1 refusés (GPO)</td><td>S-OldNtlm</td></tr><tr><td>8</td><td>2</td><td>Windows LAPS : un mot de passe d'administrateur local unique par poste</td><td>A-LAPS-Not-Installed</td></tr><tr><td>9</td><td>2</td><td>LLMNR désactivé (GPO)</td><td>A-NoGPOLLMNR</td></tr><tr><td>10</td><td>3</td><td>Stratégie d'audit du contrôleur</td><td>A-AuditDC</td></tr><tr><td>11</td><td>3</td><td>Quota de jonction au domaine à 0</td><td>S-ADRegistration</td></tr><tr><td>12</td><td>3</td><td>Corbeille Active Directory activée</td><td>P-RecycleBin</td></tr><tr><td>13</td><td>3</td><td>Chemins UNC renforcés pour SYSVOL et NETLOGON</td><td>A-HardenedPaths</td></tr><tr><td>14</td><td>3</td><td>Nouveau mot de passe pour un compte au faux changement de mot de passe</td><td>A-FakePwdChangeAllUsers</td></tr><tr><td>15</td><td>3</td><td>Sous-réseau du contrôleur déclaré</td><td>S-DC-SubnetMissing</td></tr><tr><td>16</td><td>3</td><td>Contrôleur retiré du groupe « Accès compatible pré-Windows 2000 »</td><td>A-PreWin2000Other</td></tr></tbody></table></div>
+<p>Chaque correction du plan a sa méthode (commande ou chemin de la GPO), son test et son retour arrière. Par exemple, pour la correction 2 :</p>
+<pre class="cmd"><code># garder la liste des comptes concernés, pour le retour arrière
+Get-ADUser -Filter 'PasswordNeverExpires -eq $true' | Select SamAccountName | Export-Csv C:\Audit\pwdneverexpires.csv
+# retirer l'option
+Get-ADUser -Filter 'PasswordNeverExpires -eq $true' | Set-ADUser -PasswordNeverExpires $false
+# test : la première commande ne doit plus rien renvoyer</code></pre>
+<p>Certaines corrections touchent nos autres TP, et le plan en tient compte :</p>
+<ul class="b"><li><b>Utilisateurs protégés</b> (5) : ce groupe interdit NTLM. Seuls les comptes d'administration y entrent. Les comptes de tous les jours servent à la connexion Wi-Fi en 802.1X (PEAP), qui a besoin de NTLM : ils n'y vont pas.</li><li><b>NTLMv2 seulement</b> (7) : après la GPO, on vérifie que la connexion Wi-Fi en 802.1X (PEAP) marche toujours. Sinon, on désactive le lien de la GPO et on le note.</li><li><b>Corbeille AD</b> (12) : elle ne peut plus être désactivée une fois activée. Elle n'a pas d'effet négatif, et l'instantané reste le seul retour arrière.</li></ul>
+</div>
+<div class="part" id="partie-5">
+<h2><span class="n">05</span>Risques acceptés</h2>
+<p>Tout corriger n'est pas toujours possible ni utile. Quatre règles resteront, avec leur justification :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Règle</th><th scope="col">Pourquoi on l'accepte</th></tr></thead><tbody><tr><td>A-NotEnoughDC</td><td>La maquette n'a qu'un contrôleur de domaine ; en ajouter un demande une autre machine Windows Server, hors des moyens du projet. En entreprise, il en faut au moins deux</td></tr><tr><td>A-WeakRSARootCert2</td><td>Le certificat de l'autorité interne est en RSA 2048 bits, encore considéré comme sûr. La refaire casserait les certificats déjà déployés par GPO : passage en 4096 bits au renouvellement</td></tr><tr><td>P-AdminLogin</td><td>Le compte Administrateur ne servira plus, mais la règle reste tant que sa dernière connexion a moins de 35 jours. Elle disparaîtra d'elle-même</td></tr><tr><td>P-ProtectedUsers</td><td>Administrateur et le compte de secours restent hors du groupe : ils doivent pouvoir se connecter même si Kerberos tombe en panne. Leur mot de passe est long et gardé sous enveloppe</td></tr></tbody></table></div>
+<p>Les 16 règles à 0 point ne sont pas corrigées dans ce projet, sauf LLMNR. Elles restent dans le rapport comme pistes pour la suite (règles ASR de Defender, blindage Kerberos, journalisation PowerShell…).</p>
+</div>
+<div class="part" id="partie-6">
+<h2><span class="n">06</span>La suite</h2>
+<p>Si toutes les corrections passent, nous estimons la note globale à environ 30 sur 100, au lieu de 85 : c'est notre estimation, seul le contre-audit donnera la vraie note. Ce qui reste à faire :</p>
+<ul class="b"><li>les corrections, à la séance du 26 novembre, en alternant les rôles : l'un applique, l'autre teste et remplit le journal. J'applique les corrections 0 à 7, dont le passage en NTLMv2 : c'est moi qui ai configuré le serveur RADIUS du <a href="radius-8021x.html">802.1X</a>, je vérifie donc que le Wi-Fi en PEAP marche toujours ; mon binôme applique les suivantes ;</li><li>le contre-audit PingCastle, dont je suis chargé, pour comparer avant et après ;</li><li>le rapport final : la synthèse pour la direction, le contexte et la méthode sont pour moi, les fiches constat sont partagées entre nous deux.</li></ul>
+<p>Cette page sera complétée avec les résultats.</p>
+</div>
+<nav class="pager" aria-label="Autres comptes rendus"><a href="nas-gpo.html"><span>Précédent</span>Serveur NAS TrueNAS et GPO</a><a class="next" href="nextcloud.html"><span>Suivant</span>Cloud interne sécurisé avec Nextcloud</a></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js?v=11"></script>
+</body>
+</html>

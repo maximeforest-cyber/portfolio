@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Serveur NAS TrueNAS et GPO : les fichiers et les postes de RIOCA | Maxime Forest</title>
+<meta name="description" content="Compte rendu des missions 7 et 8 : serveur NAS TrueNAS sur un Dell PowerEdge en RAID 1 matériel, joint à l&#x27;Active Directory, quatre partages SMB avec ACL, puis GPO pour les lecteurs réseau, le fond d&#x27;écran, le panneau de configuration et le déploiement de Firefox et VLC, avec 11 tests.">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#efe9df">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/nas-gpo.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/nas-gpo.html">
+<meta property="og:title" content="Serveur NAS TrueNAS et GPO : les fichiers et les postes de RIOCA | Maxime Forest">
+<meta property="og:description" content="Compte rendu des missions 7 et 8 : serveur NAS TrueNAS sur un Dell PowerEdge en RAID 1 matériel, joint à l&#x27;Active Directory, quatre partages SMB avec ACL, puis GPO pour les lecteurs réseau, le fond d&#x27;écran, le panneau de configuration et le déploiement de Firefox et VLC, avec 11 tests.">
+<meta property="og:image" content="https://forestmaxime-pf.fr/projets/img/apercu-nas-gpo.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="Serveur NAS TrueNAS et GPO, sur le portfolio de Maxime Forest">
+<link rel="stylesheet" href="../style.css?v=13">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="../#projet-nas-gpo">← Projets et stages</a></p>
+    <p class="kicker">Travaux pratiques · <b>octobre – novembre 2026</b> · en binôme</p>
+    <h1>Serveur NAS TrueNAS et GPO : les fichiers et les postes de RIOCA</h1>
+    <p class="lead">Deux missions qui se suivent. D'abord un serveur de fichiers sur une vraie machine, joint au domaine, avec un dossier par utilisateur et par service. Ensuite des stratégies de groupe qui préparent chaque poste tout seul : lecteurs réseau, fond d'écran, restrictions et logiciels.</p>
+    <dl class="facts"><div><dt>Contexte</dt><dd>RIOCA avait un contrôleur de domaine et des postes joints au domaine, mais aucun serveur de fichiers, et chaque poste se configurait à la main</dd></div><div><dt>Cadre</dt><dd>Missions 7 et 8 de 2<sup>e</sup> année de BTS SIO sur la maquette physique de RIOCA, en binôme : un compte rendu technique commun</dd></div><div><dt>Matériel</dt><dd>Serveur Dell PowerEdge T140 (contrôleur RAID PERC H330, deux disques de 1 To, SSD système), TrueNAS Community Edition 25.10.7, Windows Server 2025, poste Windows 11</dd></div><div><dt>Points clés</dt><dd>RAID 1, ZFS, SMB, ACL, Active Directory, Kerberos et NTP, GPO, préférences, déploiement de logiciels MSI, gpresult, observateur d'événements</dd></div><div><dt>Résultat</dt><dd>11 tests conformes : chacun ne voit que ses dossiers, les lecteurs se montent seuls, et Firefox et VLC s'installent au démarrage du poste</dd></div></dl>
+    <ul class="tags"><li>TrueNAS</li><li>RAID</li><li>SMB</li><li>Active Directory</li><li>GPO</li><li>Windows Server</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Besoins et choix de la solution</a></li><li><a href="#partie-2"><span>02</span>RAID 1 et stockage</a></li><li><a href="#partie-3"><span>03</span>Jonction au domaine</a></li><li><a href="#partie-4"><span>04</span>Partages et droits</a></li><li><a href="#partie-5"><span>05</span>Les GPO</a></li><li><a href="#partie-6"><span>06</span>Tests</a></li><li><a href="#partie-7"><span>07</span>Difficultés rencontrées</a></li><li><a href="#partie-8"><span>08</span>Bilan et améliorations</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Besoins et choix de la solution</h2>
+<p>Sur la <a href="maquette-rioca.html">maquette RIOCA</a>, le domaine RIOCA.local et ses postes existaient déjà, mais il n'y avait nulle part où ranger les fichiers. La mission 7 demande un NAS sur un serveur physique, avec un stockage en RAID 1, joint au domaine et proposant quatre partages :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Partage</th><th scope="col">Usage</th><th scope="col">Droits demandés</th></tr></thead><tbody><tr><td>Dossiers personnels</td><td>Un dossier par utilisateur</td><td>L'utilisateur est propriétaire de son dossier, les admins du domaine ont le contrôle total</td></tr><tr><td>Collaboratif</td><td>Un dossier par service</td><td>Le groupe du service en lecture et écriture, les admins en contrôle total</td></tr><tr><td>Outils</td><td>Installeurs des logiciels</td><td>Tout le monde en lecture, les admins en contrôle total</td></tr><tr><td>Sauvegardes</td><td>Sauvegardes des systèmes</td><td>Les admins du domaine seulement</td></tr></tbody></table></div>
+<p>Nous avons comparé trois solutions :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Critère</th><th scope="col">TrueNAS Community Edition</th><th scope="col">OpenMediaVault</th><th scope="col">Windows Server</th></tr></thead><tbody><tr><td>Licence</td><td>Gratuit, open source</td><td>Gratuit, open source</td><td>Payant (licence serveur et licences d'accès)</td></tr><tr><td>Jonction à l'AD</td><td>Depuis l'interface web</td><td>Manuelle (Samba, winbind)</td><td>Native</td></tr><tr><td>Partages et ACL</td><td>SMB et éditeur d'ACL de type Windows</td><td>SMB, ACL limitées</td><td>Partages et ACL NTFS</td></tr><tr><td>Instantanés</td><td>Instantanés ZFS planifiables</td><td>Par des extensions</td><td>VSS, sauvegarde Windows Server</td></tr></tbody></table></div>
+<p>Nous avons retenu <b>TrueNAS Community Edition 25.10.7</b> : un système fait pour le stockage, gratuit, qui rejoint le domaine et gère des ACL de type Windows depuis son interface. Le serveur (Xeon E-2124, 15 Go de mémoire ECC) dépasse largement ses prérequis. Windows Server a été écarté parce qu'il est payant et généraliste, OpenMediaVault parce que la jonction à l'AD n'y est pas intégrée.</p>
+<p>La mission 8 s'appuie ensuite sur ce NAS : des GPO montent les lecteurs réseau, imposent le fond d'écran, bloquent le panneau de configuration et installent Firefox et VLC sur les postes.</p>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>RAID 1 et stockage</h2>
+<p>TrueNAS a été installé depuis une clé USB (préparée avec Rufus, en GPT et UEFI) sur le SSD de 240 Go. Le nom d'hôte est srv-nas-3, avec une adresse fixe dans le VLAN des serveurs. Le contrôleur de domaine lui sert à la fois de serveur DNS et de serveur de temps.</p>
+<p>Le serveur a deux disques SATA de 1 To. Pour le RAID 1, TrueNAS conseille un miroir ZFS, mais l'enseignant nous a demandé d'utiliser le RAID matériel du contrôleur Dell PERC H330 : dans son utilitaire, les deux disques forment un disque virtuel en RAID 1 de 931 Go. TrueNAS ne voit alors qu'un seul disque, et c'est le contrôleur qui gère le miroir.</p>
+<p>Le volume <span class="k">pool-nas</span> a donc été créé sur ce disque unique, sans redondance ZFS, puisqu'elle est déjà assurée par le contrôleur. Il offre 899 Go utiles.</p>
+<figure class="shot"><a href="img/nas-gpo-01.webp"><img src="img/nas-gpo-01.webp" alt="Tableau de bord du stockage de TrueNAS : volume pool-nas, un VDEV de données de 931 GiB, capacité utile 899,25 GiB, santé du stockage en ligne sans erreur." width="1500" height="640" loading="lazy"></a><figcaption><b>Fig. 1</b> Le volume pool-nas sur le disque virtuel RAID 1 : 899 Go utiles.</figcaption></figure>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>Jonction au domaine</h2>
+<p>Dans « Identifiants », puis « Services d'annuaire », le NAS a été joint au domaine RIOCA.local avec un compte administrateur du domaine. TrueNAS lit alors les utilisateurs et les groupes de l'AD, et on peut s'en servir directement dans les ACL.</p>
+<figure class="shot"><a href="img/nas-gpo-02.webp"><img src="img/nas-gpo-02.webp" alt="TrueNAS, Identifiants, Services d'annuaire : Active Directory, statut HEALTHY, nom de domaine RIOCA.LOCAL, cache des comptes activé." width="1107" height="717" loading="lazy"></a><figcaption><b>Fig. 2</b> Le NAS est joint au domaine, à l'état HEALTHY.</figcaption></figure>
+<p>Cette jonction a d'abord été refusée à cause de l'heure du serveur : la partie 7 raconte comment nous l'avons trouvé.</p>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>Partages et droits</h2>
+<p>Un dataset a été créé pour chaque partage, avec le préréglage SMB, et un sous-dataset par service dans <span class="k">collaboratif</span> (compta, dirrh, fabric, garage, it, livr, rd). Les droits appliqués dans l'éditeur d'ACL :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Dataset</th><th scope="col">Admins du domaine</th><th scope="col">Autres droits</th></tr></thead><tbody><tr><td>sauvegardes</td><td>Contrôle total</td><td>Aucun</td></tr><tr><td>outils</td><td>Contrôle total</td><td>Utilisateurs et ordinateurs du domaine : lecture</td></tr><tr><td>collaboratif</td><td>Contrôle total</td><td>Utilisateurs du domaine : lecture, sans héritage</td></tr><tr><td>collaboratif/&lt;service&gt;</td><td>Contrôle total</td><td>Groupe du service : modifier (lecture et écriture)</td></tr><tr><td>personnels</td><td>Contrôle total</td><td>Utilisateurs du domaine : lecture, sans héritage</td></tr><tr><td>personnels/&lt;utilisateur&gt;</td><td>Contrôle total</td><td>L'utilisateur : propriétaire, contrôle total</td></tr></tbody></table></div>
+<p>Deux choix méritent une explication :</p>
+<ul class="b"><li>à la racine de <span class="k">collaboratif</span> et <span class="k">personnels</span>, les utilisateurs ont la lecture <b>sans héritage</b> : ils peuvent ouvrir le partage, sans obtenir de droits dans les dossiers des autres ;</li><li>les <b>ordinateurs</b> du domaine lisent <span class="k">outils</span>, car l'installation des logiciels par GPO se fait avec le compte de l'ordinateur, avant toute ouverture de session.</li></ul>
+<div class="shots"><figure class="shot"><a href="img/nas-gpo-03.webp"><img src="img/nas-gpo-03.webp" alt="Éditeur d'ACL de TrueNAS pour collaboratif/compta : root et RIOCA\admins du domaine en contrôle total, groupe RIOCA\compta en Autoriser, Modifier, avec héritage." width="1500" height="736" loading="lazy"></a><figcaption><b>Fig. 3</b> L'ACL du dossier compta : le groupe du service peut modifier.</figcaption></figure><figure class="shot"><a href="img/nas-gpo-04.webp"><img src="img/nas-gpo-04.webp" alt="TrueNAS, Partages : service SMB en marche, quatre partages activés, collaboratif, outils, personnels et sauvegardes, dans /mnt/pool-nas." width="1500" height="559" loading="lazy"></a><figcaption><b>Fig. 4</b> Les quatre partages SMB actifs.</figcaption></figure></div>
+<p>Les partages ont l'option « Access Based Share Enumeration » : un utilisateur ne voit que les dossiers auxquels il a accès. La même ACL que celle de la compta a été appliquée aux six autres services, chacun avec son groupe.</p>
+<p><b>Dossiers personnels.</b> Dans « Utilisateurs et ordinateurs Active Directory », le dossier de base des utilisateurs de chaque unité d'organisation pointe vers <span class="k">\\srv-nas-3\personnels\%username%</span>, ce qui crée leur dossier automatiquement. Chaque utilisateur a ensuite été rendu propriétaire de son dossier, depuis le shell du NAS :</p>
+<pre class="cmd"><code>for d in /mnt/pool-nas/personnels/*/; do sudo chown "RIOCA\\$(basename "$d")" "$d"; done</code></pre>
+</div>
+<div class="part" id="partie-5">
+<h2><span class="n">05</span>Les GPO</h2>
+<p>Avant de créer les GPO, nous avons vérifié la maquette : le poste de test est joint au domaine, dans l'unité d'organisation des PC, il reçoit son adresse en DHCP, utilise le contrôleur de domaine comme DNS, et <span class="k">gpresult /r</span> montre qu'un utilisateur du service Compta reçoit bien les stratégies du contrôleur. Les GPO sont liées à deux unités d'organisation : les PC pour les réglages de l'ordinateur, les utilisateurs pour les autres.</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">GPO</th><th scope="col">Liée à</th><th scope="col">Chemin du paramètre</th></tr></thead><tbody><tr><td>Mappage du dossier personnel</td><td>Utilisateurs</td><td>Configuration utilisateur → Préférences → Paramètres Windows → Mappages de lecteurs : <span class="k">P:</span> vers <span class="k">\\srv-nas-3\personnels\%LogonUser%</span></td></tr><tr><td>Une GPO par service (Dossier Compta…)</td><td>Unité de chaque service</td><td>Même emplacement : <span class="k">T:</span> vers le dossier du service dans <span class="k">collaboratif</span></td></tr><tr><td>Fond d'écran</td><td>Utilisateurs</td><td>Préférences → Fichiers (copie de l'image), puis Modèles d'administration → Bureau → Papier peint du Bureau</td></tr><tr><td>Panneau de configuration interdit</td><td>Utilisateurs</td><td>Modèles d'administration → Panneau de configuration → Interdire l'accès au Panneau de configuration et à l'application Paramètres du PC</td></tr><tr><td>Déploiement de Firefox, de VLC</td><td>PC</td><td>Configuration ordinateur → Paramètres du logiciel → Installation de logiciel (package attribué)</td></tr><tr><td>Attente réseau</td><td>PC</td><td>Modèles d'administration → Système → Ouverture de session → Toujours attendre le réseau lors du démarrage et de l'ouverture de session</td></tr></tbody></table></div>
+<div class="shots"><figure class="shot"><a href="img/nas-gpo-05.webp"><img src="img/nas-gpo-05.webp" alt="Console de gestion des stratégies de groupe : sous ORDINATEURS/PCs, les GPO Attente réseau, Déploiement FireFox et Déploiement VLC ; sous UTILISATEURS, fond d'ecran, mappage dossier perso et Panneau de configuration interdit." width="489" height="547" loading="lazy"></a><figcaption><b>Fig. 5</b> Les GPO liées aux unités des PC et des utilisateurs.</figcaption></figure><figure class="shot"><a href="img/nas-gpo-06.webp"><img src="img/nas-gpo-06.webp" alt="Propriétés du lecteur P: : action Mettre à jour, emplacement \\srv-nas-3\personnels\%LogonUser%, reconnecter coché, lettre P." width="856" height="767" loading="lazy"></a><figcaption><b>Fig. 6</b> Le lecteur P: : une seule GPO pour tout le monde grâce à %LogonUser%.</figcaption></figure></div>
+<p><b>Lecteurs réseau.</b> Le lecteur <span class="k">P:</span> utilise la variable <span class="k">%LogonUser%</span> : une seule GPO donne à chacun son propre dossier. Le lecteur <span class="k">T:</span> dépend du service : il y a donc une GPO par service, liée à l'unité d'organisation du service.</p>
+<p><b>Fond d'écran.</b> L'image est rangée dans le partage <span class="k">outils</span>. Une préférence « Fichiers » la copie sur le poste, dans <span class="k">C:\Windows\Web\Wallpaper</span>, puis le paramètre « Papier peint du Bureau » l'applique depuis cette copie locale. Ce paramètre empêche aussi l'utilisateur de changer de fond.</p>
+<p><b>Panneau de configuration.</b> Le blocage ne doit pas gêner les administrateurs. Dans l'onglet « Délégation » de la GPO, l'autorisation « Appliquer la stratégie de groupe » est refusée aux Admins du domaine.</p>
+<figure class="shot"><a href="img/nas-gpo-07.webp"><img src="img/nas-gpo-07.webp" alt="Paramètres de sécurité de la GPO Panneau de configuration interdit : pour Admins du domaine, Appliquer la stratégie de groupe est coché dans la colonne Refuser." width="525" height="658" loading="lazy"></a><figcaption><b>Fig. 7</b> Les Admins du domaine sont exclus de la GPO.</figcaption></figure>
+<p><b>Firefox et VLC.</b> Les installeurs MSI sont dans le partage <span class="k">outils</span>, appelés par leur chemin réseau (UNC) et attribués aux ordinateurs. L'installation se fait au démarrage du poste, avant l'ouverture de session. La GPO « Attente réseau » oblige Windows à attendre le réseau avant d'appliquer les stratégies, sans quoi l'installation n'a pas lieu.</p>
+<p>Question posée dans la mission : que fait <span class="k">gpupdate /force</span> ? Il réapplique les stratégies tout de suite, sans attendre le rafraîchissement automatique (environ 90 minutes). Mais il n'installe pas un logiciel attribué à l'ordinateur : l'installation ne se fait qu'au démarrage, et la commande demande de redémarrer.</p>
+</div>
+<div class="part" id="partie-6">
+<h2><span class="n">06</span>Tests</h2>
+<p>Les tests ont été faits sur le poste client avec un utilisateur standard du service Compta, puis avec un compte administrateur du domaine.</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Test</th><th scope="col">Résultat attendu</th><th scope="col">Résultat obtenu</th></tr></thead><tbody><tr><td>L'utilisateur de la Compta ouvre <span class="k">collaboratif</span></td><td>Seul le dossier compta est visible</td><td>Conforme (fig. 8)</td></tr><tr><td>Il crée un fichier dans <span class="k">collaboratif\compta</span></td><td>Écriture autorisée</td><td>Conforme</td></tr><tr><td>Il ouvre le dossier personnel d'un autre utilisateur</td><td>Accès refusé</td><td>Conforme (fig. 9)</td></tr><tr><td>Il crée un fichier dans <span class="k">outils</span></td><td>Écriture refusée (lecture seule)</td><td>Conforme</td></tr><tr><td>Il ouvre <span class="k">sauvegardes</span></td><td>Accès refusé</td><td>Conforme</td></tr><tr><td>Un admin du domaine ouvre <span class="k">collaboratif</span></td><td>Les 7 dossiers des services sont visibles</td><td>Conforme</td></tr><tr><td>Lecteurs réseau à l'ouverture de session</td><td><span class="k">P:</span> (dossier personnel) et <span class="k">T:</span> (Compta)</td><td>Conforme (fig. 10)</td></tr><tr><td>Un utilisateur du service IT se connecte</td><td>Il reçoit le lecteur de l'IT, pas celui de la Compta</td><td>Conforme</td></tr><tr><td>Fond d'écran</td><td>Fond de RIOCA affiché, réglage de l'arrière-plan grisé</td><td>Conforme</td></tr><tr><td>Panneau de configuration</td><td>Bloqué pour l'utilisateur standard, accessible pour un admin</td><td>Conforme (fig. 11)</td></tr><tr><td>Firefox et VLC après redémarrage</td><td>Installés automatiquement au démarrage</td><td>Conforme (fig. 12)</td></tr></tbody></table></div>
+<div class="shots"><figure class="shot"><a href="img/nas-gpo-08.webp"><img src="img/nas-gpo-08.webp" alt="Photo de l'écran du poste : explorateur Windows dans Réseau, srv-nas-3, collaboratif ; un seul dossier visible, compta." width="1500" height="727" loading="lazy"></a><figcaption><b>Fig. 8</b> L'utilisateur de la Compta ne voit que le dossier de son service.</figcaption></figure><figure class="shot"><a href="img/nas-gpo-09.webp"><img src="img/nas-gpo-09.webp" alt="Photo de l'écran : dans srv-nas-3\personnels, erreur réseau, Windows ne peut pas accéder au dossier d'un autre utilisateur. Noms des comptes masqués." width="1500" height="897" loading="lazy"></a><figcaption><b>Fig. 9</b> Le dossier personnel d'un autre utilisateur reste fermé (noms masqués).</figcaption></figure></div>
+<div class="shots"><figure class="shot"><a href="img/nas-gpo-10.webp"><img src="img/nas-gpo-10.webp" alt="Photo de l'écran : Ce PC, emplacements réseau Dossier personnel (P:) et Compta (T:), 899 Go libres sur 899 Go chacun." width="1500" height="873" loading="lazy"></a><figcaption><b>Fig. 10</b> Les lecteurs P: et T: montés à l'ouverture de session.</figcaption></figure><figure class="shot"><a href="img/nas-gpo-11.webp"><img src="img/nas-gpo-11.webp" alt="Photo de l'écran : fenêtre Restrictions, cette opération a été annulée en raison de restrictions sur cet ordinateur, contactez votre administrateur système." width="1500" height="993" loading="lazy"></a><figcaption><b>Fig. 11</b> Le panneau de configuration bloqué pour un utilisateur standard.</figcaption></figure></div>
+<figure class="shot"><a href="img/nas-gpo-12.webp"><img src="img/nas-gpo-12.webp" alt="Photo du bureau du poste : fond d'écran RIOCA imposé, icônes VLC media player et Firefox installées par GPO." width="1125" height="703" loading="lazy"></a><figcaption><b>Fig. 12</b> Le fond d'écran de RIOCA, et Firefox et VLC installés au démarrage.</figcaption></figure>
+</div>
+<div class="part" id="partie-7">
+<h2><span class="n">07</span>Difficultés rencontrées</h2>
+<p><b>L'heure du NAS empêchait la jonction au domaine.</b> TrueNAS refusait de joindre le domaine, avec l'erreur <span class="k">NT_STATUS_DOMAIN_CONTROLLER_NOT_FOUND</span>. La commande <span class="k">timedatectl</span> a montré la cause : le serveur se croyait en 2025, et son horloge matérielle en 2098. Or Kerberos, qu'utilise l'Active Directory, refuse un écart de plus de 5 minutes avec le contrôleur de domaine. Nous avons remis l'heure dans le BIOS (en UTC) et réglé le NAS pour se synchroniser sur le contrôleur. Côté contrôleur, il a fallu le déclarer source de temps fiable (<span class="k">w32tm /config /reliable:yes</span>), ouvrir le port UDP 123 et couper sa synchronisation sur l'hôte Hyper-V pour qu'il réponde correctement.</p>
+<figure class="shot"><a href="img/nas-gpo-13.webp"><img src="img/nas-gpo-13.webp" alt="Console du NAS : timedatectl affiche l'heure locale au 30/05/2025, l'horloge matérielle au 01/01/2098 et NTP inactif ; wbinfo -t échoue avec NT_STATUS_DOMAIN_CONTROLLER_NOT_FOUND." width="1500" height="336" loading="lazy"></a><figcaption><b>Fig. 13</b> Le NAS se croit en 2025 : le contrôle avec le domaine échoue.</figcaption></figure>
+<p><b>Les disques n'étaient pas détectés.</b> Au départ, TrueNAS ne voyait que le SSD : les deux disques de données étaient bloqués par une ancienne configuration du contrôleur PERC. Nous les avons réinitialisés dans l'utilitaire du contrôleur avant de créer le disque virtuel RAID 1.</p>
+<p><b>Le lecteur P: ne se montait pas.</b> Avec le seul droit « Traverser » à la racine de <span class="k">collaboratif</span> et <span class="k">personnels</span>, Windows refusait d'ouvrir le partage (accès refusé dans le journal Application). Passer à « Lire », sans héritage, a réglé le problème sans donner accès aux dossiers des autres.</p>
+<p><b>Une GPO n'était pas appliquée.</b> La GPO du dossier personnel n'apparaissait pas dans <span class="k">gpresult</span> : sa version était à 0 dans l'Active Directory et à 4 dans SYSVOL. Une nouvelle modification de la GPO a remis les deux versions d'accord.</p>
+<p><b>Firefox et VLC ne s'installaient pas.</b> Windows demandait un redémarrage à chaque fois, sans rien installer. Le journal Système montrait au démarrage l'événement 1129 : pas de connexion au contrôleur de domaine. La cause venait d'un autre TP : le port du poste est protégé par le <a href="radius-8021x.html">802.1X</a>, qui authentifie l'<em>utilisateur</em>. Le port reste fermé tant que personne ne s'est connecté, alors que l'installation se fait justement avant l'ouverture de session. Pour ne pas toucher à la configuration RADIUS, nous avons fait l'installation en branchant le poste sur un port sans 802.1X. En production, il faudrait authentifier aussi l'ordinateur en 802.1X, pour qu'il ait le réseau dès le démarrage.</p>
+<figure class="shot"><a href="img/nas-gpo-14.webp"><img src="img/nas-gpo-14.webp" alt="Observateur d'événements du poste, journal Système : erreur 1129 de GroupPolicy, échec du traitement de la stratégie de groupe en raison d'une absence de connectivité réseau vers un contrôleur de domaine." width="1500" height="600" loading="lazy"></a><figcaption><b>Fig. 14</b> L'événement 1129 : au démarrage, le poste n'a pas encore le réseau.</figcaption></figure>
+</div>
+<div class="part" id="partie-8">
+<h2><span class="n">08</span>Bilan et améliorations</h2>
+<p>Le serveur srv-nas-3 fonctionne : TrueNAS tourne sur un RAID 1 matériel de 899 Go utiles, il est joint au domaine et synchronisé sur le contrôleur. Les quatre partages respectent les droits demandés, ce que montrent les tests d'accès autorisés et refusés. Les GPO montent les lecteurs, imposent le fond d'écran, bloquent le panneau de configuration pour les utilisateurs standard et installent Firefox et VLC.</p>
+<p>Les améliorations proposées :</p>
+<ul class="b"><li>authentifier les ordinateurs en 802.1X, pour que les logiciels s'installent sans changer de port ;</li><li>planifier des instantanés ZFS et des sauvegardes vers le partage <span class="k">sauvegardes</span>.</li></ul>
+<p>Ce que j'en retiens : dans un domaine Active Directory, l'heure et le DNS passent avant tout le reste. Et quand une GPO ne fait rien, les journaux Windows (Application, Système, <span class="k">gpresult</span>) disent presque toujours pourquoi.</p>
+</div>
+<nav class="pager" aria-label="Autres comptes rendus"><a href="spanning-tree.html"><span>Précédent</span>Spanning Tree : des liens de secours sur le LAN</a><a class="next" href="audit-ad.html"><span>Suivant</span>Audit de sécurité de l'Active Directory</a></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js?v=11"></script>
+</body>
+</html>

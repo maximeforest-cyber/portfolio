@@ -268,6 +268,7 @@
               <li><b>Infra-Site, chef de projet en binôme</b> : DMZ, pare-feu Zyxel, routage RIP v2, NAT, SSH, sauvegardes TFTP</li>
               <li><b>ArchiSite</b> : site HTTPS avec autorité de certification interne, FTPS et base de données isolée dans la DMZ</li>
               <li><b>802.1X et RADIUS</b> : VLAN attribué selon le groupe AD (NPS, PEAP, EAP-TLS) ; <b>Spanning Tree</b> : liens de secours en Rapid-PVST</li>
+              <li><b>Serveur NAS TrueNAS et GPO</b> : RAID 1, partages SMB avec ACL, lecteurs réseau et logiciels déployés par GPO ; <b>audit AD PingCastle</b> en cours</li>
               <li><b>Cloud privé Nextcloud et intranet web / FTP</b> sous Linux, à accès restreints</li>
             </ul>
             <h4>Compétences techniques</h4>
@@ -513,6 +514,78 @@
         </details>
         <a class="doc" href="projets/spanning-tree.html">Lire le compte rendu</a>
         <ul class="tags"><li>Cisco</li><li>Spanning Tree</li><li>Redondance</li><li>Fibre</li></ul>
+      </article>
+
+      <article class="card project" id="projet-nas-gpo">
+        <p class="meta">Travaux pratiques · 2026 · en binôme</p>
+        <h3>Serveur NAS TrueNAS et GPO</h3>
+        <p>Un serveur de fichiers TrueNAS sur un Dell PowerEdge en RAID 1, joint au domaine, avec un dossier par utilisateur et par service ; puis des GPO qui préparent chaque poste tout seul.</p>
+        <p class="resultat"><b>Résultat :</b> 11 tests conformes : chacun ne voit que ses dossiers, les lecteurs réseau se montent seuls, et Firefox et VLC s'installent au démarrage du poste.</p>
+        <details>
+          <summary>Voir la fiche</summary>
+          <div class="fiche">
+            <h4>Contexte</h4>
+            <p>RIOCA avait un contrôleur de domaine et des postes joints au domaine, mais aucun serveur de fichiers, et chaque poste se configurait à la main.</p>
+            <h4>Ce que j'ai fait, en binôme</h4>
+            <ul>
+              <li>Comparaison de trois solutions (TrueNAS, OpenMediaVault, Windows Server) et choix argumenté</li>
+              <li>RAID 1 matériel sur le contrôleur Dell PERC, TrueNAS joint à l'Active Directory</li>
+              <li>Quatre partages SMB avec des ACL par utilisateur et par service</li>
+              <li>GPO : lecteurs P: et T:, fond d'écran imposé, panneau de configuration bloqué, Firefox et VLC déployés</li>
+              <li>Diagnostic par les journaux : heure du NAS refusée par Kerberos, poste sans réseau au démarrage à cause du 802.1X</li>
+            </ul>
+          </div>
+        </details>
+        <a class="doc" href="projets/nas-gpo.html">Lire le compte rendu</a>
+        <ul class="tags"><li>TrueNAS</li><li>RAID</li><li>SMB</li><li>Active Directory</li><li>GPO</li></ul>
+      </article>
+
+      <article class="card project" id="projet-audit-ad">
+        <p class="meta">Atelier professionnel · en cours · en binôme</p>
+        <h3>Audit de sécurité de l'Active Directory</h3>
+        <p>Audit du domaine de RIOCA avec PingCastle, comme un prestataire : autorisation signée, périmètre écrit, compte sans droits, puis un plan de correction priorisé.</p>
+        <p class="resultat"><b>Où on en est :</b> note initiale de 85 sur 100 (plus c'est bas, mieux c'est) et 34 règles analysées ; 17 corrections prévues pour descendre à 59 au plus, contre-audit à venir.</p>
+        <details>
+          <summary>Voir la fiche</summary>
+          <div class="fiche">
+            <h4>Contexte</h4>
+            <p>Le domaine RIOCA.local a été construit au fil des TP sans jamais être audité.</p>
+            <h4>Fait</h4>
+            <ul>
+              <li>Autorisation d'audit, fiche périmètre, instantané du contrôleur avant l'audit</li>
+              <li>Audit PingCastle avec un simple compte utilisateur</li>
+              <li>Tableau d'analyse : ANSSI, MITRE ATT&amp;CK, scénario et risque pour chaque règle</li>
+              <li>Plan de remédiation : priorités, test et retour arrière pour chaque correction, risques acceptés</li>
+            </ul>
+            <h4>En cours</h4>
+            <ul>
+              <li>Corrections, contre-audit et rapport final</li>
+            </ul>
+          </div>
+        </details>
+        <a class="doc" href="projets/audit-ad.html">Lire le compte rendu</a>
+        <ul class="tags"><li>Active Directory</li><li>PingCastle</li><li>Audit</li><li>ANSSI</li></ul>
+      </article>
+
+      <article class="card project" id="projet-proxy">
+        <p class="meta">Travaux pratiques · en cours</p>
+        <h3>Accès Internet sécurisé par un proxy transparent</h3>
+        <p>Un proxy pour les postes de RIOCA, invisible pour les utilisateurs : cache des pages web, listes blanches et noires, page de blocage personnalisée, réglages des navigateurs déployés par GPO.</p>
+        <details>
+          <summary>Voir la fiche</summary>
+          <div class="fiche">
+            <h4>Contexte</h4>
+            <p>RIOCA veut accélérer et contrôler l'accès à Internet de ses postes, sans que personne ait à régler son navigateur.</p>
+            <h4>En cours</h4>
+            <ul>
+              <li>Comparaison de solutions et choix argumenté</li>
+              <li>Proxy transparent avec cache, sur une machine virtuelle du VLAN des serveurs</li>
+              <li>Filtrage par listes blanches et noires, page de blocage avec le contact du service informatique</li>
+              <li>GPO et modèles ADMX pour Chrome et Firefox, puis tests de validation</li>
+            </ul>
+          </div>
+        </details>
+        <ul class="tags"><li>Proxy</li><li>Filtrage web</li><li>GPO</li></ul>
       </article>
 
     </div>

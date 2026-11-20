@@ -26,6 +26,8 @@ pages={
  'archisite':("ATELIER PROFESSIONNEL · BTS SIO",["ArchiSite : un site","HTTPS dans la DMZ"],"Apache · CA interne · FTPS · MariaDB · Zyxel"),
  'radius-8021x':("TRAVAUX PRATIQUES · BTS SIO",["802.1X : un VLAN selon","l'utilisateur"],"NPS · PEAP · EAP-TLS · Cisco"),
  'spanning-tree':("TRAVAUX PRATIQUES · BTS SIO",["Spanning Tree : des liens","de secours sur le LAN"],"Rapid-PVST · fibre · BPDU Guard"),
+ 'nas-gpo':("TRAVAUX PRATIQUES · BTS SIO",["Serveur NAS TrueNAS","et GPO"],"RAID 1 · partages SMB et ACL · lecteurs et logiciels par GPO"),
+ 'audit-ad':("ATELIER PROFESSIONNEL · BTS SIO",["Audit de sécurité de","l'Active Directory"],"PingCastle · ANSSI · plan de remédiation · en cours"),
 }
 def t(name,txt):
     p=os.path.join(D,name); open(p,'w').write(txt); return p

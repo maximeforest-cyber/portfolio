@@ -24,6 +24,8 @@ pages={
  'homelab-si-etape-1':("HOMELAB N°2 · ÉTAPE 1",["La virtualisation","avec KVM"],"KVM/libvirt · volume LVM dédié · qcow2 · cloud-init"),
  'homelab-si-etape-2':("HOMELAB N°2 · ÉTAPE 2",["Le pare-feu et","la segmentation"],"OPNsense · 4 zones · refus par défaut · 81 essais, 0 écart"),
  'archisite':("ATELIER PROFESSIONNEL · BTS SIO",["ArchiSite : un site","HTTPS dans la DMZ"],"Apache · CA interne · FTPS · MariaDB · Zyxel"),
+ 'radius-8021x':("TRAVAUX PRATIQUES · BTS SIO",["802.1X : un VLAN selon","l'utilisateur"],"NPS · PEAP · EAP-TLS · Cisco"),
+ 'spanning-tree':("TRAVAUX PRATIQUES · BTS SIO",["Spanning Tree : des liens","de secours sur le LAN"],"Rapid-PVST · fibre · BPDU Guard"),
 }
 def t(name,txt):
     p=os.path.join(D,name); open(p,'w').write(txt); return p

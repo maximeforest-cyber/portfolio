@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>802.1X et RADIUS : un VLAN selon l'utilisateur | Maxime Forest</title>
+<meta name="description" content="Compte rendu de TP : authentification 802.1X sur les switchs Cisco de l&#x27;entreprise RIOCA, serveur RADIUS NPS relié à l&#x27;Active Directory, VLAN attribué selon le groupe de l&#x27;utilisateur, PEAP puis EAP-TLS en secours, 9 tests et 14 anomalies corrigées.">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#efe9df">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/radius-8021x.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/radius-8021x.html">
+<meta property="og:title" content="802.1X et RADIUS : un VLAN selon l'utilisateur | Maxime Forest">
+<meta property="og:description" content="Compte rendu de TP : authentification 802.1X sur les switchs Cisco de l&#x27;entreprise RIOCA, serveur RADIUS NPS relié à l&#x27;Active Directory, VLAN attribué selon le groupe de l&#x27;utilisateur, PEAP puis EAP-TLS en secours, 9 tests et 14 anomalies corrigées.">
+<meta property="og:image" content="https://forestmaxime-pf.fr/projets/img/apercu-radius-8021x.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="802.1X et RADIUS : un VLAN selon l'utilisateur, sur le portfolio de Maxime Forest">
+<link rel="stylesheet" href="../style.css?v=13">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="../#projet-radius-8021x">← Projets et stages</a></p>
+    <p class="kicker">Travaux pratiques · <b>octobre – novembre 2026</b> · en binôme</p>
+    <h1>802.1X et RADIUS : un VLAN selon l'utilisateur</h1>
+    <p class="lead">Sur le réseau de RIOCA, un poste n'a plus accès au réseau tant que l'utilisateur ne s'est pas identifié avec son compte Active Directory. Il arrive alors dans le VLAN de son service, quel que soit le port ou l'étage où il se branche.</p>
+    <dl class="facts"><div><dt>Contexte</dt><dd>Le VLAN dépendait du port : un salarié qui changeait de bureau changeait de réseau, et n'importe quel appareil branché avait accès au réseau</dd></div><div><dt>Cadre</dt><dd>TP de 2<sup>e</sup> année de BTS SIO sur la maquette physique de RIOCA, en binôme : document de configuration et rapport de tests</dd></div><div><dt>Matériel</dt><dd>Windows Server 2025 sous Hyper-V, switchs Cisco Catalyst 2960-X et 2960 Plus, postes Windows 10 et 11 du domaine</dd></div><div><dt>Points clés</dt><dd>802.1X, RADIUS, NPS, AD CS, PEAP, EAP-TLS, VLAN dynamique, AAA Cisco, observateur d'événements</dd></div><div><dt>Résultat</dt><dd>9 tests conformes : chaque utilisateur reçoit le VLAN de son service sur les deux switchs, un compte non autorisé n'a aucun accès</dd></div></dl>
+    <ul class="tags"><li>802.1X</li><li>RADIUS</li><li>Windows Server</li><li>Certificats</li><li>Cisco</li><li>VLAN</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Contexte et principe</a></li><li><a href="#partie-2"><span>02</span>Groupes et VLAN</a></li><li><a href="#partie-3"><span>03</span>Serveur NPS</a></li><li><a href="#partie-4"><span>04</span>Switchs</a></li><li><a href="#partie-5"><span>05</span>Postes clients</a></li><li><a href="#partie-6"><span>06</span>Une mise à jour Windows, et le secours par certificats</a></li><li><a href="#partie-7"><span>07</span>Tests</a></li><li><a href="#partie-8"><span>08</span>Anomalies corrigées</a></li><li><a href="#partie-9"><span>09</span>Bilan et améliorations</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Contexte et principe</h2>
+<p>Sur le réseau de la <a href="maquette-rioca.html">maquette RIOCA</a>, le VLAN dépendait du port : un salarié qui changeait de bureau ou d'étage se retrouvait dans le réseau d'un autre service, et n'importe quel appareil branché sur une prise avait accès au réseau, sans aucun contrôle. Le 802.1X règle les deux problèmes. Trois acteurs y jouent un rôle :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Rôle 802.1X</th><th scope="col">Équipement</th><th scope="col">Fonction</th></tr></thead><tbody><tr><td>Supplicant</td><td>Poste client Windows</td><td>Envoie l'identité de l'utilisateur ou du PC</td></tr><tr><td>Authentificateur</td><td>Switchs du rez-de-chaussée (SWRDC) et du 1<sup>er</sup> étage (SW1ER)</td><td>Bloque le port et transmet les messages au serveur RADIUS</td></tr><tr><td>Serveur d'authentification</td><td>NPS sur le contrôleur de domaine srv-ad-rioca</td><td>Vérifie le compte dans l'AD, choisit la stratégie et renvoie le VLAN</td></tr></tbody></table></div>
+<p>Comment se passe une connexion :</p>
+<ol class="b"><li>Quand on branche le PC, le port est bloqué : seuls les messages d'authentification (EAPOL) passent.</li><li>Le PC s'authentifie en PEAP : un tunnel TLS est créé avec le certificat du serveur, puis le mot de passe est vérifié en EAP-MSCHAP v2 à l'intérieur.</li><li>Le switch transmet l'échange au serveur NPS en RADIUS (UDP 1812).</li><li>Le NPS vérifie le compte dans l'AD et prend la première stratégie réseau qui correspond à son groupe.</li><li>Il répond <span class="k">Access-Accept</span> avec trois attributs : <span class="k">Tunnel-Type = VLAN</span>, <span class="k">Tunnel-Medium-Type = 802</span> et <span class="k">Tunnel-Pvt-Group-ID</span> = numéro du VLAN.</li><li>Le switch ouvre le port dans ce VLAN, et le PC obtient son adresse en DHCP.</li></ol>
+<figure class="shot"><a href="img/radius-8021x-01.webp"><img src="img/radius-8021x-01.webp" alt="Schéma : le poste client (supplicant) envoie son identité EAP au switch d'accès (authentificateur), qui la transmet en RADIUS UDP 1812 au serveur NPS ; le NPS répond Accept avec le VLAN et le port s'ouvre." width="1344" height="400" loading="lazy"></a><figcaption><b>Fig. 1</b> Le switch ne décide rien : c'est le NPS qui accepte ou refuse, et qui donne le VLAN.</figcaption></figure>
+<p>Nous n'avons rien acheté : tout repose sur les rôles de Windows Server et sur les switchs déjà en place.</p>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>Groupes et VLAN</h2>
+<p>Le contrôleur de domaine porte maintenant quatre rôles : AD DS, DNS, autorité de certification (AD CS) et NPS. Les deux switchs d'étage sont ses clients RADIUS. Chaque service a un groupe dans l'AD et un VLAN :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Service</th><th scope="col">Groupe AD</th><th scope="col">VLAN</th></tr></thead><tbody><tr><td>Comptabilité – Paie</td><td>COMPTA</td><td>10</td></tr><tr><td>Atelier de fabrication</td><td>FABRIC</td><td>20</td></tr><tr><td>Garage</td><td>GARAGE</td><td>30</td></tr><tr><td>Livraison</td><td>LIVR</td><td>40</td></tr><tr><td>Recherche et développement</td><td>RD</td><td>50</td></tr><tr><td>Infrastructure et système</td><td>IT</td><td>60</td></tr><tr><td>Direction et ressources humaines</td><td>DIRRH</td><td>80</td></tr></tbody></table></div>
+<p>Les VLAN d'administration (70) et des serveurs (100) ne sont jamais donnés par le NPS. Le VLAN déjà réglé sur chaque port devient un simple VLAN par défaut : le vrai VLAN vient du NPS. Tous les VLAN des utilisateurs doivent donc exister sur les deux switchs, sinon la mobilité ne marche pas.</p>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>Serveur NPS</h2>
+<p><b>Autorité de certification.</b> PEAP a besoin d'un certificat pour authentifier le serveur. Nous avons installé AD CS en autorité de certification d'entreprise racine, puis demandé un certificat ordinateur pour srv-ad-rioca. Les PC du domaine font confiance à cette autorité sans rien faire, car elle est publiée dans l'AD.</p>
+<p><b>NPS.</b> Après l'installation du rôle « Services de stratégie et d'accès réseau », le NPS est inscrit dans l'AD pour pouvoir lire les comptes, et les ports RADIUS sont ouverts dans le pare-feu Windows :</p>
+<pre class="cmd"><code>New-NetFirewallRule -DisplayName "RADIUS Authentification" -Direction Inbound -Protocol UDP -LocalPort 1812 -Action Allow
+New-NetFirewallRule -DisplayName "RADIUS Comptabilisation" -Direction Inbound -Protocol UDP -LocalPort 1813 -Action Allow</code></pre>
+<p>Les deux switchs sont déclarés comme clients RADIUS, avec leur adresse dans le VLAN d'administration et un secret partagé : une requête venue d'une autre adresse est ignorée.</p>
+<p><b>Stratégie de demande de connexion.</b> Elle s'applique aux connexions Ethernet et règle les méthodes d'authentification une seule fois pour toutes les stratégies : PEAP en premier, puis EAP-TLS par certificat en secours (voir la partie 6).</p>
+<figure class="shot"><a href="img/radius-8021x-02.webp"><img src="img/radius-8021x-02.webp" alt="Propriétés de la stratégie Connexions câblées (Ethernet) sécurisées : Remplacer les paramètres d'authentification de stratégie réseau coché, types EAP Microsoft PEAP puis Microsoft Carte à puce ou autre certificat (EAP-TLS), MS-CHAP v2 coché." width="1366" height="948" loading="lazy"></a><figcaption><b>Fig. 2</b> La stratégie de demande de connexion : PEAP d'abord, EAP-TLS ensuite.</figcaption></figure>
+<p><b>Stratégies réseau.</b> Le NPS lit les stratégies dans l'ordre et prend la première qui correspond. Il faut donc placer celles des services avant les deux stratégies par défaut, qui refusent tout. Chaque stratégie de service a pour condition le groupe AD du service, et renvoie son VLAN avec trois attributs RADIUS standard. Une stratégie de plus, Ordinateurs_Domaine, authentifie le PC lui-même avant l'ouverture de session : elle sert à EAP-TLS.</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Attribut</th><th scope="col">Valeur</th></tr></thead><tbody><tr><td>Tunnel-Medium-Type</td><td>802 (tous les médias 802, dont Ethernet)</td></tr><tr><td>Tunnel-Type</td><td>Virtual LANs (VLAN)</td></tr><tr><td>Tunnel-Pvt-Group-ID</td><td>Numéro du VLAN du service (10, 20, 30…)</td></tr></tbody></table></div>
+<div class="shots"><figure class="shot"><a href="img/radius-8021x-03.webp"><img src="img/radius-8021x-03.webp" alt="Console NPS, stratégies réseau : Compta, IT, Fabric, Ordinateurs_Domaine, Garage, LIVR, RD et DIRRH en ordre 1 à 8, accorder l'accès, puis les deux stratégies par défaut en 9 et 10, refuser l'accès." width="1458" height="709" loading="lazy"></a><figcaption><b>Fig. 3</b> Les 8 stratégies d'accès passent avant les 2 stratégies par défaut.</figcaption></figure><figure class="shot"><a href="img/radius-8021x-04.webp"><img src="img/radius-8021x-04.webp" alt="Propriétés de Compta, onglet Paramètres, attributs RADIUS standard : Tunnel-Medium-Type 802, Tunnel-Pvt-Group-ID 10, Tunnel-Type Virtual LANs (VLAN)." width="1078" height="904" loading="lazy"></a><figcaption><b>Fig. 4</b> La stratégie Compta renvoie le VLAN 10.</figcaption></figure></div>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>Switchs</h2>
+<p>Les deux switchs ont la même configuration globale. Les liens vers le switch cœur n'ont pas de 802.1X.</p>
+<pre class="cmd"><code>aaa new-model
+aaa authentication login default local
+aaa authorization exec default local
+aaa authentication dot1x default group radius
+aaa authorization network default group radius
+aaa session-id common
+dot1x system-auth-control
+!
+radius server serveur-nps
+ address ipv4 &lt;adresse du NPS&gt; auth-port 1812 acct-port 1813
+ key &lt;secret partagé&gt;</code></pre>
+<p>Puis, sur les ports des postes (ici ceux du 1<sup>er</sup> étage) :</p>
+<pre class="cmd"><code>interface range GigabitEthernet1/0/1 - 19
+ switchport mode access
+ authentication port-control auto
+ dot1x pae authenticator
+ dot1x timeout tx-period 10
+ spanning-tree portfast</code></pre>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Commande</th><th scope="col">Rôle</th></tr></thead><tbody><tr><td><span class="k">aaa authentication login default local</span></td><td>La console et le SSH utilisent le compte local : l'administration des switchs ne dépend pas de RADIUS</td></tr><tr><td><span class="k">aaa authorization exec default local</span></td><td>Garde le privilège 15 du compte local : on arrive directement en mode privilégié</td></tr><tr><td><span class="k">aaa authentication dot1x default group radius</span></td><td>Envoie les authentifications 802.1X au serveur RADIUS</td></tr><tr><td><span class="k">aaa authorization network default group radius</span></td><td>Permet au switch d'appliquer ce que renvoie le NPS, dont le VLAN</td></tr><tr><td><span class="k">authentication port-control auto</span></td><td>Le port reste fermé tant que l'authentification n'a pas réussi</td></tr><tr><td><span class="k">dot1x pae authenticator</span></td><td>Le port joue le rôle d'authentificateur : obligatoire en IOS 15</td></tr><tr><td><span class="k">dot1x timeout tx-period 10</span></td><td>Redemande l'identité du PC toutes les 10 secondes au lieu de 30</td></tr></tbody></table></div>
+</div>
+<div class="part" id="partie-5">
+<h2><span class="n">05</span>Postes clients</h2>
+<p>Chaque PC doit jouer le rôle de supplicant, sinon il reste bloqué sur le port. Le service Windows « Configuration automatique de réseau câblé » (dot3svc), désactivé de base, est passé en démarrage automatique :</p>
+<pre class="cmd"><code>Set-Service dot3svc -StartupType Automatic
+Start-Service dot3svc</code></pre>
+<p>Dans l'onglet Authentification de la carte Ethernet :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Paramètre</th><th scope="col">Valeur</th></tr></thead><tbody><tr><td>Authentification IEEE 802.1X</td><td>Activée</td></tr><tr><td>Méthode</td><td>Microsoft: PEAP, méthode interne EAP-MSCHAP v2</td></tr><tr><td>« Utiliser automatiquement mon nom et mot de passe Windows »</td><td>Décoché (voir la partie 6)</td></tr><tr><td>Mode d'authentification</td><td>Authentification utilisateur</td></tr><tr><td>Mémoriser mes informations d'identification</td><td>Coché : à la première connexion sur un PC, l'utilisateur tape son identifiant et son mot de passe, gardés pour sa seule session</td></tr><tr><td>Vérifier l'identité du serveur</td><td>Décoché pendant les tests ; à recocher avec l'autorité de l'entreprise (voir la partie 9)</td></tr></tbody></table></div>
+<figure class="shot"><a href="img/radius-8021x-05.webp"><img src="img/radius-8021x-05.webp" alt="Propriétés de Ethernet, onglet Authentification : authentification IEEE 802.1X activée, Microsoft PEAP, mémoriser mes informations d'identification coché." width="634" height="729" loading="lazy"></a><figcaption><b>Fig. 5</b> La carte Ethernet d'un poste, en PEAP.</figcaption></figure>
+<p>Un PC hors du domaine ne connaît ni l'autorité de certification ni les comptes AD. Il faut en plus désactiver « Activer la confidentialité de l'identité » (sinon le PC envoie « anonymous » et le NPS cherche ce nom dans l'AD), et utiliser un compte nominatif d'un service, jamais l'administrateur du domaine.</p>
+</div>
+<div class="part" id="partie-6">
+<h2><span class="n">06</span>Une mise à jour Windows, et le secours par certificats</h2>
+<p>Au départ, les postes devaient envoyer automatiquement les identifiants de la session Windows. Ça échouait, pour les utilisateurs comme pour le compte ordinateur, et le NPS ne journalisait que des échanges inachevés, sans accord ni refus. Nous avons d'abord soupçonné Credential Guard, qui bloque MS-CHAP v2 avec les identifiants Windows : le désactiver n'a rien changé.</p>
+<p>La piste est venue du poste lui-même. Le journal Wired-AutoConfig affichait l'événement 15514 (raison <span class="k">0x50005</span>, erreur <span class="k">0x80070285</span>, blocage de 600 secondes). La cause : la mise à jour Windows KB5127648 d'octobre 2026 bloque l'envoi automatique des identifiants Windows en PEAP-MSCHAP v2. Nous avons décoché cette option : chaque utilisateur tape ses identifiants une fois par PC.</p>
+<p>En parallèle, nous avons mis en place une solution de secours sans mot de passe, EAP-TLS, où le poste et l'utilisateur prouvent leur identité par un certificat :</p>
+<ul class="b"><li>deux modèles de certificat copiés dans AD CS, un pour les ordinateurs et un pour les utilisateurs, avec l'inscription automatique ;</li><li>une GPO liée au domaine qui active l'inscription automatique côté ordinateur et côté utilisateur ;</li><li>EAP-TLS ajouté à la stratégie de demande de connexion, et la stratégie Ordinateurs_Domaine (VLAN 60) pour le PC avant l'ouverture de session ;</li><li>sur le PC, la méthode « Carte à puce ou autre certificat », en mode utilisateur ou ordinateur.</li></ul>
+<p>Avantage : aucun mot de passe ne circule, et le PC a le réseau dès l'écran de connexion. Limite : un nouvel utilisateur doit d'abord récupérer son certificat depuis un PC déjà connecté au réseau.</p>
+</div>
+<div class="part" id="partie-7">
+<h2><span class="n">07</span>Tests</h2>
+<p>Pour chaque test, on regarde trois choses : le port sur le switch (<span class="k">show authentication sessions interface … details</span>), la décision du NPS dans l'observateur d'événements (6272 pour un accès accordé, 6273 pour un refus) et l'adresse reçue par le PC (<span class="k">ipconfig /all</span>).</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">N°</th><th scope="col">Test</th><th scope="col">Résultat obtenu</th></tr></thead><tbody><tr><td>T1</td><td>Le serveur NPS répond au ping des deux switchs</td><td>5 réponses sur 5 sur chaque switch</td></tr><tr><td>T2</td><td>Dialogue RADIUS entre switch et NPS (<span class="k">show aaa servers</span>)</td><td>Serveur UP, aucun délai dépassé</td></tr><tr><td>T3</td><td>Un utilisateur de la Compta sur un port du rez-de-chaussée en VLAN 30 par défaut, puis sur un port du 1<sup>er</sup> étage</td><td>Authorized et VLAN 10 sur les deux switchs, adresse dans le réseau du VLAN 10</td></tr><tr><td>T4</td><td>Un utilisateur de l'IT sur un port en VLAN 10 par défaut</td><td>Authorized, VLAN 60, adresse dans le réseau du VLAN 60</td></tr><tr><td>T5</td><td>Stratégies du NPS (<span class="k">netsh nps show np</span>)</td><td>8 stratégies d'accès activées, en ordre 1 à 8, chacune avec son VLAN</td></tr><tr><td>T6</td><td>Un compte membre d'aucun groupe de service</td><td>Unauthorized, aucune adresse, événement 6273</td></tr><tr><td>T7</td><td>SSH sur un switch avec le compte local d'administration</td><td>Connexion acceptée, arrivée directe en mode privilégié</td></tr><tr><td>T8</td><td>Deux utilisateurs de services différents, l'un après l'autre sur le même PC</td><td>Chacun reçoit le VLAN de son service</td></tr><tr><td>T9</td><td>Secours EAP-TLS : le PC à l'écran de connexion, puis la session d'un utilisateur de la Compta</td><td>PC en VLAN 60, puis utilisateur en VLAN 10</td></tr></tbody></table></div>
+<p>Les stratégies ne diffèrent que par le groupe et le VLAN : le test T5 les vérifie toutes au lieu d'un test par service.</p>
+<div class="shots"><figure class="shot"><a href="img/radius-8021x-06.webp"><img src="img/radius-8021x-06.webp" alt="Sur SWRDC, show authentication sessions interface Fa0/11 details : Status Authorized, Server Policies Vlan Group Vlan 10, dot1x Authc Success. Adresse, nom du compte et identifiant de session masqués." width="979" height="723" loading="lazy"></a><figcaption><b>Fig. 6</b> T3 : sur un port en VLAN 30 par défaut, l'utilisateur de la Compta reçoit le VLAN 10.</figcaption></figure><figure class="shot"><a href="img/radius-8021x-07.webp"><img src="img/radius-8021x-07.webp" alt="Sur SW_1ER_GRP3, show authentication sessions interface Gi1/0/1 details : User-Name RIOCA\test, Status Unauthorized, adresse IPv4 Unknown, dot1x Running. Identifiant de session masqué." width="978" height="670" loading="lazy"></a><figcaption><b>Fig. 7</b> T6 : un compte hors des groupes de service reste Unauthorized, sans adresse.</figcaption></figure></div>
+<div class="shots"><figure class="shot"><a href="img/radius-8021x-08.webp"><img src="img/radius-8021x-08.webp" alt="Sur SW_1ER_GRP3, port Gi1/0/13 : User-Name host/pc-user-grp3.RIOCA.local, Status Authorized, Vlan 60, dot1x Authc Success. Adresse et identifiant de session masqués." width="1053" height="759" loading="lazy"></a><figcaption><b>Fig. 8</b> T9 : avant l'ouverture de session, le PC est authentifié par son certificat (VLAN 60).</figcaption></figure><figure class="shot"><a href="img/radius-8021x-09.webp"><img src="img/radius-8021x-09.webp" alt="Même port après l'ouverture de session : User-Name d'un utilisateur @RIOCA.local, Status Authorized, Vlan 10, dot1x Authc Success. Adresse, nom du compte et identifiant de session masqués." width="1072" height="709" loading="lazy"></a><figcaption><b>Fig. 9</b> T9 : après l'ouverture de session, l'utilisateur de la Compta passe en VLAN 10.</figcaption></figure></div>
+</div>
+<div class="part" id="partie-8">
+<h2><span class="n">08</span>Anomalies corrigées</h2>
+<p>Nous avons rencontré 14 problèmes pendant la mise en place et les tests, tous notés dans le rapport avec le symptôme, le diagnostic, la cause et la correction. La plupart venaient des stratégies du NPS et ont été trouvés grâce à l'observateur d'événements. Les plus instructifs :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Symptôme</th><th scope="col">Cause</th><th scope="col">Correction</th></tr></thead><tbody><tr><td>Port bloqué, aucune trace sur le NPS : le switch n'envoyait aucune requête</td><td><span class="k">dot1x pae authenticator</span> manquant : en IOS 15, <span class="k">port-control auto</span> seul ne lance pas l'échange</td><td>Commande ajoutée sur les ports des postes</td></tr><tr><td>Refus immédiat, événement 6273 avec le code 65</td><td>Les stratégies par défaut passaient avant celles des services, et l'une d'elles prend toutes les demandes</td><td>Stratégies des services remontées en tête de liste</td></tr><tr><td>Une utilisatrice du service Fabric refusée, PC sans adresse</td><td>« Type de serveur d'accès réseau » réglé sur « Spécifique au fournisseur », et copies de stratégie désactivées</td><td>Remis sur « Non spécifié », copies activées</td></tr><tr><td>SSH accepté sur un switch, mais mode privilégié refusé</td><td>Avec <span class="k">aaa new-model</span>, le privilège du compte local ne s'applique plus sans autorisation exec</td><td><span class="k">aaa authorization exec default local</span></td></tr><tr><td>Postes du VLAN IT bloqués sur « Vérification de vos informations d'identification »</td><td>Tapée sur une plage qui incluait des ports éteints, la commande <span class="k">dot1x pae authenticator</span> avait échoué et fait sortir du mode interface : une partie des ports ne l'avait pas reçue</td><td>Commandes refaites sur la seule plage des ports des postes</td></tr><tr><td>PC hors domaine refusé, compte « anonymous » dans le journal</td><td>Option PEAP « Activer la confidentialité de l'identité »</td><td>Option décochée</td></tr><tr><td>Tous les utilisateurs d'un poste placés dans le VLAN IT</td><td>Les identifiants d'un membre de l'IT avaient été enregistrés pour tout le PC</td><td>Identifiants supprimés, chacun se connecte avec son compte</td></tr><tr><td>Aucune authentification avant l'ouverture de session</td><td>dot3svc en démarrage manuel : il ne démarre qu'à l'ouverture de session</td><td>Service en démarrage automatique</td></tr><tr><td>Échec avec les identifiants Windows, pour tous les comptes</td><td>Mise à jour KB5127648 (voir la partie 6)</td><td>Identifiants tapés une fois par utilisateur, EAP-TLS en secours</td></tr></tbody></table></div>
+<p>À retenir : le code 65 renvoie vers l'onglet « Appel entrant » du compte, mais la vraie cause se lisait dans le champ « Nom de stratégie réseau » de l'événement. Quand c'est une stratégie par défaut, c'est qu'aucune stratégie de service n'a correspondu.</p>
+</div>
+<div class="part" id="partie-9">
+<h2><span class="n">09</span>Bilan et améliorations</h2>
+<p>La solution marche sur les deux switchs : chaque utilisateur se connecte avec son compte AD et reçoit le VLAN de son service, quel que soit le port ou l'étage. Un PC ou un compte non autorisé n'a plus aucun accès, l'administration des switchs ne dépend pas de RADIUS, et le secours par certificats fonctionne.</p>
+<p>Le point faible principal : un seul serveur NPS. S'il tombe, plus personne ne peut se connecter. Les améliorations proposées :</p>
+<ul class="b"><li>un second serveur NPS, déclaré comme deuxième serveur RADIUS sur les switchs ;</li><li>la clé de registre <span class="k">BlockNtlmv1SSO = 0</span>, déployée par GPO, pour rétablir l'envoi automatique des identifiants Windows bloqué par KB5127648 ;</li><li>la configuration 802.1X des postes déployée par GPO, au lieu de régler chaque PC à la main ;</li><li>« Vérifier l'identité du serveur » recoché avec l'autorité de l'entreprise, pour qu'un faux serveur RADIUS ne puisse pas récupérer les mots de passe ;</li><li>un VLAN « parking », sans routage ni DHCP, comme VLAN par défaut des ports ;</li><li>la comptabilisation RADIUS, pour garder une trace des connexions, et l'authentification par adresse MAC (MAB) pour les imprimantes ;</li><li>Credential Guard réactivé sur les postes, compatible avec les identifiants mémorisés et EAP-TLS.</li></ul>
+<p>Ce que j'en retiens : quand l'authentification échoue, chaque acteur a son journal. Le switch dit si une requête est partie, le NPS dit quelle stratégie a répondu, et le poste dit pourquoi il n'a rien envoyé. C'est en lisant les trois que nous avons trouvé la mise à jour Windows en cause.</p>
+<p>Ce TP a eu une suite : quand nous avons testé BPDU Guard pour le <a href="spanning-tree.html">Spanning Tree</a>, un switch branché sur une prise 802.1X n'a déclenché aucune protection, car le port non authentifié ne laissait déjà rien passer.</p>
+</div>
+<nav class="pager" aria-label="Autres comptes rendus"><a href="archisite.html"><span>Précédent</span>ArchiSite : site web sécurisé dans la DMZ</a><a class="next" href="spanning-tree.html"><span>Suivant</span>Spanning Tree : des liens de secours sur le LAN</a></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js?v=11"></script>
+</body>
+</html>

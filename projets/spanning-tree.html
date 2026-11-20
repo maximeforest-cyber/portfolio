@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spanning Tree : des liens de secours sur le LAN | Maxime Forest</title>
+<meta name="description" content="Compte rendu de TP : liens de secours ajoutés au réseau local de l&#x27;entreprise RIOCA et Spanning Tree en Rapid-PVST sur des switchs Cisco. Pont racine choisi, coûts de port réglés, PortFast et BPDU Guard, coupures de liens testées sans perte de ping.">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#efe9df">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/spanning-tree.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/spanning-tree.html">
+<meta property="og:title" content="Spanning Tree : des liens de secours sur le LAN | Maxime Forest">
+<meta property="og:description" content="Compte rendu de TP : liens de secours ajoutés au réseau local de l&#x27;entreprise RIOCA et Spanning Tree en Rapid-PVST sur des switchs Cisco. Pont racine choisi, coûts de port réglés, PortFast et BPDU Guard, coupures de liens testées sans perte de ping.">
+<meta property="og:image" content="https://forestmaxime-pf.fr/projets/img/apercu-spanning-tree.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="Spanning Tree : des liens de secours sur le LAN, sur le portfolio de Maxime Forest">
+<link rel="stylesheet" href="../style.css?v=13">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="../#projet-spanning-tree">← Projets et stages</a></p>
+    <p class="kicker">Travaux pratiques · <b>novembre 2026</b> · en binôme</p>
+    <h1>Spanning Tree : des liens de secours sur le LAN</h1>
+    <p class="lead">Ajout de liens de secours entre les switchs du réseau local de RIOCA, puis configuration du Spanning Tree pour éviter les boucles : chaque étage garde l'accès au réseau si un câble est coupé.</p>
+    <dl class="facts"><div><dt>Contexte</dt><dd>Le LAN de RIOCA (entreprise fictive) est en étoile : un seul lien par étage, donc un câble coupé isole tout un étage</dd></div><div><dt>Cadre</dt><dd>TP de 2<sup>e</sup> année de BTS SIO sur la maquette physique de RIOCA, en binôme</dd></div><div><dt>Matériel</dt><dd>Switch cœur Cisco Catalyst 3650, deux Catalyst 2960-X et un Catalyst 2960 Plus, liens cuivre et fibre</dd></div><div><dt>Points clés</dt><dd>Rapid-PVST, pont racine, priorités, coût des ports, PortFast, BPDU Guard, modules fibre SFP</dd></div><div><dt>Résultat</dt><dd>5 tests conformes : quand la fibre d'un étage est coupée, le trafic passe par un lien de secours sans perte de ping</dd></div></dl>
+    <ul class="tags"><li>Cisco</li><li>Spanning Tree</li><li>Rapid-PVST</li><li>Redondance</li><li>Fibre</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Contexte</a></li><li><a href="#partie-2"><span>02</span>Choix</a></li><li><a href="#partie-3"><span>03</span>État de départ</a></li><li><a href="#partie-4"><span>04</span>Configuration</a></li><li><a href="#partie-5"><span>05</span>Arbre obtenu</a></li><li><a href="#partie-6"><span>06</span>Tests de panne</a></li><li><a href="#partie-7"><span>07</span>Bilan et limites</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Contexte</h2>
+<p>Le réseau local de RIOCA, construit lors de la <a href="maquette-rioca.html">maquette</a>, était en étoile : le switch cœur était relié en fibre à un switch par étage (Sw2E au 2<sup>e</sup> étage, avec les serveurs, Sw1E au 1<sup>er</sup> étage et SwRDC au rez-de-chaussée). Chaque étage n'avait qu'un seul lien : si une fibre était coupée, l'étage perdait l'accès au réseau et aux serveurs.</p>
+<p>Nous avons ajouté deux types de liens de secours :</p>
+<ul class="b"><li>un deuxième lien, en cuivre, entre chaque étage et le switch cœur ;</li><li>des liens en fibre entre les étages (Sw2E – Sw1E et Sw1E – SwRDC).</li></ul>
+<p>Ces liens forment des boucles. Sans protection, une trame de diffusion y tournerait sans fin et saturerait le réseau en quelques secondes. Le Spanning Tree (STP) l'empêche : il bloque les liens en trop et les réactive si un lien tombe.</p>
+<figure class="shot"><a href="img/spanning-tree-01.webp"><img src="img/spanning-tree-01.webp" alt="Schéma du réseau local de RIOCA : le switch cœur relié en fibre à Sw2E, Sw1E et SwRDC, les liens cuivre de secours vers le cœur en pointillés verts, les fibres de secours entre étages en pointillés orange, et des pastilles sur les ports bloqués par STP. Adresses masquées." width="1188" height="1028" loading="lazy"></a><figcaption><b>Fig. 1</b> Le LAN avec ses liens de secours. Les pastilles orange marquent les ports que STP bloque.</figcaption></figure>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>Choix</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Choix</th><th scope="col">Pourquoi</th></tr></thead><tbody><tr><td>Mode Rapid-PVST</td><td>Bascule en moins d'une seconde, au lieu de 30 à 50 secondes avec le STP de base, et un arbre par VLAN</td></tr><tr><td>Switch cœur en pont racine (priorité 4096)</td><td>C'est le switch central, relié à tous les étages : tous les chemins doivent partir de lui</td></tr><tr><td>Sw1E en racine de secours (priorité 8192)</td><td>Il est relié aux deux autres étages</td></tr><tr><td>Fibre principale gardée vers le cœur</td><td>Le câble cuivre de secours a le même débit (1 Gbit/s) que la fibre sur Sw2E et Sw1E : on lui donne un coût de 6 au lieu de 4 pour que la fibre reste le chemin normal</td></tr><tr><td>PortFast et BPDU Guard sur les ports des postes</td><td>Le poste a le réseau tout de suite, et si quelqu'un branche un switch sur une prise, le port se coupe</td></tr></tbody></table></div>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>État de départ</h2>
+<p>Le switch cœur, Sw2E et Sw1E étaient déjà en Rapid-PVST, mais SwRDC était resté en PVST. Aucune priorité n'était réglée : à égalité, STP élit le switch qui a la plus petite adresse MAC. C'était SwRDC, un simple switch d'étage, qui était pont racine de tous les VLAN :</p>
+<pre class="cmd"><code>SWRDC#show spanning-tree summary
+Switch is in pvst mode
+Root bridge for: VLAN0001, VLAN0010, VLAN0020, VLAN0030, VLAN0040, VLAN0050
+  VLAN0060, VLAN0070, VLAN0080, VLAN0090-VLAN0091, VLAN0100-VLAN0101</code></pre>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>Configuration</h2>
+<p>Mode et priorités :</p>
+<pre class="cmd"><code>SWRDC(config)#spanning-tree mode rapid-pvst
+SW_COEUR_GRP3(config)#spanning-tree vlan 1-4094 priority 4096
+SW_1ER_GRP3(config)#spanning-tree vlan 1-4094 priority 8192</code></pre>
+<p>Sw2E et SwRDC restent à la priorité par défaut (32768). Sur les ports des postes, et sur ceux des serveurs pour Sw2E :</p>
+<pre class="cmd"><code>interface range gi1/0/1-21
+ spanning-tree portfast
+ spanning-tree bpduguard enable</code></pre>
+<p>Les liens de secours :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Lien</th><th scope="col">Ports</th><th scope="col">Type</th><th scope="col">Coût STP</th></tr></thead><tbody><tr><td>Sw2E – cœur</td><td>Gi1/0/24 – Gi1/0/22</td><td>Cuivre 1 Gbit/s</td><td>6 (forcé)</td></tr><tr><td>Sw1E – cœur</td><td>Gi1/0/24 – Gi1/0/23</td><td>Cuivre 1 Gbit/s</td><td>6 (forcé)</td></tr><tr><td>SwRDC – cœur</td><td>Fa0/24 – Gi1/0/24</td><td>Cuivre 100 Mbit/s</td><td>19</td></tr><tr><td>Sw2E – Sw1E</td><td>Gi1/0/27 – Gi1/0/27</td><td>Fibre 1 Gbit/s</td><td>4</td></tr><tr><td>Sw1E – SwRDC</td><td>Gi1/0/28 – Gi0/2</td><td>Fibre 1 Gbit/s</td><td>4</td></tr></tbody></table></div>
+<p>Sur les 2960-X, les ports 25 à 28 sont des emplacements fibre (SFP). Sur SwRDC, Gi0/2 a une prise cuivre et une prise fibre : on force la fibre avec <span class="k">media-type sfp</span>. Exemple d'un lien cuivre vers le cœur :</p>
+<pre class="cmd"><code>SW_2E_GRP3(config)#interface gi1/0/24
+SW_2E_GRP3(config-if)#description Uplink2_vers_Coeur
+SW_2E_GRP3(config-if)#switchport mode trunk
+SW_2E_GRP3(config-if)#spanning-tree cost 6
+SW_2E_GRP3(config-if)#no shutdown</code></pre>
+<p>Pourquoi un coût de 6 : sans lui, le cuivre et la fibre ont le même coût (4). À égalité, STP garde le lien qui arrive sur le port du cœur au plus petit numéro : Gi1/0/22, le cuivre, passait avant Gi1/1/1, la fibre, et c'est la fibre qui était bloquée. Avec 6, la fibre (4) reste devant. Et si la fibre tombe, le cuivre direct (6) passe avant le chemin par un autre étage (4 + 4 = 8).</p>
+<p>Les ports fibre non utilisés sont éteints, et la configuration est sauvegardée (<span class="k">copy run start</span>) sur les 4 switchs.</p>
+<figure class="shot"><a href="img/spanning-tree-02.webp"><img src="img/spanning-tree-02.webp" alt="Photo de la baie : deux Catalyst 2960-X et un Catalyst 2960 Plus, reliés par des jarretières fibre bleu clair, avec des câbles cuivre verts vers le switch cœur Catalyst 3650 en bas." width="750" height="1000" loading="lazy"></a><figcaption><b>Fig. 2</b> Le câblage dans la baie : fibres entre étages (bleu clair) et cuivre de secours (vert).</figcaption></figure>
+</div>
+<div class="part" id="partie-5">
+<h2><span class="n">05</span>Arbre obtenu</h2>
+<p>Chaque étage passe par sa fibre principale vers le cœur (coût 4). Les liens de secours vers le cœur sont bloqués, car ils coûtent plus cher (6 ou 19). Sur les fibres entre étages, les deux côtés ont le même coût : c'est le switch au plus petit identifiant (Bridge ID) qui garde son port actif, Sw1E, grâce à sa priorité de 8192.</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Switch</th><th scope="col">Port vers la racine</th><th scope="col">Ports bloqués</th></tr></thead><tbody><tr><td>Switch cœur</td><td>Aucun (pont racine)</td><td>Aucun</td></tr><tr><td>Sw2E</td><td>Gi1/0/25 (fibre)</td><td>Gi1/0/24 et Gi1/0/27</td></tr><tr><td>Sw1E</td><td>Gi1/0/25 (fibre)</td><td>Gi1/0/24</td></tr><tr><td>SwRDC</td><td>Gi0/1 (fibre)</td><td>Fa0/24 et Gi0/2</td></tr></tbody></table></div>
+<aside class="verif" aria-label="Vérification">
+<p class="verif-t">Vérification</p>
+<pre class="cmd"><code>show spanning-tree vlan 10        # sur le switch cœur
+show spanning-tree blockedports   # sur chaque switch d'étage</code></pre>
+<p>Le switch cœur affiche <span class="k">This bridge is the root</span> avec la priorité 4106 (4096 + numéro du VLAN). Sur les étages, les ports bloqués sont ceux du tableau. Les VLAN 90, 91 et 101 n'existent pas sur Sw1E : ils n'apparaissent donc pas sur les liens vers Sw1E. Voir les figures 3 à 5.</p>
+</aside>
+<figure class="shot"><a href="img/spanning-tree-03.webp"><img src="img/spanning-tree-03.webp" alt="show spanning-tree vlan 10 sur SW_COEUR_GRP3 : protocole rstp, This bridge is the root, priorité 4106, trois ports désignés en transmission (Gi1/1/1, Gi1/1/2, Te1/1/3)." width="984" height="562" loading="lazy"></a><figcaption><b>Fig. 3</b> Le switch cœur est pont racine. Capture prise juste après le changement de priorité, avant l'ajout des liens de secours : on ne voit que les trois fibres vers les étages.</figcaption></figure>
+<div class="shots"><figure class="shot"><a href="img/spanning-tree-04.webp"><img src="img/spanning-tree-04.webp" alt="Sur SW_2E_GRP3 : description des ports, puis show spanning-tree blockedports : Gi1/0/24 et Gi1/0/27 bloqués dans les VLAN, puis copy run start." width="928" height="817" loading="lazy"></a><figcaption><b>Fig. 4</b> Ports bloqués sur Sw2E.</figcaption></figure><figure class="shot"><a href="img/spanning-tree-05.webp"><img src="img/spanning-tree-05.webp" alt="show spanning-tree blockedports sur SWRDC : Fa0/24 et Gi0/2 bloqués." width="822" height="480" loading="lazy"></a><figcaption><b>Fig. 5</b> Ports bloqués sur SwRDC.</figcaption></figure></div>
+</div>
+<div class="part" id="partie-6">
+<h2><span class="n">06</span>Tests de panne</h2>
+<p><b>Coupure de la fibre de SwRDC.</b> Depuis un poste du rez-de-chaussée, on lance un <span class="k">ping -t</span> vers le contrôleur de domaine. Pendant le ping, on coupe la fibre de SwRDC vers le cœur (<span class="k">shutdown</span> sur Gi0/1).</p>
+<p>SwRDC passe alors par la fibre vers Sw1E, puis par la fibre de Sw1E vers le cœur (coût 4 + 4 = 8). Le cuivre direct, à 100 Mbit/s (coût 19), reste en secours. Aucun ping n'est perdu : avec Rapid-PVST, le port de secours passe tout de suite en transmission.</p>
+<div class="shots"><figure class="shot"><a href="img/spanning-tree-06.webp"><img src="img/spanning-tree-06.webp" alt="Sur SWRDC : shutdown de Gi0/1, puis show spanning-tree vlan 20 : coût 8, port racine Gi0/2 en transmission, Fa0/24 en Altn BLK avec un coût de 19." width="1150" height="655" loading="lazy"></a><figcaption><b>Fig. 6</b> SwRDC passe par la fibre de Sw1E (coût 8).</figcaption></figure><figure class="shot"><a href="img/spanning-tree-07.webp"><img src="img/spanning-tree-07.webp" alt="Invite de commandes : ping continu, toutes les lignes sont des réponses avec un temps de 1 ms au plus. Adresse masquée." width="1416" height="750" loading="lazy"></a><figcaption><b>Fig. 7</b> Le ping continue pendant la coupure.</figcaption></figure></div>
+<p><b>Coupure de la fibre de Sw2E.</b> On coupe la fibre de Sw2E vers le cœur (<span class="k">shutdown</span> sur Gi1/0/25). Le cuivre direct (6) passe avant la fibre par Sw1E (4 + 4 = 8), qui reste bloquée : c'est le coût forcé de la partie 4 qui joue.</p>
+<figure class="shot"><a href="img/spanning-tree-08.webp"><img src="img/spanning-tree-08.webp" alt="Sur SW_2E_GRP3 : shutdown de Gi1/0/25, puis show spanning-tree vlan 10 : coût 6, port racine Gi1/0/24 en transmission, Gi1/0/27 en Altn BLK." width="1108" height="564" loading="lazy"></a><figcaption><b>Fig. 8</b> Sw2E passe par le cuivre direct vers le cœur (coût 6).</figcaption></figure>
+<p><b>BPDU Guard.</b> On branche un switch sur un port de poste : le port doit se couper. Le premier essai, entre deux ports protégés par <a href="radius-8021x.html">l'authentification 802.1X</a>, n'a rien donné. Un port 802.1X non authentifié ne laisse passer aucune trame, même pas les BPDU, les messages de STP : sur les prises des postes, le 802.1X bloque donc déjà un switch branché. Le test a été refait sur un port sans 802.1X de Sw2E, remis à zéro après.</p>
+<figure class="shot"><a href="img/spanning-tree-09.webp"><img src="img/spanning-tree-09.webp" alt="show interfaces status err-disabled sur SW_2E_GRP3 : Gi1/0/3 en err-disabled, raison bpduguard." width="990" height="97" loading="lazy"></a><figcaption><b>Fig. 9</b> Le port est coupé par BPDU Guard.</figcaption></figure>
+</div>
+<div class="part" id="partie-7">
+<h2><span class="n">07</span>Bilan et limites</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Test</th><th scope="col">Résultat</th></tr></thead><tbody><tr><td>Switch cœur pont racine</td><td>Conforme</td></tr><tr><td>Ports bloqués conformes sur les 3 switchs d'étage</td><td>Conforme</td></tr><tr><td>Coupure de la fibre de SwRDC : bascule par Sw1E sans perte</td><td>Conforme</td></tr><tr><td>Coupure de la fibre de Sw2E : bascule par le cuivre direct</td><td>Conforme</td></tr><tr><td>BPDU Guard</td><td>Conforme</td></tr></tbody></table></div>
+<p>Les limites que nous avons notées, avec une amélioration pour chacune :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Limite</th><th scope="col">Amélioration possible</th></tr></thead><tbody><tr><td>Le switch cœur reste un point unique de panne : s'il tombe, tout le LAN est coupé</td><td>Un deuxième switch cœur, avec les passerelles des VLAN partagées en HSRP ou VRRP</td></tr><tr><td>STP bloque les liens en trop : un seul lien sert à la fois, le débit n'augmente pas</td><td>Regrouper les deux liens vers le cœur en EtherChannel (LACP) pour utiliser les deux câbles en même temps</td></tr><tr><td>Les liens de secours vers le cœur sont en cuivre, celui de SwRDC en 100 Mbit/s, faute d'emplacement fibre libre sur le cœur</td><td>Ajouter un module fibre au switch cœur</td></tr><tr><td>Le même switch est racine pour tous les VLAN : les liens bloqués ne servent qu'en cas de panne</td><td>Répartir les VLAN entre deux racines (le cœur et Sw1E), ou passer en MSTP</td></tr><tr><td>Rien n'empêche un switch avec une priorité plus basse de devenir racine</td><td>Activer Root Guard sur les ports du cœur vers les étages</td></tr><tr><td>Le coût de 6 est réglé à la main sur deux ports : si le câblage change, il faut y penser</td><td>Le noter dans la documentation de la baie et étiqueter les câbles</td></tr></tbody></table></div>
+<p>Ce que j'en retiens : STP marche tout seul, mais pas forcément comme on le veut. Sans priorité réglée, c'était un switch d'étage qui commandait l'arbre, et sans coût forcé, c'était la fibre qui était bloquée au profit du cuivre. Il faut lire l'arbre obtenu, puis couper des liens pour le vérifier.</p>
+</div>
+<nav class="pager" aria-label="Autres comptes rendus"><a href="radius-8021x.html"><span>Précédent</span>802.1X et RADIUS : un VLAN selon l'utilisateur</a><a class="next" href="nextcloud.html"><span>Suivant</span>Cloud interne sécurisé avec Nextcloud</a></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js?v=11"></script>
+</body>
+</html>

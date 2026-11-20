@@ -267,6 +267,7 @@
               <li><b>Gestion de parc avec GLPI</b> : serveur GLPI 12 sur Azure, inventaire automatique (GLPI Agent)</li>
               <li><b>Infra-Site, chef de projet en binôme</b> : DMZ, pare-feu Zyxel, routage RIP v2, NAT, SSH, sauvegardes TFTP</li>
               <li><b>ArchiSite</b> : site HTTPS avec autorité de certification interne, FTPS et base de données isolée dans la DMZ</li>
+              <li><b>802.1X et RADIUS</b> : VLAN attribué selon le groupe AD (NPS, PEAP, EAP-TLS) ; <b>Spanning Tree</b> : liens de secours en Rapid-PVST</li>
               <li><b>Cloud privé Nextcloud et intranet web / FTP</b> sous Linux, à accès restreints</li>
             </ul>
             <h4>Compétences techniques</h4>
@@ -464,6 +465,54 @@
         </details>
         <a class="doc" href="projets/archisite.html">Lire le compte rendu</a>
         <ul class="tags"><li>Linux</li><li>Apache</li><li>HTTPS</li><li>Certificats</li><li>FTPS</li><li>MariaDB</li></ul>
+      </article>
+
+      <article class="card project" id="projet-radius-8021x">
+        <p class="meta">Travaux pratiques · 2026 · en binôme</p>
+        <h3>802.1X et RADIUS : un VLAN selon l'utilisateur</h3>
+        <p>Plus d'accès au réseau sans compte Active Directory : les switchs Cisco demandent l'identité du poste, et le serveur NPS place chaque utilisateur dans le VLAN de son service, quel que soit le port.</p>
+        <p class="resultat"><b>Résultat :</b> 9 tests conformes sur les deux switchs, un compte non autorisé n'a aucun accès ; 14 anomalies diagnostiquées et corrigées, dont une mise à jour Windows qui bloquait PEAP.</p>
+        <details>
+          <summary>Voir la fiche</summary>
+          <div class="fiche">
+            <h4>Contexte</h4>
+            <p>Sur le réseau de RIOCA, le VLAN dépendait du port : un salarié qui changeait de bureau changeait de réseau, et n'importe quel appareil branché avait accès au réseau.</p>
+            <h4>Ce que j'ai fait, en binôme</h4>
+            <ul>
+              <li>Autorité de certification AD CS et serveur RADIUS NPS relié à l'Active Directory</li>
+              <li>Une stratégie par service, qui renvoie son VLAN avec les attributs RADIUS</li>
+              <li>Switchs Cisco en authentificateurs 802.1X (AAA), sans dépendre de RADIUS pour l'administration</li>
+              <li>Postes en PEAP, puis EAP-TLS par certificats en secours, avec inscription automatique par GPO</li>
+              <li>Document de configuration et rapport de tests avec le journal des anomalies</li>
+            </ul>
+          </div>
+        </details>
+        <a class="doc" href="projets/radius-8021x.html">Lire le compte rendu</a>
+        <ul class="tags"><li>802.1X</li><li>RADIUS</li><li>Windows Server</li><li>Certificats</li><li>Cisco</li></ul>
+      </article>
+
+      <article class="card project" id="projet-spanning-tree">
+        <p class="meta">Travaux pratiques · 2026 · en binôme</p>
+        <h3>Spanning Tree : des liens de secours sur le LAN</h3>
+        <p>Ajout de liens de secours, en cuivre et en fibre, entre les switchs du réseau local, et configuration du Spanning Tree pour éviter les boucles.</p>
+        <p class="resultat"><b>Résultat :</b> 5 tests conformes ; quand la fibre d'un étage est coupée, le trafic passe par un lien de secours sans perte de ping.</p>
+        <details>
+          <summary>Voir la fiche</summary>
+          <div class="fiche">
+            <h4>Contexte</h4>
+            <p>Le LAN de RIOCA était en étoile, avec un seul lien par étage : un câble coupé isolait tout un étage.</p>
+            <h4>Ce que j'ai fait, en binôme</h4>
+            <ul>
+              <li>Câblage des liens de secours : cuivre vers le cœur, fibre entre les étages</li>
+              <li>Rapid-PVST, switch cœur en pont racine et racine de secours choisie</li>
+              <li>Coût de port forcé pour garder la fibre comme chemin normal</li>
+              <li>PortFast et BPDU Guard sur les ports des postes</li>
+              <li>Tests de coupure, rapport de tests, limites et améliorations</li>
+            </ul>
+          </div>
+        </details>
+        <a class="doc" href="projets/spanning-tree.html">Lire le compte rendu</a>
+        <ul class="tags"><li>Cisco</li><li>Spanning Tree</li><li>Redondance</li><li>Fibre</li></ul>
       </article>
 
     </div>

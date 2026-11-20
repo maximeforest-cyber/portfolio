@@ -19,6 +19,30 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | mar. 01/12 | Homelab, étape 10 : des services dans Docker, avec un vrai certificat |
 | jeu. 03/12 | Homelab : tout le labo en un schéma cliquable |
 
+## 2026-11-20 : Spanning Tree : des liens de secours sur le LAN (TP de BTS)
+
+- Statut : à relire
+- Lien : https://forestmaxime-pf.fr/projets/spanning-tree.html
+- Image proposée : projets/img/spanning-tree-02.webp (la photo de la baie avec les fibres), ou projets/img/apercu-spanning-tree.jpg
+
+Nouveau compte rendu sur mon portfolio : le Spanning Tree, en TP de BTS, en binôme, sur de vrais switchs Cisco.
+
+Le réseau de l'entreprise fictive était en étoile : une seule fibre par étage, donc un câble coupé et tout l'étage perdait le réseau. Nous avons ajouté des liens de secours, en cuivre vers le switch cœur et en fibre entre les étages, puis configuré le Spanning Tree en Rapid-PVST pour éviter les boucles.
+
+Deux surprises. Sans réglage, c'était un switch d'étage qui commandait tout l'arbre, parce qu'il avait la plus petite adresse MAC. Et à coût égal, c'était la fibre qui était bloquée au profit du câble cuivre. Une fois la priorité et le coût réglés, nous avons coupé des fibres pendant un ping : le trafic est passé par le lien de secours sans perte.
+
+## 2026-11-20 : 802.1X et RADIUS : un VLAN selon l'utilisateur (TP de BTS)
+
+- Statut : à relire
+- Lien : https://forestmaxime-pf.fr/projets/radius-8021x.html
+- Image proposée : projets/img/radius-8021x-01.webp (le schéma de l'échange 802.1X), ou projets/img/apercu-radius-8021x.jpg
+
+Nouveau compte rendu sur mon portfolio : l'authentification 802.1X, en TP de BTS, en binôme.
+
+Avant, n'importe quel appareil branché sur une prise avait accès au réseau, et le VLAN dépendait du port. Maintenant, le switch Cisco bloque le port tant que l'utilisateur ne s'est pas identifié avec son compte Active Directory. Le serveur RADIUS (NPS, sous Windows Server) vérifie son groupe et renvoie le VLAN de son service, quel que soit le port ou l'étage.
+
+Nous avons noté 14 problèmes pendant la mise en place. Le plus long à trouver : une mise à jour Windows d'octobre bloquait l'envoi automatique des identifiants en PEAP, sans laisser aucune trace côté serveur. C'est le journal du poste qui l'a montré. En secours, nous avons aussi mis en place l'authentification par certificats (EAP-TLS), sans mot de passe.
+
 ## 2026-11-20 : ArchiSite : un site HTTPS dans la DMZ (projet de BTS)
 
 - Statut : à relire

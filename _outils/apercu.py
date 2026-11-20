@@ -20,6 +20,9 @@ pages={
  'homelab-etape-8':("HOMELAB · ÉTAPE 8 SUR 10",["Les rapports aux couleurs","de Site de Poche"],"Diagnostic d'une page · rapport mensuel · HTML et PDF · WeasyPrint"),
  'homelab-etape-9':("HOMELAB · ÉTAPE 9 SUR 10",["Une IA locale sur la","carte graphique du labo"],"GTX 1060 · pilote NVIDIA 580 · Ollama · Gemma 4 · IA retirée des rapports"),
  'homelab-etape-10':("HOMELAB · ÉTAPE 10 SUR 10",["Un vrai certificat","pour un service privé"],"Uptime Kuma · Traefik · Let's Encrypt par le DNS · accès par le VPN seulement"),
+ 'homelab-si':("PROJET PERSONNEL · HOMELAB N°2",["Un petit SI segmenté,","défendu et supervisé"],"KVM · OPNsense · Active Directory mesuré · Wazuh"),
+ 'homelab-si-etape-1':("HOMELAB N°2 · ÉTAPE 1",["La virtualisation","avec KVM"],"KVM/libvirt · volume LVM dédié · qcow2 · cloud-init"),
+ 'homelab-si-etape-2':("HOMELAB N°2 · ÉTAPE 2",["Le pare-feu et","la segmentation"],"OPNsense · 4 zones · refus par défaut · 81 essais, 0 écart"),
 }
 def t(name,txt):
     p=os.path.join(D,name); open(p,'w').write(txt); return p

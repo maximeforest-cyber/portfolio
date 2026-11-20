@@ -19,6 +19,30 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | mar. 01/12 | Homelab, étape 10 : des services dans Docker, avec un vrai certificat |
 | jeu. 03/12 | Homelab : tout le labo en un schéma cliquable |
 
+## 2026-11-20 : Homelab n°2, étape 2 : le pare-feu et la segmentation
+
+- Statut : à relire
+- Lien : https://forestmaxime-pf.fr/projets/homelab-si-etape-2.html
+- Image proposée : projets/img/homelab-si-etape-2-09.webp (la Freebox bloquée depuis les 3 zones, adresse publique masquée)
+
+Deuxième étape de mon homelab n°2 : un pare-feu OPNsense, dans une machine virtuelle, découpe le labo en quatre zones (administration, serveurs, postes clients, DMZ). Tout est refusé, sauf ce qui est écrit dans une matrice des flux.
+
+Plutôt que de faire confiance à une capture des règles, j'ai écrit un script de 81 essais. Pour chacun, il connaît le résultat attendu et sépare « bloqué par le pare-feu » de « machine injoignable ». Ma première version prenait une VM éteinte pour un flux bloqué.
+
+Ces essais ont confirmé un vrai trou : la règle « internet = tout sauf les réseaux privés » laissait les zones joindre ma box par son adresse publique. Je l'ai bloquée et j'ai réduit la sortie au web et à l'heure. Résultat : 81 essais, 0 écart. La fiche liste aussi ce que je n'ai pas encore essayé.
+
+## 2026-11-20 : Homelab n°2 : un petit SI segmenté, défendu et supervisé (lancement et étape 1)
+
+- Statut : à relire
+- Lien : https://forestmaxime-pf.fr/projets/homelab-si.html
+- Image proposée : projets/img/apercu-homelab-si.jpg (ou projets/img/homelab-si-etape-1-02.webp : la VM de test, 25,5 Mo occupés pour 20 Go annoncés)
+
+Je commence un deuxième homelab, tourné vers la sécurité des infrastructures : un petit système d'information dans des machines virtuelles, avec des zones isolées derrière un pare-feu, un Active Directory et une détection des attaques avec Wazuh.
+
+Un AD et un pare-feu, j'en ai déjà monté en cours. Ici, je veux mesurer : un score PingCastle avant et après le durcissement, puis des faiblesses classiques rejouées dans le labo, pour vérifier qu'elles sont détectées et corrigées.
+
+Étape 1 : la virtualisation avec KVM, sur le serveur de mon premier homelab, sans rien casser de ce qui y tourne. Un volume réservé aux VM, des disques qui ne stockent que leurs différences avec un modèle commun, et mon compte gardé hors du groupe libvirt, même quand une mise à jour le remet dedans.
+
 ## 2026-11-08 : Suivre un paquet pas à pas sur le plan du portfolio
 
 - Statut : à relire

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Homelab n°2 : un petit SI segmenté, défendu et supervisé | Maxime Forest</title>
+<meta name="description" content="Projet personnel en cours : un petit système d'information virtualisé (KVM), découpé en zones derrière un pare-feu OPNsense, avec un Active Directory durci de façon mesurée et une détection Wazuh. Chaque étape est prouvée par des essais.">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#efe9df">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/homelab-si.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/homelab-si.html">
+<meta property="og:title" content="Homelab n°2 : un petit SI segmenté, défendu et supervisé | Maxime Forest">
+<meta property="og:description" content="Projet personnel en cours : un petit système d'information virtualisé (KVM), découpé en zones derrière un pare-feu OPNsense, avec un Active Directory durci de façon mesurée et une détection Wazuh. Chaque étape est prouvée par des essais.">
+<meta property="og:image" content="https://forestmaxime-pf.fr/projets/img/apercu-homelab-si.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="Homelab n°2 : un petit SI segmenté, défendu et supervisé, sur le portfolio de Maxime Forest">
+<link rel="stylesheet" href="../style.css?v=13">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="../#projet-homelab-si">← Projets et stages</a></p>
+    <p class="kicker">Projet personnel · <b>depuis novembre 2026</b> · en cours</p>
+    <h1>Homelab n°2 : un petit SI segmenté, défendu et supervisé</h1>
+    <p class="lead">Un petit système d'information monté dans des machines virtuelles : des zones isolées derrière un pare-feu, un Active Directory durci de façon mesurée, et une détection des attaques. Chaque étape est prouvée par des essais, et chaque correction par un score avant et après.</p>
+    <dl class="facts"><div><dt>Cadre</dt><dd>Projet personnel, mené en parallèle de ma 2<sup>e</sup> année de BTS SIO option SISR ; il n'est pas demandé par mon établissement</dd></div><div><dt>Machine</dt><dd>La tour de mon <a href="homelab.html">homelab n°1</a> (4 cœurs, 16 Go de RAM, disque dur de 1 To), qui continue de tourner à côté</dd></div><div><dt>Budget</dt><dd>0 € : logiciels libres, Windows Server en version d'évaluation</dd></div><div><dt>Avancement</dt><dd>2 étapes validées sur 6, plus une en option</dd></div></dl>
+    <ul class="tags"><li>KVM / libvirt</li><li>OPNsense</li><li>Segmentation</li><li>Refus par défaut</li><li>Essais automatisés</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Le projet</a></li><li><a href="#partie-2"><span>02</span>Les principes</a></li><li><a href="#partie-3"><span>03</span>L'architecture</a></li><li><a href="#partie-4"><span>04</span>Les étapes</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Le projet</h2>
+<p>Mon <a href="homelab.html">premier homelab</a> a transformé un ancien PC en serveur, pour outiller ma micro-entreprise. Ce deuxième projet vise mon objectif professionnel, l'administration et la sécurité des infrastructures : construire un petit système d'information, le défendre, et <strong>mesurer</strong> ce que chaque mesure de sécurité change.</p>
+<p>Un Active Directory et un pare-feu à zones, j'en ai déjà monté en cours (par exemple pour <a href="infra-site.html">Infra-Site</a> ou la <a href="maquette-rioca.html">maquette RIOCA</a>). Ce projet ne les refait pas pour eux-mêmes : il ajoute la <strong>boucle mesure → détection → correction</strong>.</p>
+<ul class="b"><li><strong>Mesurer</strong> : score de l'Active Directory avec PingCastle et des serveurs Linux avec Lynis, avant et après le durcissement ;</li><li><strong>détecter</strong> : Wazuh collecte les journaux des machines et lève des alertes ;</li><li><strong>corriger et revérifier</strong> : rejouer dans le labo quelques faiblesses classiques, vérifier que l'alerte attendue apparaît, corriger, puis vérifier que l'essai ne passe plus.</li></ul>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>Les principes</h2>
+<ul class="b"><li><strong>Prouver plutôt qu'affirmer</strong> : chaque essai a un résultat attendu écrit à l'avance ; un script signale tout écart. Ce que je n'ai pas essayé est écrit dans la fiche.</li><li><strong>Ne rien casser à côté</strong> : la tour fait toujours tourner le homelab n°1, vérifié par ses 157 tests après chaque changement.</li><li><strong>Tout reste dans le labo</strong> : rien n'est exposé sur internet, aucune machine des zones ne joint le réseau de la maison, et les attaques ne sont rejouées que sur mes propres machines virtuelles. Elles sont présentées côté défense (ce que j'ai rejoué, ce que j'ai vu, ce que j'ai corrigé), sans mode d'emploi.</li><li><strong>Moindre privilège</strong> : mon compte n'a pas les droits libvirt ni docker ; les commandes d'administration passent par <span class="k">sudo</span>, que je tape moi-même.</li><li><strong>Un assistant IA comme guide</strong> : Claude Code m'accompagne pas à pas ; je fais les manipulations moi-même et je vérifie chaque résultat.</li></ul>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>L'architecture</h2>
+<p>L'architecture visée. Les étapes 1 et 2 sont en place ; le reste sera ajouté étape par étape.</p>
+<pre class="cmd schema" role="img" aria-label="Schéma de l'architecture visée : internet, puis la Freebox de la maison, injoignable depuis les zones, puis la tour labo, hôte KVM/libvirt (étape 1). Le pare-feu OPNsense, en refus par défaut (étape 2), sépare quatre zones : mgmt, où la tour est seule à administrer ; SRV, pour le contrôleur de domaine (étape 3) ; CLI, pour un poste Windows (étape 3) ; DMZ, pour un service exposé plus tard. Durcissement mesuré avec PingCastle, Lynis et Ansible à l'étape 4 ; détection avec Wazuh et ses agents Windows et Linux à l'étape 5. Le homelab n°1 tourne inchangé sur la même tour."><code>                         Internet
+                            │
+                   Freebox (maison) : injoignable depuis les zones
+                            │
+┌──────────── Tour « labo » · KVM/libvirt (étape 1) ─────────────┐
+│                                                                │
+│               OPNsense : pare-feu, refus par défaut (étape 2)  │
+│       ┌──────────────┬────┴─────────┬──────────────┐           │
+│      mgmt           SRV            CLI            DMZ          │
+│   la tour,      contrôleur      poste          service         │
+│   seule à       de domaine      Windows        exposé          │
+│   administrer   (étape 3)       (étape 3)      (plus tard)     │
+│                                                                │
+│   Durcissement mesuré : PingCastle, Lynis, Ansible (étape 4)   │
+│   Détection : Wazuh, agents Windows et Linux (étape 5)         │
+│                                                                │
+│   Homelab n°1 (inchangé) sur la même tour                      │
+└────────────────────────────────────────────────────────────────┘</code></pre>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>Les étapes</h2>
+<p>Une étape à la fois : la suivante ne commence qu'une fois la précédente validée par des essais. Chaque étape validée a sa fiche.</p>
+<div class="tw" id="etapes"><table class="t"><thead><tr><th scope="col">N°</th><th scope="col">Étape</th><th scope="col">État</th><th scope="col">Fiche</th></tr></thead><tbody>
+<tr><td>1</td><td>La virtualisation : KVM/libvirt sur le serveur existant, volume réservé aux VM, VM de test configurée par cloud-init</td><td><span class="etat ok">Validée</span> le 02/11/2026</td><td><a href="homelab-si-etape-1.html">Lire la fiche</a></td></tr>
+<tr><td>2</td><td>Le pare-feu et la segmentation : OPNsense, 4 zones isolées, 81 essais automatiques</td><td><span class="etat ok">Validée</span> le 19/11/2026</td><td><a href="homelab-si-etape-2.html">Lire la fiche</a></td></tr>
+<tr><td>3</td><td>L'Active Directory, mesure « avant » : contrôleur de domaine Windows Server Core, un poste Windows joint au domaine, score PingCastle de départ</td><td><span class="etat avenir">À venir</span></td><td>—</td></tr>
+<tr><td>4</td><td>Le durcissement mesuré : GPO (recommandations ANSSI et CIS), LAPS, PingCastle « après » ; Lynis avant et après sur les VM Linux, avec Ansible ; sortie web limitée à une liste de domaines</td><td><span class="etat avenir">À venir</span></td><td>—</td></tr>
+<tr><td>5</td><td>La détection : Wazuh, agents Windows et Linux, tableau de bord</td><td><span class="etat avenir">À venir</span></td><td>—</td></tr>
+<tr><td>6</td><td>La boucle attaque → détection → correction : faiblesses classiques rejouées dans le labo, alerte attendue, correction, nouvel essai</td><td><span class="etat avenir">À venir</span></td><td>—</td></tr>
+<tr><td>7</td><td>En option : détection d'intrusion réseau (Suricata), sauvegarde des VM</td><td><span class="etat avenir">À venir</span></td><td>—</td></tr>
+</tbody></table></div>
+</div>
+<nav class="pager" aria-label="Autres comptes rendus"><a href="homelab-etape-10.html"><span>Précédent</span>Homelab n°1, étape 10 : des services dans Docker, avec un vrai certificat</a><a class="next" href="homelab-si-etape-1.html"><span>Suivant</span>Étape 1 : la virtualisation avec KVM</a></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js?v=11"></script>
+</body>
+</html>

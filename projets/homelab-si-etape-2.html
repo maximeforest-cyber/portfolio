@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Homelab n°2, étape 2 : le pare-feu et la segmentation | Maxime Forest</title>
+<meta name="description" content="Homelab n°2, étape 2 : pare-feu OPNsense en VM, 4 zones isolées (administration, serveurs, clients, DMZ), refus par défaut, et 81 essais automatiques avec résultat attendu : 0 écart, après la correction d'un vrai trou trouvé par les essais.">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#efe9df">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/homelab-si-etape-2.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/homelab-si-etape-2.html">
+<meta property="og:title" content="Homelab n°2, étape 2 : le pare-feu et la segmentation | Maxime Forest">
+<meta property="og:description" content="Homelab n°2, étape 2 : pare-feu OPNsense en VM, 4 zones isolées (administration, serveurs, clients, DMZ), refus par défaut, et 81 essais automatiques avec résultat attendu : 0 écart, après la correction d'un vrai trou trouvé par les essais.">
+<meta property="og:image" content="https://forestmaxime-pf.fr/projets/img/apercu-homelab-si-etape-2.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="Homelab n°2, étape 2 : le pare-feu OPNsense et 4 zones isolées, sur le portfolio de Maxime Forest">
+<link rel="stylesheet" href="../style.css?v=13">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="homelab-si.html#etapes">← Homelab n°2 : toutes les étapes</a></p>
+    <p class="kicker">Projet personnel · <b>Homelab n°2, étape 2</b> · validée le 19/11/2026</p>
+    <h1>Le pare-feu et la segmentation</h1>
+    <p class="lead">Découper le labo en quatre zones isolées derrière un pare-feu OPNsense, puis prouver par 81 essais automatiques que chaque zone ne joint que ce qui est écrit. Les essais ont trouvé un vrai trou, corrigé puis revérifié.</p>
+    <dl class="facts"><div><dt>Projet</dt><dd><a href="homelab-si.html">Homelab n°2</a> : un petit système d'information segmenté, défendu et supervisé</dd></div><div><dt>Période</dt><dd>Du 4 au 19 novembre 2026</dd></div><div><dt>Machine</dt><dd>VM OPNsense sur la tour « labo », hôte KVM de l'<a href="homelab-si-etape-1.html">étape 1</a></dd></div><div><dt>Résultat</dt><dd>81 essais, 0 écart, 0 erreur ; homelab n°1 intact après chaque changement</dd></div></dl>
+    <ul class="tags"><li>OPNsense</li><li>Segmentation</li><li>Refus par défaut</li><li>DMZ</li><li>Essais automatisés</li><li>rp_filter</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Objectif</a></li><li><a href="#partie-2"><span>02</span>Schéma et technologies</a></li><li><a href="#partie-3"><span>03</span>Configuration</a></li><li><a href="#partie-4"><span>04</span>Tests réussis</a></li><li><a href="#partie-5"><span>05</span>Problèmes rencontrés</a></li><li><a href="#partie-6"><span>06</span>Limites</a></li><li><a href="#partie-7"><span>07</span>Ce que j'en retiens</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Objectif</h2>
+<p>Découper le labo en <strong>zones isolées</strong> derrière un pare-feu, pour que chaque machine ne joigne que ce dont elle a besoin :</p>
+<ul class="b"><li><strong>mgmt</strong> (administration) : la seule zone d'où l'on administre les autres ;</li><li><strong>SRV</strong> (serveurs) : le futur contrôleur de domaine Active Directory ;</li><li><strong>CLI</strong> (postes clients) : le futur poste Windows ;</li><li><strong>DMZ</strong> : un futur service exposé, qui ne doit joindre aucune zone interne.</li></ul>
+<p>Le but n'est pas seulement de poser des règles, mais de <strong>prouver</strong> qu'elles font ce qui est écrit : un script d'essais compare chaque résultat à celui attendu, avant et après les règles, et signale tout écart. Ce script a d'ailleurs confirmé un vrai trou (la box de la maison joignable sur son adresse publique), corrigé puis revérifié.</p>
+<p>Contraintes :</p>
+<ul class="b"><li><strong>ne rien casser</strong> sur le serveur, qui fait tourner le homelab n°1 (Docker, Traefik, Uptime Kuma, Ollama) : Docker et libvirt écrivent tous deux des règles de pare-feu ;</li><li><strong>aucune machine du labo ne doit joindre le réseau de la maison</strong> (box, ordinateurs), même par un détour ;</li><li>budget de 0 € : OPNsense est libre et gratuit.</li></ul>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>Schéma et technologies</h2>
+<pre class="cmd schema" role="img" aria-label="Schéma : internet, puis la Freebox de la maison, puis la tour labo sous Ubuntu Server 24.04, où le homelab n°1 reste inchangé. Le réseau NAT de libvirt (virbr0) sert de WAN à la VM OPNsense 26.7 (1,5 Go de RAM, 2 processeurs virtuels, refus par défaut), qui a l'adresse .1 dans chaque zone : LAN ou mgmt en 10.20.10.0/24, où la tour a l'adresse .254 pour l'administration ; SRV en 10.20.20.0/24 ; CLI en 10.20.30.0/24 ; DMZ en 10.20.40.0/24. Une VM jetable Debian 13 est placée dans SRV (.20.10), CLI (.30.10) et DMZ (.40.10). La tour n'a une adresse que dans mgmt ; les ponts SRV, CLI et DMZ n'en ont pas."><code>                         Internet
+                            │
+                     Freebox (maison)
+                            │
+┌───────────────────── Tour « labo » (Ubuntu Server 24.04) ──────────────────────┐
+│  homelab n°1 (inchangé)        virbr0 : NAT libvirt « default »               │
+│                                     │                                          │
+│                              WAN (vtnet0, DHCP)                                │
+│                         ┌───────────┴────────────┐                             │
+│                         │   VM OPNsense 26.7     │ 1,5 Go de RAM, 2 vCPU       │
+│                         │   .1 dans chaque zone  │ refus par défaut            │
+│                         └─┬────────┬───────┬───┬─┘                             │
+│          LAN (mgmt)       │  SRV   │  CLI  │   │ DMZ                           │
+│        10.20.10.0/24      │ .20.0  │ .30.0 │   │ .40.0 /24                     │
+│   la tour : .254 (admin)  │        │       │   │                               │
+│                       test-srv  test-cli  test-dmz   (VM jetables Debian 13)   │
+│                       .20.10    .30.10    .40.10                               │
+│                                                                                │
+│  La tour n'a une adresse que dans mgmt ; les ponts SRV, CLI, DMZ n'en ont pas. │
+└────────────────────────────────────────────────────────────────────────────────┘</code></pre>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Rôle</th><th scope="col">Technologie</th></tr></thead><tbody><tr><td>Pare-feu, routeur, DNS des zones</td><td>OPNsense 26.7.8_2 (FreeBSD 15.1), image « nano », VM KVM</td></tr><tr><td>Réseaux des zones</td><td>4 réseaux libvirt isolés (un pont par zone, une carte virtio par zone sur OPNsense), décrits en XML dans le dépôt</td></tr><tr><td>DNS des zones</td><td>Unbound (intégré à OPNsense)</td></tr><tr><td>Machines d'essai</td><td>VM Debian 13 jetables, adresse fixe donnée par cloud-init (512 Mo chacune)</td></tr><tr><td>Essais</td><td>scripts shell : 81 essais avec résultat attendu, code de sortie non nul en cas d'écart</td></tr><tr><td>Filtrage côté serveur</td><td><span class="k">rp_filter</span> du noyau Linux, ufw, chaînes de libvirt</td></tr></tbody></table></div>
+<p>Pourquoi une carte réseau par zone plutôt que des VLAN : tout se passe dans un seul serveur, avec des ponts virtuels ; un VLAN n'apporterait rien ici, sinon une couche de plus à déboguer. Les VLAN restent la bonne réponse sur un vrai réseau physique partagé.</p>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>Configuration</h2>
+<h3>Les réseaux des zones</h3>
+<p>Chaque zone est un réseau libvirt <strong>sans NAT ni routage</strong> : un simple pont, sans le DHCP ni le DNS de libvirt. Seule la zone mgmt donne une adresse à la tour (<span class="k">10.20.10.254</span>), avec une route vers les autres zones <strong>à travers OPNsense</strong> :</p>
+<pre class="cmd"><code>&lt;network&gt;
+  &lt;name&gt;si-mgmt&lt;/name&gt;
+  &lt;bridge name='virbr-si-mgmt' stp='on' delay='0'/&gt;
+  &lt;dns enable='no'/&gt;
+  &lt;ip address='10.20.10.254' netmask='255.255.255.0'/&gt;
+  &lt;!-- La tour (administrateur) joint les autres zones en passant par OPNsense. --&gt;
+  &lt;route address='10.20.0.0' prefix='16' gateway='10.20.10.1'/&gt;
+&lt;/network&gt;</code></pre>
+<p>Les trois autres zones n'ont pas d'adresse côté tour : une VM d'une zone n'a donc aucun moyen de parler directement au serveur (essayé plus bas).</p>
+<p>Avant et après la création des réseaux, j'ai comparé les règles de pare-feu du serveur (<span class="k">iptables-save</span>) : libvirt n'ajoute que ses propres chaînes, rien n'a changé chez Docker ni chez ufw, et le homelab n°1 passe toujours ses tests.</p>
+<h3>OPNsense</h3>
+<p>L'image officielle a été <strong>vérifiée avant usage</strong> : signature de la liste des empreintes avec la clé publique d'OPNsense (identique sur le site et sur un miroir), puis empreinte SHA-256 de l'image. La VM a 5 cartes : WAN sur le NAT de libvirt, puis LAN (mgmt), SRV, CLI et DMZ.</p>
+<p>À la console : affectation des interfaces, LAN en <span class="k">10.20.10.1/24</span> <strong>sans DHCP</strong>, nouveau certificat pour l'interface web, mot de passe root changé. L'interface web n'est joignable que depuis mgmt, par un tunnel SSH depuis mon portable (<span class="k">ssh -N -L 8443:10.20.10.1:443 labo</span>), et j'ai vérifié que l'empreinte du certificat affichée dans le navigateur est la même qu'à la console.</p>
+<figure class="shot" id="fig-1"><a href="img/homelab-si-etape-2-01.webp"><img src="img/homelab-si-etape-2-01.webp" alt="Console d'OPNsense : DHCP refusé sur le LAN, nouveau certificat auto-signé généré, interface web sur https://10.20.10.1 ; LAN (vtnet1) en 10.20.10.1/24, WAN (vtnet0) en DHCP sur 192.168.122.213/24 ; empreinte SHA256 du certificat, dont seuls les 3 premiers octets sont visibles ; mot de passe root réinitialisé." width="1266" height="1353" loading="lazy"></a><figcaption><b>Fig. 1</b> Interfaces affectées à la console (fin de l'empreinte du certificat masquée).</figcaption></figure>
+<figure class="shot" id="fig-2"><a href="img/homelab-si-etape-2-02.webp"><img src="img/homelab-si-etape-2-02.webp" alt="Tableau de bord d'OPNsense : nom fw.si.internal, versions OPNsense 26.7.8_2, FreeBSD 15.1 et OpenSSL 3.5.9, mémoire utilisée à 34 %, passerelle WAN_DHCP active, interfaces WAN et LAN adressées." width="2000" height="925" loading="lazy"></a><figcaption><b>Fig. 2</b> Tableau de bord après la mise à jour en 26.7.8.</figcaption></figure>
+<figure class="shot" id="fig-3"><a href="img/homelab-si-etape-2-03.webp"><img src="img/homelab-si-etape-2-03.webp" alt="Configuration de l'interface OPT1 (vtnet2), décrite SRV : IPv4 statique 10.20.20.1/24, IPv6 désactivé (None)." width="1165" height="903" loading="lazy"></a><figcaption><b>Fig. 3</b> Configuration de l'interface SRV.</figcaption></figure>
+<figure class="shot" id="fig-4"><a href="img/homelab-si-etape-2-04.webp"><img src="img/homelab-si-etape-2-04.webp" alt="Vue d'ensemble des interfaces : WAN en DHCP sur 192.168.122.213/24, LAN en 10.20.10.1/24, SRV en 10.20.20.1/24, CLI en 10.20.30.1/24 et DMZ en 10.20.40.1/24, toutes actives." width="2000" height="928" loading="lazy"></a><figcaption><b>Fig. 4</b> Les 5 interfaces adressées.</figcaption></figure>
+<p>Côté WAN : IPv6 désactivé, réseaux privés et « bogons » bloqués en entrée.</p>
+<figure class="shot" id="fig-5"><a href="img/homelab-si-etape-2-05.webp"><img src="img/homelab-si-etape-2-05.webp" alt="Configuration de l'interface WAN (vtnet0) : Block private networks et Block bogon networks cochés, IPv4 en DHCP, IPv6 sur None." width="1755" height="1057" loading="lazy"></a><figcaption><b>Fig. 5</b> WAN : IPv6 sur None, réseaux privés et bogons bloqués.</figcaption></figure>
+<h3>Les règles : tout est refusé sauf ce qui est écrit</h3>
+<p>OPNsense refuse par défaut tout ce qui entre par une interface sans règle. J'ai d'abord écrit la <strong>matrice des flux</strong> dans le dépôt, puis saisi les règles. Quatre alias rendent les règles lisibles :</p>
+<ul class="b"><li><span class="k">PRIVES</span> : toutes les plages privées (dont la maison et le NAT de libvirt) ;</li><li><span class="k">ZONES_SI</span> : les réseaux SRV, CLI et DMZ ;</li><li><span class="k">MAISON_PUBLIQUE</span> : la Freebox sur son adresse publique (ajouté après la relecture, voir la <a href="#partie-5">partie 5</a>) ;</li><li><span class="k">WEB</span> : ports 80 et 443.</li></ul>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Zone</th><th scope="col">Ce qui est permis</th><th scope="col">Tout le reste</th></tr></thead><tbody><tr><td>mgmt</td><td>la tour seule (<span class="k">10.20.10.254/32</span>) vers les zones, en SSH et ping ; l'interface web d'OPNsense (règle anti-blocage)</td><td>refusé ; les règles « LAN vers tout » d'usine sont désactivées</td></tr><tr><td>SRV</td><td>DNS et heure (NTP) vers OPNsense ; internet en web (80, 443) et NTP</td><td>refusé : autres zones, maison, tour, interface web d'OPNsense</td></tr><tr><td>CLI</td><td>DNS vers OPNsense ; internet en web et NTP</td><td>idem (les flux vers l'AD viendront à l'étape 3, un par un)</td></tr><tr><td>DMZ</td><td>DNS vers OPNsense ; internet en web et NTP</td><td>idem : la DMZ ne joint aucune zone interne</td></tr></tbody></table></div>
+<p>Dans SRV, CLI et DMZ, la première règle <strong>bloque <span class="k">MAISON_PUBLIQUE</span></strong> : les règles sont lues de haut en bas et la première qui correspond gagne. « Internet » s'écrit « destination <strong>tout sauf</strong> <span class="k">PRIVES</span> » : une VM ne peut donc pas joindre une autre zone ou la maison par la règle internet.</p>
+<p>Toutes les règles qui laissent passer sont journalisées, et le refus par défaut aussi : c'est ce qui donne les preuves ci-dessous.</p>
+<figure class="shot" id="fig-6"><a href="img/homelab-si-etape-2-06.webp"><img src="img/homelab-si-etape-2-06.webp" alt="Règles de la zone SRV, dans l'ordre : blocage de MAISON_PUBLIQUE (croix rouge), DNS vers OPNsense, heure (NTP) vers OPNsense, internet en web seulement (destination tout sauf PRIVES, ports WEB), heure sur internet (NTP)." width="2113" height="860" loading="lazy"></a><figcaption><b>Fig. 6</b> Les règles de la zone SRV, après la correction.</figcaption></figure>
+<figure class="shot" id="fig-7"><a href="img/homelab-si-etape-2-07.webp"><img src="img/homelab-si-etape-2-07.webp" alt="Règles de la zone LAN (mgmt) : les deux règles « Default allow LAN to any » d'usine sont grisées (désactivées) ; SSH en TCP et ping en ICMP sont permis depuis 10.20.10.254/32 seulement vers l'alias ZONES_SI." width="2118" height="760" loading="lazy"></a><figcaption><b>Fig. 7</b> Les règles de mgmt : la tour seule, en SSH et ping vers les zones.</figcaption></figure>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>Tests réussis</h2>
+<p>Les essais sont faits par un script, lancé depuis la tour : il se connecte à chaque VM jetable et essaie chaque flux. Pour chaque essai, il connaît le <strong>résultat attendu</strong> et distingue 4 cas : ouvert, bloqué (délai dépassé : le pare-feu jette), refusé (le port répond « fermé ») et erreur (VM injoignable, commande absente). Une VM éteinte ne peut donc plus passer pour « bloquée ». La sortie complète de chaque passage est gardée dans mon dépôt privé.</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Test</th><th scope="col">Résultat attendu</th><th scope="col">Résultat obtenu</th><th scope="col">Preuve</th></tr></thead><tbody><tr><td>Avant toute règle</td><td>Tout est bloqué depuis les zones, même le DNS d'OPNsense</td><td>Conforme : 39 sur 39 bloqués, lignes « Default deny » au journal</td><td><a href="#fig-8">Fig. 8</a></td></tr><tr><td>Après les règles corrigées</td><td>Exactement la matrice</td><td>Conforme : <strong>81 essais, 0 écart, 0 erreur</strong></td><td>Sortie du script</td></tr><tr><td>Une zone vers une autre (ping, SSH)</td><td>Bloqué</td><td>Conforme, dans les 6 sens</td><td>Sortie du script</td></tr><tr><td>Une zone vers la maison (Freebox sur le réseau local, tour, NAT de libvirt)</td><td>Bloqué</td><td>Conforme</td><td>Sortie du script</td></tr><tr><td>Une zone vers la Freebox sur son adresse publique</td><td>Bloqué</td><td>Conforme (ouvert avant la correction, voir la <a href="#partie-5">partie 5</a>)</td><td><a href="#fig-9">Fig. 9</a></td></tr><tr><td>Une zone vers internet</td><td>Web (HTTP, HTTPS) et DNS de sa zone ouverts ; ping, SSH, SMTP bloqués</td><td>Conforme</td><td>Sortie du script</td></tr><tr><td>Une zone vers OPNsense</td><td>Interface web (80, 443), SSH, adresse mgmt et DNS des autres zones bloqués</td><td>Conforme</td><td>Sortie du script</td></tr><tr><td>La tour vers chaque VM</td><td>SSH et ping ouverts, TCP 80 bloqué (seuls SSH et ping sont permis)</td><td>Conforme</td><td>Sortie du script</td></tr><tr><td>OPNsense côté WAN</td><td>Interface web et SSH bloqués</td><td>Conforme</td><td>Sortie du script</td></tr><tr><td>Une règle n'ouvre que ce qu'elle dit</td><td>Règle temporaire CLI vers SRV en SSH : SSH passe, mais ping, TCP 80 et SSH vers la DMZ restent bloqués ; règle retirée : SSH de nouveau bloqué</td><td>Conforme</td><td><a href="#fig-10">Fig. 10</a></td></tr><tr><td>Contournement par le serveur</td><td>Une VM de CLI force une route et l'adresse matérielle du pont pour parler directement à la tour : bloqué</td><td>Conforme, et c'est bien la tour qui jette (voir ci-dessous)</td><td>Compteurs du noyau</td></tr><tr><td>Homelab n°1 intact</td><td>157 tests, Traefik, Uptime Kuma, Ollama</td><td>Conforme, après chaque changement et après le redémarrage du serveur</td><td>Script de contrôle</td></tr></tbody></table></div>
+<figure class="shot" id="fig-8"><a href="img/homelab-si-etape-2-08.webp"><img src="img/homelab-si-etape-2-08.webp" alt="Journal du pare-feu filtré sur l'interface CLI, avant toute règle : depuis 10.20.30.10, les pings vers 10.20.20.10 et 192.168.1.254 et les requêtes DNS vers 10.20.30.1:53 sont tous en block, avec le libellé « Default deny / state violation rule »." width="2000" height="1048" loading="lazy"></a><figcaption><b>Fig. 8</b> Avant toute règle, le refus par défaut bloque tout ce qui sort de CLI, même le DNS.</figcaption></figure>
+<figure class="shot" id="fig-9"><a href="img/homelab-si-etape-2-09.webp"><img src="img/homelab-si-etape-2-09.webp" alt="Journal du pare-feu après la correction : depuis les VM de DMZ (10.20.40.10), CLI (10.20.30.10) et SRV (10.20.20.10), les connexions vers la Freebox sont en block avec le libellé « Bloque la Freebox (adresse publique) » ; la sortie web reste permise. La colonne Destination est masquée." width="1657" height="1090" loading="lazy"></a><figcaption><b>Fig. 9</b> Après la correction, la Freebox est bloquée depuis les 3 zones (adresse publique masquée).</figcaption></figure>
+<figure class="shot" id="fig-10"><a href="img/homelab-si-etape-2-10.webp"><img src="img/homelab-si-etape-2-10.webp" alt="Journal du pare-feu filtré sur CLI : deux connexions SSH de 10.20.30.10 vers 10.20.20.10:22 passent avec le libellé « Temporaire essai CLI vers SRV SSH » ; le ping vers 10.20.20.10, le TCP 80 vers 10.20.20.10 et le SSH vers 10.20.40.10 restent en block (Default deny)." width="1999" height="778" loading="lazy"></a><figcaption><b>Fig. 10</b> La règle temporaire ne laisse passer que le SSH de CLI vers SRV ; tout le reste reste bloqué.</figcaption></figure>
+<h3>Le contournement par le serveur, en détail</h3>
+<p>Une VM de la zone CLI est reliée au même pont virtuel que le serveur. Si elle envoyait ses paquets directement au serveur (sans passer par OPNsense), le serveur pourrait les faire suivre vers la maison. J'ai essayé deux chemins :</p>
+<ol class="b"><li>par la résolution d'adresse normale (ARP) : le serveur ne répond pas, car il n'a pas d'adresse sur ce pont ;</li><li>en forçant l'adresse matérielle du pont, sans ARP : toujours bloqué, vu de la VM.</li></ol>
+<p>Mais « bloqué » vu de la VM ne disait pas <strong>qui</strong> bloquait : la réponse du serveur aurait aussi pu être jetée plus loin par OPNsense. Les compteurs du noyau tranchent : le compteur des paquets rejetés par le contrôle d'adresse source (<span class="k">rp_filter</span>) prend +12 à chaque essai et +0 sans essai, et aucun ping n'arrive ni ne repart. Le noyau le confirme pour ce paquet : « Invalid cross-device link ». Le même paquet, arrivé par un pont qui a une adresse, serait accepté : la protection tient donc à <strong>deux conditions</strong>, notées dans le dépôt pour ne pas les casser plus tard : <span class="k">rp_filter</span> actif sur le serveur, et aucune adresse du serveur sur les ponts SRV, CLI et DMZ.</p>
+</div>
+<div class="part" id="partie-5">
+<h2><span class="n">05</span>Problèmes rencontrés et solutions</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Problème</th><th scope="col">Cause</th><th scope="col">Solution</th></tr></thead><tbody><tr><td><strong>La Freebox joignable depuis les 3 zones</strong> sur son adresse publique (<a href="#fig-11">Fig. 11</a>)</td><td>« Internet = tout sauf les plages privées » laisse passer une adresse <strong>publique</strong> qui mène à la maison : la box répond sur son adresse publique, et le chemin passe par le NAT de libvirt puis le serveur. Trou repéré à la relecture, <strong>confirmé par le script</strong> (3 écarts)</td><td>Alias <span class="k">MAISON_PUBLIQUE</span> bloqué en tête de SRV, CLI et DMZ. J'en ai profité pour réduire la sortie internet au web et à l'heure (avant : tous les ports, ping compris) et la règle mgmt à la tour seule (avant : <a href="#fig-12">Fig. 12</a> et <a href="#fig-13">13</a> ; après : <a href="#fig-6">Fig. 6</a> et <a href="#fig-7">7</a>). Résultat : 81 essais, 0 écart</td></tr><tr><td>Règle « ping » créée en TCP (<a href="#fig-14">Fig. 14</a>)</td><td>Protocole mal choisi à la saisie : elle aurait ouvert <strong>tout TCP</strong> de mgmt vers les zones</td><td>Corrigée en ICMP ; repérée en relisant la liste des règles avant de valider</td></tr><tr><td>Règle NTP avec le port en <strong>source</strong> (<a href="#fig-15">Fig. 15</a>)</td><td>Champ mal choisi : elle n'aurait laissé passer que des paquets partant du port 123</td><td>Port mis en destination</td></tr><tr><td>Zone CLI entièrement bloquée (<a href="#fig-16">Fig. 16</a>)</td><td>Règles de CLI et DMZ oubliées : le refus par défaut a joué son rôle</td><td>Règles ajoutées ; le 1<sup>er</sup> passage du script l'avait montré</td></tr><tr><td>Règle de blocage de CLI saisie en « Pass » (<a href="#fig-17">Fig. 17</a>)</td><td>Action laissée par défaut à la création</td><td>Repérée sur la capture avant « Apply » (triangle vert au lieu de la croix rouge), corrigée</td></tr><tr><td>Affectation des interfaces non appliquée (<a href="#fig-18">Fig. 18</a>)</td><td>L'image nano démarre avec un LAN en <span class="k">192.168.1.1/24</span>, la plage de la maison ; ma réponse à <span class="k">[y/N]</span> n'était pas « y », donc « non » par défaut</td><td>Affectation refaite et confirmée</td></tr><tr><td>Zones SRV, CLI et DMZ sans adresse (<a href="#fig-19">Fig. 19</a>)</td><td>Dans OPNsense, une interface configurée ne prend effet qu'après « Apply changes »</td><td>Appliqué, puis vérifié sur la liste des interfaces</td></tr><tr><td>Le script prenait une VM éteinte pour « bloquée »</td><td>1<sup>re</sup> version : tout échec comptait comme bloqué. Révélé en lançant le script avec les VM éteintes (« No route to host » classé comme un refus)</td><td>Réécrit : 4 cas distincts (ouvert, bloqué, refusé, erreur), arrêt immédiat si OPNsense ne répond pas, essayé sur chaque cas</td></tr></tbody></table></div>
+<figure class="shot" id="fig-11"><a href="img/homelab-si-etape-2-11.webp"><img src="img/homelab-si-etape-2-11.webp" alt="Journal du pare-feu avant la correction : depuis les VM de DMZ, CLI et SRV, les connexions TCP vers la Freebox passent (pass, « Internet seulement (pas les réseaux privés) »), puis sortent par le WAN d'OPNsense. Les adresses de destination sont masquées." width="2559" height="735" loading="lazy"></a><figcaption><b>Fig. 11</b> Avant la correction : la Freebox joignable sur son adresse publique depuis les 3 zones (adresse masquée).</figcaption></figure>
+<figure class="shot" id="fig-12"><a href="img/homelab-si-etape-2-12.webp"><img src="img/homelab-si-etape-2-12.webp" alt="Anciennes règles de SRV : DNS vers OPNsense, heure vers OPNsense, puis internet sur tous les protocoles et tous les ports vers tout sauf PRIVES ; pas de règle de blocage de la Freebox." width="2000" height="730" loading="lazy"></a><figcaption><b>Fig. 12</b> Avant : les règles de SRV laissaient sortir tous les ports vers internet.</figcaption></figure>
+<figure class="shot" id="fig-13"><a href="img/homelab-si-etape-2-13.webp"><img src="img/homelab-si-etape-2-13.webp" alt="Anciennes règles de mgmt : SSH et ping permis depuis tout le réseau LAN (LAN network) vers ZONES_SI." width="2000" height="752" loading="lazy"></a><figcaption><b>Fig. 13</b> Avant : toute la zone mgmt pouvait administrer les zones, pas seulement la tour.</figcaption></figure>
+<figure class="shot" id="fig-14"><a href="img/homelab-si-etape-2-14.webp"><img src="img/homelab-si-etape-2-14.webp" alt="Règles de LAN : la règle « Admin : ping vers les zones » a le protocole TCP au lieu d'ICMP, et le bouton Apply n'a pas encore été cliqué." width="2109" height="823" loading="lazy"></a><figcaption><b>Fig. 14</b> Erreur de saisie : la règle « ping » en TCP, avant correction.</figcaption></figure>
+<figure class="shot" id="fig-15"><a href="img/homelab-si-etape-2-15.webp"><img src="img/homelab-si-etape-2-15.webp" alt="Règles de SRV : la règle « Heure (NTP) vers OPNsense » a ntp dans la colonne Port de la source au lieu de la destination." width="2113" height="765" loading="lazy"></a><figcaption><b>Fig. 15</b> Erreur de saisie : le port NTP placé en source.</figcaption></figure>
+<figure class="shot" id="fig-16"><a href="img/homelab-si-etape-2-16.webp"><img src="img/homelab-si-etape-2-16.webp" alt="Règles de CLI : message « No CLI rules have been defined. All incoming connections on this interface will be blocked until you add a pass rule »." width="1209" height="940" loading="lazy"></a><figcaption><b>Fig. 16</b> Aucune règle dans CLI : tout est bloqué.</figcaption></figure>
+<figure class="shot" id="fig-17"><a href="img/homelab-si-etape-2-17.webp"><img src="img/homelab-si-etape-2-17.webp" alt="Règles de CLI : la règle « Bloque la Freebox (adresse publique) » affiche un triangle vert (pass) au lieu d'une croix rouge (block), avant Apply." width="2088" height="749" loading="lazy"></a><figcaption><b>Fig. 17</b> Erreur de saisie : la règle de blocage créée en « Pass ».</figcaption></figure>
+<figure class="shot" id="fig-18"><a href="img/homelab-si-etape-2-18.webp"><img src="img/homelab-si-etape-2-18.webp" alt="Console d'OPNsense : à la question « Do you want to proceed? [y/N] », la réponse est « t » ; la console affiche toujours LAN (vtnet0) en 192.168.1.1/24 et WAN (vtnet1) sans adresse. Fin de l'empreinte du certificat masquée." width="796" height="657" loading="lazy"></a><figcaption><b>Fig. 18</b> L'affectation des interfaces non appliquée : une faute de frappe vaut « non » (fin de l'empreinte masquée).</figcaption></figure>
+<figure class="shot" id="fig-19"><a href="img/homelab-si-etape-2-19.webp"><img src="img/homelab-si-etape-2-19.webp" alt="Vue d'ensemble des interfaces : SRV, CLI et DMZ sont actives mais sans adresse IPv4 ; seuls WAN et LAN sont adressés." width="2000" height="921" loading="lazy"></a><figcaption><b>Fig. 19</b> Les zones sans adresse, tant que les changements ne sont pas appliqués.</figcaption></figure>
+</div>
+<div class="part" id="partie-6">
+<h2><span class="n">06</span>Ce qui n'a pas été essayé (limites)</h2>
+<ul class="b"><li>Le passage « avant les règles » (39 essais) a été fait avec la 1<sup>re</sup> version du script, qui ne distinguait pas « bloqué » de « VM injoignable » ; la capture du journal (<a href="#fig-8">Fig. 8</a>) vient d'un autre passage, quelques minutes après.</li><li>Les règles automatiques d'OPNsense (anti-blocage, DHCP, « le pare-feu lui-même sort librement ») n'ont pas été dépliées une à une.</li><li>HTTPS a été essayé vers un vrai site, pas en forçant une adresse précise.</li><li>NTP vers OPNsense (UDP 123) : permis dans SRV, pas encore essayé ; ce sera fait à l'étape 3, avec l'AD.</li><li>Pas de comparaison « réseau plat » avant la segmentation : une VM sur le NAT par défaut joignait la box (constaté à l'<a href="homelab-si-etape-1.html">étape 1</a>), mais ce n'a pas été rejoué avec le script.</li><li>Contournement par le serveur : je n'ai pas essayé ce qui se passerait sans <span class="k">rp_filter</span> ou avec une adresse sur le pont (c'est justement ce qu'il ne faut pas faire).</li><li><strong>Sorties encore trop larges, fermeture prévue</strong> : l'heure (UDP 123) et le web (TCP 80, 443) sont permis vers tout internet. N'importe quel hôte d'internet peut écouter sur ces ports, ce qui laisse un canal possible à une machine compromise. Prévu : à l'étape 3, l'heure donnée par le contrôleur de domaine (lui-même synchronisé sur OPNsense, seul à sortir sur internet) ; à l'étape 4, le web limité à une liste de domaines autorisés. Chacune avec un essai avant et après.</li></ul>
+</div>
+<div class="part" id="partie-7">
+<h2><span class="n">07</span>Ce que j'en retiens</h2>
+<ul class="b"><li><strong>Écrire la matrice avant les règles, et le résultat attendu avant l'essai</strong> : un script qui dit seulement « bloqué » sans savoir pourquoi peut mentir (VM éteinte).</li><li><strong>« Tout sauf les réseaux privés » n'est pas « tout sauf la maison »</strong> : une adresse publique peut mener chez soi. C'est la relecture puis l'essai qui l'ont montré, pas la lecture des règles.</li><li><strong>« Bloqué » ne dit pas qui bloque</strong> : pour le contournement, il a fallu les compteurs du noyau pour savoir que c'était le serveur, et à quelles conditions.</li><li><strong>Relire avant d'appliquer</strong> : 3 erreurs de saisie et un oubli, tous attrapés en relisant les règles ou par les essais. Un pare-feu se vérifie par des essais, pas par une capture de ses règles.</li></ul>
+</div>
+<nav class="pager" aria-label="Autres étapes"><a href="homelab-si-etape-1.html"><span>Précédent</span>Étape 1 : la virtualisation avec KVM</a><span></span></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js?v=11"></script>
+</body>
+</html>

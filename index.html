@@ -609,6 +609,30 @@
         <ul class="tags"><li>Ubuntu Server</li><li>SSH</li><li>Pare-feu</li><li>Docker</li><li>VPN WireGuard</li><li>Python</li></ul>
       </article>
 
+      <article class="card project wide" id="projet-homelab-si">
+        <p class="meta">Projet personnel · depuis novembre 2026 · en cours</p>
+        <h3>Homelab n°2 : un petit SI segmenté, défendu et supervisé</h3>
+        <p>Un petit système d'information dans des machines virtuelles : des zones isolées derrière un pare-feu OPNsense, puis un Active Directory durci de façon mesurée et une détection Wazuh. Chaque étape est prouvée par des essais.</p>
+        <p class="resultat"><b>Résultat :</b> 2 étapes validées sur 6 ; la segmentation passe 81 essais automatiques sans écart, après la correction d'un vrai trou que les essais ont confirmé.</p>
+        <details>
+          <summary>Voir la fiche</summary>
+          <div class="fiche">
+            <h4>Contexte</h4>
+            <p>Projet mené de mon côté, sur la même tour que mon premier homelab, qui continue de tourner. Budget de 0 € : logiciels libres et Windows Server en version d'évaluation.</p>
+            <h4>Ce qui est fait</h4>
+            <ul>
+              <li>Virtualisation avec KVM/libvirt sur le serveur existant, sans casser le homelab n°1</li>
+              <li>Pare-feu OPNsense et 4 zones isolées (administration, serveurs, clients, DMZ), en refus par défaut</li>
+              <li>Script de 81 essais avec résultat attendu : il a confirmé que la box de la maison restait joignable par son adresse publique ; corrigé, puis revérifié</li>
+            </ul>
+            <h4>La suite</h4>
+            <p>Active Directory mesuré avec PingCastle avant et après durcissement, détection avec Wazuh, puis des faiblesses classiques rejouées dans le labo pour vérifier qu'elles sont détectées et corrigées.</p>
+          </div>
+        </details>
+        <a class="doc" href="projets/homelab-si.html">Voir le projet et ses étapes</a>
+        <ul class="tags"><li>KVM / libvirt</li><li>OPNsense</li><li>Segmentation</li><li>Essais automatisés</li></ul>
+      </article>
+
       <article class="card project wide" id="projet-portfolio">
         <p class="meta">Projet personnel · octobre 2026</p>
         <h3>Ce portfolio : hébergement et sécurité</h3>

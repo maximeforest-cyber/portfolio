@@ -496,7 +496,7 @@
         <p class="meta">Travaux pratiques · 2026 · en binôme</p>
         <h3>Spanning Tree : des liens de secours sur le LAN</h3>
         <p>Ajout de liens de secours, en cuivre et en fibre, entre les switchs du réseau local, et configuration du Spanning Tree pour éviter les boucles.</p>
-        <p class="resultat"><b>Résultat :</b> 5 tests conformes ; quand la fibre d'un étage est coupée, le trafic passe par un lien de secours sans perte de ping.</p>
+        <p class="resultat"><b>Résultat :</b> 5 tests conformes ; quand la fibre d'un étage est coupée, le trafic passe par un lien de secours ; pendant la coupure de la fibre de SwRDC, aucun ping n'est perdu.</p>
         <details>
           <summary>Voir la fiche</summary>
           <div class="fiche">
@@ -993,6 +993,7 @@
               <li>DKIM : 40,7 % (22,6 % en 2023)</li>
               <li>DMARC : 19,5 % (7,3 % en 2023)</li>
             </ul>
+            <p>Les chiffres de 2023 portaient sur moins de domaines : la comparaison donne une tendance, pas une mesure exacte.</p>
             <p>Parmi les domaines qui ont un DMARC, 49,7 % sont en <code>p=none</code> sans adresse de rapport, 13,0 % en <code>p=none</code> avec rapports, 16,7 % en <code>quarantine</code> et 20,6 % en <code>reject</code>. L'adoption progresse vite, mais la plupart ne bloquent rien, et la moitié n'observe même pas : sans adresse de rapport, le domaine ne reçoit aucun compte rendu.</p>
             <h4>Mon relevé du 20/11/2026</h4>
             <ul>

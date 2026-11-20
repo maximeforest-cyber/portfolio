@@ -27,7 +27,7 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 
 Nouvelle fiche de veille sur la sécurité de la messagerie : où en est DMARC en France ?
 
-D'après l'Afnic (septembre 2025), un domaine en .fr sur cinq a un DMARC (19,5 %, contre 7,3 % en 2023). Mais parmi eux, près des deux tiers sont en p=none : un e-mail usurpé est quand même livré. Et la moitié n'a même pas d'adresse pour recevoir les rapports.
+D'après l'Afnic (septembre 2025), un domaine en .fr sur cinq a un DMARC (19,5 %, contre 7,3 % en 2023, sur moins de domaines). Mais parmi eux, près des deux tiers sont en p=none : un e-mail usurpé est quand même livré. Et la moitié n'a même pas d'adresse pour recevoir les rapports.
 
 J'ai fait mon propre relevé le 20 novembre : google.com, laposte.net et impots.gouv.fr refusent les e-mails usurpés (p=reject), orange.fr les met en spam (quarantine)… et gmail.com reste en p=none.
 
@@ -69,7 +69,7 @@ Nouveau compte rendu sur mon portfolio : le Spanning Tree, en TP de BTS, en bin�
 
 Le réseau de l'entreprise fictive était en étoile : une seule fibre par étage, donc un câble coupé et tout l'étage perdait le réseau. Nous avons ajouté des liens de secours, en cuivre vers le switch cœur et en fibre entre les étages, puis configuré le Spanning Tree en Rapid-PVST pour éviter les boucles.
 
-Deux surprises. Sans réglage, c'était un switch d'étage qui commandait tout l'arbre, parce qu'il avait la plus petite adresse MAC. Et à coût égal, c'était la fibre qui était bloquée au profit du câble cuivre. Une fois la priorité et le coût réglés, nous avons coupé des fibres pendant un ping : le trafic est passé par le lien de secours sans perte.
+Deux surprises. Sans réglage, c'était un switch d'étage qui commandait tout l'arbre, parce qu'il avait la plus petite adresse MAC. Et à coût égal, c'était la fibre qui était bloquée au profit du câble cuivre. Une fois la priorité et le coût réglés, nous avons coupé des fibres : le trafic est passé par le lien de secours, et pendant la coupure au rez-de-chaussée, aucun ping n'a été perdu.
 
 ## 2026-11-20 : 802.1X et RADIUS : un VLAN selon l'utilisateur (TP de BTS)
 
@@ -81,7 +81,7 @@ Nouveau compte rendu sur mon portfolio : l'authentification 802.1X, en TP de BTS
 
 Avant, n'importe quel appareil branché sur une prise avait accès au réseau, et le VLAN dépendait du port. Maintenant, le switch Cisco bloque le port tant que l'utilisateur ne s'est pas identifié avec son compte Active Directory. Le serveur RADIUS (NPS, sous Windows Server) vérifie son groupe et renvoie le VLAN de son service, quel que soit le port ou l'étage.
 
-Nous avons noté 14 problèmes pendant la mise en place. Le plus long à trouver : une mise à jour Windows d'octobre bloquait l'envoi automatique des identifiants en PEAP, sans laisser aucune trace côté serveur. C'est le journal du poste qui l'a montré. En secours, nous avons aussi mis en place l'authentification par certificats (EAP-TLS), sans mot de passe.
+Nous avons noté 14 problèmes pendant la mise en place. Le plus long à trouver : une mise à jour Windows d'octobre bloquait l'envoi automatique des identifiants en PEAP, sans accord ni refus côté serveur. C'est le journal du poste qui l'a montré. En secours, nous avons aussi mis en place l'authentification par certificats (EAP-TLS), sans mot de passe.
 
 ## 2026-11-20 : ArchiSite : un site HTTPS dans la DMZ (projet de BTS)
 

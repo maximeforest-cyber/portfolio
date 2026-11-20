@@ -6,7 +6,7 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Spanning Tree : des liens de secours sur le LAN | Maxime Forest</title>
-<meta name="description" content="Compte rendu de TP : liens de secours ajoutés au réseau local de l&#x27;entreprise RIOCA et Spanning Tree en Rapid-PVST sur des switchs Cisco. Pont racine choisi, coûts de port réglés, PortFast et BPDU Guard, coupures de liens testées sans perte de ping.">
+<meta name="description" content="Compte rendu de TP : liens de secours ajoutés au réseau local de l&#x27;entreprise RIOCA et Spanning Tree en Rapid-PVST sur des switchs Cisco. Pont racine choisi, coûts de port réglés, PortFast et BPDU Guard, coupures de fibre testées : le trafic bascule sur les liens de secours.">
 <meta name="author" content="Maxime Forest">
 <meta name="theme-color" content="#efe9df">
 <link rel="canonical" href="https://forestmaxime-pf.fr/projets/spanning-tree.html">
@@ -15,7 +15,7 @@
 <meta property="og:locale" content="fr_FR">
 <meta property="og:url" content="https://forestmaxime-pf.fr/projets/spanning-tree.html">
 <meta property="og:title" content="Spanning Tree : des liens de secours sur le LAN | Maxime Forest">
-<meta property="og:description" content="Compte rendu de TP : liens de secours ajoutés au réseau local de l&#x27;entreprise RIOCA et Spanning Tree en Rapid-PVST sur des switchs Cisco. Pont racine choisi, coûts de port réglés, PortFast et BPDU Guard, coupures de liens testées sans perte de ping.">
+<meta property="og:description" content="Compte rendu de TP : liens de secours ajoutés au réseau local de l&#x27;entreprise RIOCA et Spanning Tree en Rapid-PVST sur des switchs Cisco. Pont racine choisi, coûts de port réglés, PortFast et BPDU Guard, coupures de fibre testées : le trafic bascule sur les liens de secours.">
 <meta property="og:image" content="https://forestmaxime-pf.fr/projets/img/apercu-spanning-tree.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="627">
@@ -45,7 +45,7 @@
     <p class="kicker">Travaux pratiques · <b>novembre 2026</b> · en binôme</p>
     <h1>Spanning Tree : des liens de secours sur le LAN</h1>
     <p class="lead">Ajout de liens de secours entre les switchs du réseau local de RIOCA, puis configuration du Spanning Tree pour éviter les boucles : chaque étage garde l'accès au réseau si un câble est coupé.</p>
-    <dl class="facts"><div><dt>Contexte</dt><dd>Le LAN de RIOCA (entreprise fictive) est en étoile : un seul lien par étage, donc un câble coupé isole tout un étage</dd></div><div><dt>Cadre</dt><dd>TP de 2<sup>e</sup> année de BTS SIO sur la maquette physique de RIOCA, en binôme</dd></div><div><dt>Matériel</dt><dd>Switch cœur Cisco Catalyst 3650, deux Catalyst 2960-X et un Catalyst 2960 Plus, liens cuivre et fibre</dd></div><div><dt>Points clés</dt><dd>Rapid-PVST, pont racine, priorités, coût des ports, PortFast, BPDU Guard, modules fibre SFP</dd></div><div><dt>Résultat</dt><dd>5 tests conformes : quand la fibre d'un étage est coupée, le trafic passe par un lien de secours sans perte de ping</dd></div></dl>
+    <dl class="facts"><div><dt>Contexte</dt><dd>Le LAN de RIOCA (entreprise fictive) est en étoile : un seul lien par étage, donc un câble coupé isole tout un étage</dd></div><div><dt>Cadre</dt><dd>TP de 2<sup>e</sup> année de BTS SIO sur la maquette physique de RIOCA, en binôme</dd></div><div><dt>Matériel</dt><dd>Switch cœur Cisco Catalyst 3650, deux Catalyst 2960-X et un Catalyst 2960 Plus, liens cuivre et fibre</dd></div><div><dt>Points clés</dt><dd>Rapid-PVST, pont racine, priorités, coût des ports, PortFast, BPDU Guard, modules fibre SFP</dd></div><div><dt>Résultat</dt><dd>5 tests conformes : quand la fibre d'un étage est coupée, le trafic passe par un lien de secours ; pendant la coupure de la fibre de SwRDC, aucun ping n'est perdu</dd></div></dl>
     <ul class="tags"><li>Cisco</li><li>Spanning Tree</li><li>Rapid-PVST</li><li>Redondance</li><li>Fibre</li></ul>
   </div>
 </div>

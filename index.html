@@ -941,7 +941,7 @@
 <section id="veille">
   <div class="wrap">
     <div class="folio"><span class="n" aria-hidden="true">06</span><div><p class="host">ids-veille · 10.0.20.13</p><h2>Veille technologique</h2></div></div>
-    <p class="sub">Ma veille porte sur la sécurité de la messagerie : <strong>comment protéger un domaine contre l'usurpation et le phishing ?</strong> J'ai choisi ce thème parce que je configure moi-même SPF, DKIM et DMARC pour mes clients, et que mon homelab contient un <a href="projets/homelab-etape-4.html">outil d'audit DNS et courrier</a>.</p>
+    <p class="sub">Ma veille porte sur la sécurité de la messagerie : <strong>comment protéger un domaine contre l'usurpation et le phishing ?</strong> J'ai choisi ce thème parce que je configure moi-même SPF, DKIM et DMARC pour mes clients, et que mon homelab contient un <a href="projets/homelab-etape-4.html">outil d'audit DNS et courrier</a>. C'est aussi un sujet de sécurité des infrastructures, le domaine où je veux poursuivre en alternance : on protège un service de l'entreprise par la configuration, pas avec un logiciel de plus.</p>
     <p class="sub">Ma méthode : je suis des flux RSS dans Inoreader (sources officielles d'abord : CERT-FR de l'ANSSI, Cybermalveillance.gouv.fr, la CNIL, les annonces de Google et de Microsoft ; puis la presse spécialisée : Le Monde Informatique, Next, BleepingComputer) et cinq alertes Google, une par sujet. Je les lis deux ou trois fois par semaine, je note chaque article utile avec sa date et ce qu'il change, et je publie une fiche par mois.</p>
 
     <div class="year"><h3>La sécurité de la messagerie</h3><span>Depuis octobre 2026</span></div>
@@ -968,12 +968,22 @@
             <h4>Ce que j'en retiens</h4>
             <p>Ces règles sont exigées des gros expéditeurs, et de fait attendues de tous : sans SPF, DKIM et DMARC, les e-mails d'une petite entreprise risquent de finir en spam.</p>
             <p>Je l'ai fait pour mon premier client, sur un domaine qui sert seulement à recevoir : Cloudflare Email Routing renvoie les e-mails reçus vers sa boîte, et les signe en DKIM. Comme personne n'envoie depuis ce domaine, son DMARC est en <code>reject</code> : tout e-mail à son nom est forcément faux. En le vérifiant avec mon <a href="projets/homelab-etape-4.html">outil d'audit</a>, la clé DKIM sortait « Non trouvé » : Cloudflare la nomme <code>cf2024-1</code>, un nom absent de ma liste. On ne peut pas lister les clés DKIM d'un domaine, il faut deviner leur nom : c'est pour ça que mon outil dit « Non trouvé » et jamais « absent ».</p>
+            <h4>Ce que doit faire une entreprise</h4>
+            <p>Le risque, si elle ne fait rien : ses devis et ses factures arrivent en spam chez ses clients qui utilisent Gmail ou Outlook. Les étapes :</p>
+            <ul>
+              <li>Lister tout ce qui envoie des e-mails au nom du domaine : la messagerie, le formulaire du site web, le logiciel de facturation, l'outil de newsletter. C'est l'étape qu'on oublie le plus.</li>
+              <li>Publier <strong>un seul</strong> enregistrement SPF qui couvre tous ces services : deux enregistrements SPF sur le même domaine, et SPF est en erreur.</li>
+              <li>Activer DKIM dans chacun de ces services, puis publier dans le DNS la clé qu'il donne.</li>
+              <li>Publier un DMARC, au moins en <code>p=none</code> avec une adresse de rapport : la suite est dans le sujet 2.</li>
+              <li>Pour un domaine qui n'envoie aucun e-mail : un SPF qui n'autorise personne (<code>v=spf1 -all</code>) et un DMARC en <code>reject</code> tout de suite, comme pour mon client.</li>
+            </ul>
             <h4>Sources</h4>
             <ul class="sources">
               <li><a href="https://support.google.com/a/answer/81126" rel="noopener">support.google.com (consignes aux expéditeurs)</a></li>
               <li><a href="https://support.google.com/a/answer/14229414" rel="noopener">support.google.com (FAQ)</a></li>
               <li><a href="https://senders.yahooinc.com/best-practices/" rel="noopener">senders.yahooinc.com</a></li>
               <li><a href="https://techcommunity.microsoft.com/blog/outlook/strengthening-email-ecosystem-outlook%E2%80%99s-new-requirements-for-high%E2%80%90volume-senders/4399730" rel="noopener">techcommunity.microsoft.com</a></li>
+              <li><a href="https://www.rfc-editor.org/rfc/rfc7208#section-4.5" rel="noopener">RFC 7208, section 4.5 (un seul enregistrement SPF)</a></li>
             </ul>
           </div>
         </details>
@@ -1005,9 +1015,19 @@
             <p>L'exemple du sujet 1, un faux e-mail venant de <code>contact@impots.gouv.fr</code>, serait donc refusé par les grandes messageries : ce domaine est en <code>reject</code>.</p>
             <h4>Ce que j'en retiens</h4>
             <p>Avoir un DMARC ne suffit pas : en <code>p=none</code>, un e-mail usurpé est quand même livré. On passe en général par étapes de <code>none</code> à <code>quarantine</code> puis <code>reject</code>, en lisant les rapports DMARC pour ne pas bloquer ses propres e-mails. C'est ce que vérifie mon <a href="projets/homelab-etape-4.html">outil d'audit</a> : un DMARC en <code>p=none</code> y apparaît en orange.</p>
+            <h4>Ce que doit faire une entreprise</h4>
+            <p>Le risque, si elle reste en <code>p=none</code> : un escroc peut envoyer en son nom une fausse facture avec un autre RIB à ses clients, et l'e-mail sera livré. Les étapes pour aller jusqu'au blocage :</p>
+            <ul>
+              <li>Mettre une adresse de rapport dans le DMARC (<code>rua=</code>) : sans elle, on ne sait pas qui envoie au nom du domaine.</li>
+              <li>Lire les rapports pendant quelques semaines et corriger SPF ou DKIM pour chaque service légitime qui échoue.</li>
+              <li>Passer en <code>quarantine</code>, vérifier dans les rapports qu'aucun e-mail légitime n'est touché, puis passer en <code>reject</code>.</li>
+              <li>Penser aux sous-domaines : sans balise <code>sp=</code>, ils suivent la politique du domaine principal ; avec elle, on peut leur en donner une autre, comme gmail.com.</li>
+            </ul>
+            <p>Aller trop vite en <code>reject</code> est le piège inverse : un service oublié dans la liste du sujet 1, et ses e-mails sont refusés.</p>
             <h4>Sources</h4>
             <ul class="sources">
               <li><a href="https://www.afnic.fr/en/observatory-and-resources/expert-papers/spf-dkim-dmarc-and-bimi-on-fr-still-on-the-rise-in-2025/" rel="noopener">afnic.fr</a></li>
+              <li><a href="https://www.rfc-editor.org/rfc/rfc9989#section-4.7" rel="noopener">RFC 9989, section 4.7 (balises <code>rua</code> et <code>sp</code>)</a></li>
               <li>Relevé DNS personnel des enregistrements <code>_dmarc</code>, le 20/11/2026</li>
             </ul>
           </div>

@@ -19,6 +19,22 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | mar. 01/12 | Homelab, étape 10 : des services dans Docker, avec un vrai certificat |
 | jeu. 03/12 | Homelab : tout le labo en un schéma cliquable |
 
+## 2026-11-20 : Veille, sujet 2 : où en est DMARC en France ?
+
+- Statut : à relire
+- Lien : https://forestmaxime-pf.fr/#veille-dmarc-france
+- Image proposée : aucune
+
+Nouvelle fiche de veille sur la sécurité de la messagerie : où en est DMARC en France ?
+
+D'après l'Afnic (septembre 2025), un domaine en .fr sur cinq a un DMARC (19,5 %, contre 7,3 % en 2023). Mais parmi eux, près des deux tiers sont en p=none : un e-mail usurpé est quand même livré. Et la moitié n'a même pas d'adresse pour recevoir les rapports.
+
+J'ai fait mon propre relevé le 20 novembre : google.com, laposte.net et impots.gouv.fr refusent les e-mails usurpés (p=reject), orange.fr les met en spam (quarantine)… et gmail.com reste en p=none.
+
+Ce que j'en retiens : avoir un DMARC ne suffit pas. Il faut lire les rapports, puis passer par étapes de none à quarantine, puis à reject.
+
+La fiche complète est sur mon portfolio : https://forestmaxime-pf.fr/#veille-dmarc-france
+
 ## 2026-11-20 : Audit de sécurité de l'Active Directory avec PingCastle (projet de BTS, en cours)
 
 - Statut : à relire (mieux vaut peut-être attendre le contre-audit, après la séance du 26/11, pour poster avec la note finale)

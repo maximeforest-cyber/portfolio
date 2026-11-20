@@ -300,11 +300,11 @@
     <div class="grid g3">
       <div class="card skill">
         <h3>Systèmes</h3>
-        <ul class="tags"><li><a href="projets/utilisateurs-active-directory.html#partie-3">Windows Server</a></li><li><a href="projets/utilisateurs-active-directory.html#partie-3">Active Directory</a></li><li><a href="projets/utilisateurs-active-directory.html#partie-6">Stratégies de groupe (GPO)</a></li><li><a href="projets/utilisateurs-active-directory.html#partie-9">Windows 10 / 11</a></li><li><a href="projets/homelab-etape-1.html">Linux · Ubuntu Server</a></li></ul>
+        <ul class="tags"><li><a href="projets/utilisateurs-active-directory.html#partie-3">Windows Server</a></li><li><a href="projets/utilisateurs-active-directory.html#partie-3">Active Directory</a></li><li><a href="projets/utilisateurs-active-directory.html#partie-6">Stratégies de groupe (GPO)</a></li><li><a href="projets/audit-ad.html#partie-2">Audit AD · PingCastle</a></li><li><a href="projets/utilisateurs-active-directory.html#partie-9">Windows 10 / 11</a></li><li><a href="projets/homelab-etape-1.html">Linux · Ubuntu Server</a></li></ul>
       </div>
       <div class="card skill">
         <h3>Réseaux et sécurité</h3>
-        <ul class="tags"><li>TCP/IP</li><li><a href="projets/maquette-rioca.html#partie-4">VLAN</a></li><li><a href="projets/infra-site.html#partie-6">Routage RIP v2</a></li><li><a href="projets/infra-site.html#partie-4">NAT</a></li><li><a href="projets/maquette-rioca.html#partie-5">DHCP</a></li><li><a href="projets/nextcloud.html#partie-9">DNS</a></li><li><a href="projets/infra-site.html#partie-9">DMZ</a></li><li><a href="projets/infra-site.html#partie-9">Pare-feu</a></li><li>ACL</li><li><a href="projets/homelab-etape-1.html#partie-3">SSH</a></li><li>Wireshark</li><li><a href="#stage-pyroalliance">Chiffrement des postes</a></li></ul>
+        <ul class="tags"><li>TCP/IP</li><li><a href="projets/maquette-rioca.html#partie-4">VLAN</a></li><li><a href="projets/infra-site.html#partie-6">Routage RIP v2</a></li><li><a href="projets/infra-site.html#partie-4">NAT</a></li><li><a href="projets/maquette-rioca.html#partie-5">DHCP</a></li><li><a href="projets/nextcloud.html#partie-9">DNS</a></li><li><a href="projets/infra-site.html#partie-9">DMZ</a></li><li><a href="projets/infra-site.html#partie-9">Pare-feu</a></li><li><a href="projets/homelab-si-etape-2.html#partie-3">OPNsense</a></li><li><a href="projets/infra-site.html#partie-10">ACL</a></li><li><a href="projets/spanning-tree.html#partie-4">Spanning Tree</a></li><li><a href="projets/radius-8021x.html#partie-3">802.1X · RADIUS</a></li><li><a href="projets/archisite.html#partie-4">PKI · TLS</a></li><li><a href="projets/nas-gpo.html#partie-7">NTP</a></li><li><a href="projets/homelab-etape-1.html#partie-3">SSH</a></li><li>Wireshark</li><li><a href="#stage-pyroalliance">Chiffrement des postes</a></li></ul>
       </div>
       <div class="card skill">
         <h3>Virtualisation et cloud</h3>
@@ -586,6 +586,27 @@
           </div>
         </details>
         <ul class="tags"><li>Proxy</li><li>Filtrage web</li><li>GPO</li></ul>
+      </article>
+
+      <article class="card project" id="projet-superviz">
+        <p class="meta">Atelier professionnel · en cours</p>
+        <h3>SUPERVIZ : superviser l'infrastructure de RIOCA avec Zabbix</h3>
+        <p>Un serveur Zabbix qui doit surveiller les serveurs, les switchs, les routeurs et le pare-feu de RIOCA, et prévenir les techniciens par e-mail avant que les utilisateurs ne voient la panne.</p>
+        <details>
+          <summary>Voir la fiche</summary>
+          <div class="fiche">
+            <h4>Mon rôle</h4>
+            <p>Je suis chef de projet, en binôme. J'ai découpé le projet en 30 tâches réparties sur quatre séances, fait le diagramme de Gantt et préparé le tableau de suivi, avec une carte par tâche. La mise en production est prévue le 15 décembre 2026.</p>
+            <h4>En cours</h4>
+            <ul>
+              <li>Analyse : comparatif des solutions, prérequis (heure synchronisée par NTP, noms DNS), matrice des flux à ouvrir sur le pare-feu</li>
+              <li>Installation et sécurisation de Zabbix sur une machine virtuelle Debian, agents Linux et Windows chiffrés par clé partagée (PSK)</li>
+              <li>SNMPv3 sur les équipements Cisco et le pare-feu Zyxel, seuils d'alerte et envoi des alertes par e-mail</li>
+              <li>Plan de tests, sauvegarde et restauration de Zabbix, documentation technique et utilisateur</li>
+            </ul>
+          </div>
+        </details>
+        <ul class="tags"><li>Zabbix</li><li>Supervision</li><li>SNMPv3</li><li>Gestion de projet</li></ul>
       </article>
 
     </div>
@@ -924,9 +945,9 @@
     <p class="sub">Ma méthode : je suis des flux RSS dans Inoreader (sources officielles d'abord : CERT-FR de l'ANSSI, Cybermalveillance.gouv.fr, la CNIL, les annonces de Google et de Microsoft ; puis la presse spécialisée : Le Monde Informatique, Next, BleepingComputer) et cinq alertes Google, une par sujet. Je les lis deux ou trois fois par semaine, je note chaque article utile avec sa date et ce qu'il change, et je publie une fiche par mois.</p>
 
     <div class="year"><h3>La sécurité de la messagerie</h3><span>Depuis octobre 2026</span></div>
-    <div class="grid">
+    <div class="grid g2">
 
-      <article class="card project wide" id="veille-exigences-messagerie">
+      <article class="card" id="veille-exigences-messagerie">
         <p class="meta">Sujet 1 · octobre 2026</p>
         <h3>Google, Yahoo et Microsoft exigent l'authentification des e-mails</h3>
         <p>Les grandes messageries trient désormais les e-mails selon SPF, DKIM et DMARC.</p>
@@ -953,6 +974,41 @@
               <li><a href="https://support.google.com/a/answer/14229414" rel="noopener">support.google.com (FAQ)</a></li>
               <li><a href="https://senders.yahooinc.com/best-practices/" rel="noopener">senders.yahooinc.com</a></li>
               <li><a href="https://techcommunity.microsoft.com/blog/outlook/strengthening-email-ecosystem-outlook%E2%80%99s-new-requirements-for-high%E2%80%90volume-senders/4399730" rel="noopener">techcommunity.microsoft.com</a></li>
+            </ul>
+          </div>
+        </details>
+      </article>
+
+      <article class="card" id="veille-dmarc-france">
+        <p class="meta">Sujet 2 · novembre 2026</p>
+        <h3>Où en est DMARC en France ?</h3>
+        <p>Un domaine .fr sur cinq a un DMARC, et la plupart ne bloquent rien. Même gmail.com.</p>
+        <details>
+          <summary>Lire la veille</summary>
+          <div class="fiche">
+            <h4>Les chiffres</h4>
+            <p>L'Afnic, qui gère les noms de domaine en .fr, a publié en septembre 2025 une étude sur tous les domaines en .fr, même ceux qui ne reçoivent pas de courrier (avant 2025, elle ne comptait que ceux qui en reçoivent) :</p>
+            <ul>
+              <li>SPF : 69,0 % des domaines (52,5 % en 2023)</li>
+              <li>DKIM : 40,7 % (22,6 % en 2023)</li>
+              <li>DMARC : 19,5 % (7,3 % en 2023)</li>
+            </ul>
+            <p>Parmi les domaines qui ont un DMARC, 49,7 % sont en <code>p=none</code> sans adresse de rapport, 13,0 % en <code>p=none</code> avec rapports, 16,7 % en <code>quarantine</code> et 20,6 % en <code>reject</code>. L'adoption progresse vite, mais la plupart ne bloquent rien, et la moitié n'observe même pas : sans adresse de rapport, le domaine ne reçoit aucun compte rendu.</p>
+            <h4>Mon relevé du 20/11/2026</h4>
+            <ul>
+              <li><code>gmail.com</code> : <code>p=none</code> (observation seulement), mais <code>quarantine</code> pour ses sous-domaines</li>
+              <li><code>google.com</code> : <code>p=reject</code></li>
+              <li><code>orange.fr</code> : <code>p=quarantine</code></li>
+              <li><code>laposte.net</code> et <code>impots.gouv.fr</code> : <code>p=reject</code></li>
+            </ul>
+            <p>Google exige un DMARC des gros expéditeurs et protège google.com au maximum, mais garde la politique la plus souple sur gmail.com. Google n'explique pas officiellement ce choix.</p>
+            <p>L'exemple du sujet 1, un faux e-mail venant de <code>contact@impots.gouv.fr</code>, serait donc refusé par les grandes messageries : ce domaine est en <code>reject</code>.</p>
+            <h4>Ce que j'en retiens</h4>
+            <p>Avoir un DMARC ne suffit pas : en <code>p=none</code>, un e-mail usurpé est quand même livré. On passe en général par étapes de <code>none</code> à <code>quarantine</code> puis <code>reject</code>, en lisant les rapports DMARC pour ne pas bloquer ses propres e-mails. C'est ce que vérifie mon <a href="projets/homelab-etape-4.html">outil d'audit</a> : un DMARC en <code>p=none</code> y apparaît en orange.</p>
+            <h4>Sources</h4>
+            <ul class="sources">
+              <li><a href="https://www.afnic.fr/en/observatory-and-resources/expert-papers/spf-dkim-dmarc-and-bimi-on-fr-still-on-the-rise-in-2025/" rel="noopener">afnic.fr</a></li>
+              <li>Relevé DNS personnel des enregistrements <code>_dmarc</code>, le 20/11/2026</li>
             </ul>
           </div>
         </details>

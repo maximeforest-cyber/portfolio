@@ -55,7 +55,7 @@ Résultat : 85 sur 100, sachant que plus c'est bas, mieux c'est. La note globale
 
 Nouveau compte rendu sur mon portfolio : un serveur de fichiers et des GPO, en TP de BTS, en binôme.
 
-Sur un vrai serveur Dell, nous avons installé TrueNAS sur deux disques en RAID 1, joint au domaine Active Directory, avec quatre partages : un dossier par utilisateur, un par service, les outils et les sauvegardes. Ensuite, des GPO préparent chaque poste tout seul : lecteurs réseau, fond d'écran imposé, panneau de configuration bloqué, Firefox et VLC installés au démarrage.
+De mon côté, j'ai monté le NAS. Sur un vrai serveur Dell, j'ai installé TrueNAS sur deux disques en RAID 1, joint au domaine Active Directory, avec quatre partages : un dossier par utilisateur, un par service, les outils et les sauvegardes. Mon binôme s'est occupé des GPO, avec mon aide. Elles préparent chaque poste tout seul : lecteurs réseau, fond d'écran imposé, panneau de configuration bloqué, Firefox et VLC installés au démarrage.
 
 Deux pannes m'ont appris le plus. Le NAS refusait de rejoindre le domaine : il se croyait en 2025, et Kerberos refuse un écart de plus de 5 minutes. Et les logiciels ne s'installaient jamais : le port du poste était protégé par le 802.1X de notre TP précédent, qui reste fermé tant que personne ne s'est connecté. C'est le journal Windows qui l'a montré.
 
@@ -65,11 +65,11 @@ Deux pannes m'ont appris le plus. Le NAS refusait de rejoindre le domaine : il s
 - Lien : https://forestmaxime-pf.fr/projets/spanning-tree.html
 - Image proposée : projets/img/spanning-tree-02.webp (la photo de la baie avec les fibres), ou projets/img/apercu-spanning-tree.jpg
 
-Nouveau compte rendu sur mon portfolio : le Spanning Tree, en TP de BTS, en binôme, sur de vrais switchs Cisco.
+Nouveau compte rendu sur mon portfolio : le Spanning Tree, en TP de BTS, sur de vrais switchs Cisco.
 
-Le réseau de l'entreprise fictive était en étoile : une seule fibre par étage, donc un câble coupé et tout l'étage perdait le réseau. Nous avons ajouté des liens de secours, en cuivre vers le switch cœur et en fibre entre les étages, puis configuré le Spanning Tree en Rapid-PVST pour éviter les boucles.
+Le réseau de l'entreprise fictive était en étoile : une seule fibre par étage, donc un câble coupé et tout l'étage perdait le réseau. J'ai ajouté des liens de secours, en cuivre vers le switch cœur et en fibre entre les étages, puis configuré le Spanning Tree en Rapid-PVST pour éviter les boucles.
 
-Deux surprises. Sans réglage, c'était un switch d'étage qui commandait tout l'arbre, parce qu'il avait la plus petite adresse MAC. Et à coût égal, c'était la fibre qui était bloquée au profit du câble cuivre. Une fois la priorité et le coût réglés, nous avons coupé des fibres : le trafic est passé par le lien de secours, et pendant la coupure au rez-de-chaussée, aucun ping n'a été perdu.
+Deux surprises. Sans réglage, c'était un switch d'étage qui commandait tout l'arbre, parce qu'il avait la plus petite adresse MAC. Et à coût égal, c'était la fibre qui était bloquée au profit du câble cuivre. Une fois la priorité et le coût réglés, j'ai coupé des fibres : le trafic est passé par le lien de secours, et pendant la coupure au rez-de-chaussée, aucun ping n'a été perdu.
 
 ## 2026-11-20 : 802.1X et RADIUS : un VLAN selon l'utilisateur (TP de BTS)
 
@@ -79,7 +79,7 @@ Deux surprises. Sans réglage, c'était un switch d'étage qui commandait tout l
 
 Nouveau compte rendu sur mon portfolio : l'authentification 802.1X, en TP de BTS, en binôme.
 
-Avant, n'importe quel appareil branché sur une prise avait accès au réseau, et le VLAN dépendait du port. Maintenant, le switch Cisco bloque le port tant que l'utilisateur ne s'est pas identifié avec son compte Active Directory. Le serveur RADIUS (NPS, sous Windows Server) vérifie son groupe et renvoie le VLAN de son service, quel que soit le port ou l'étage.
+Avant, n'importe quel appareil branché sur une prise avait accès au réseau, et le VLAN dépendait du port. Maintenant, le switch Cisco bloque le port tant que l'utilisateur ne s'est pas identifié avec son compte Active Directory. Le serveur RADIUS (NPS, sous Windows Server) vérifie son groupe et renvoie le VLAN de son service, quel que soit le port ou l'étage. C'est moi qui ai configuré ce serveur RADIUS.
 
 Nous avons noté 14 problèmes pendant la mise en place. Le plus long à trouver : une mise à jour Windows d'octobre bloquait l'envoi automatique des identifiants en PEAP, sans accord ni refus côté serveur. C'est le journal du poste qui l'a montré. En secours, nous avons aussi mis en place l'authentification par certificats (EAP-TLS), sans mot de passe.
 

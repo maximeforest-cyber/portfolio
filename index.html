@@ -480,7 +480,7 @@
             <p>Sur le réseau de RIOCA, le VLAN dépendait du port : un salarié qui changeait de bureau changeait de réseau, et n'importe quel appareil branché avait accès au réseau.</p>
             <h4>Ce que j'ai fait, en binôme</h4>
             <ul>
-              <li>Autorité de certification AD CS et serveur RADIUS NPS relié à l'Active Directory</li>
+              <li>Autorité de certification AD CS ; serveur RADIUS NPS relié à l'Active Directory, que j'ai configuré</li>
               <li>Une stratégie par service, qui renvoie son VLAN avec les attributs RADIUS</li>
               <li>Switchs Cisco en authentificateurs 802.1X (AAA), sans dépendre de RADIUS pour l'administration</li>
               <li>Postes en PEAP, puis EAP-TLS par certificats en secours, avec inscription automatique par GPO</li>
@@ -493,7 +493,7 @@
       </article>
 
       <article class="card project" id="projet-spanning-tree">
-        <p class="meta">Travaux pratiques · 2026 · en binôme</p>
+        <p class="meta">Travaux pratiques · 2026</p>
         <h3>Spanning Tree : des liens de secours sur le LAN</h3>
         <p>Ajout de liens de secours, en cuivre et en fibre, entre les switchs du réseau local, et configuration du Spanning Tree pour éviter les boucles.</p>
         <p class="resultat"><b>Résultat :</b> 5 tests conformes ; quand la fibre d'un étage est coupée, le trafic passe par un lien de secours ; pendant la coupure de la fibre de SwRDC, aucun ping n'est perdu.</p>
@@ -502,7 +502,7 @@
           <div class="fiche">
             <h4>Contexte</h4>
             <p>Le LAN de RIOCA était en étoile, avec un seul lien par étage : un câble coupé isolait tout un étage.</p>
-            <h4>Ce que j'ai fait, en binôme</h4>
+            <h4>Ce que j'ai fait</h4>
             <ul>
               <li>Câblage des liens de secours : cuivre vers le cœur, fibre entre les étages</li>
               <li>Rapid-PVST, switch cœur en pont racine et racine de secours choisie</li>
@@ -529,9 +529,8 @@
             <h4>Ce que j'ai fait, en binôme</h4>
             <ul>
               <li>Comparaison de trois solutions (TrueNAS, OpenMediaVault, Windows Server) et choix argumenté</li>
-              <li>RAID 1 matériel sur le contrôleur Dell PERC, TrueNAS joint à l'Active Directory</li>
-              <li>Quatre partages SMB avec des ACL par utilisateur et par service</li>
-              <li>GPO : lecteurs P: et T:, fond d'écran imposé, panneau de configuration bloqué, Firefox et VLC déployés</li>
+              <li>Moi : RAID 1 matériel sur le contrôleur Dell PERC, TrueNAS joint à l'Active Directory, quatre partages SMB avec des ACL par utilisateur et par service</li>
+              <li>Mon binôme, avec mon aide : GPO, lecteurs P: et T:, fond d'écran imposé, panneau de configuration bloqué, Firefox et VLC déployés</li>
               <li>Diagnostic par les journaux : heure du NAS refusée par Kerberos, poste sans réseau au démarrage à cause du 802.1X</li>
             </ul>
           </div>

@@ -972,10 +972,10 @@
             <p>Le risque, si elle ne fait rien : ses devis et ses factures arrivent en spam chez ses clients qui utilisent Gmail ou Outlook. Les étapes :</p>
             <ul>
               <li>Lister tout ce qui envoie des e-mails au nom du domaine : la messagerie, le formulaire du site web, le logiciel de facturation, l'outil de newsletter. C'est l'étape qu'on oublie le plus.</li>
-              <li>Publier <strong>un seul</strong> enregistrement SPF qui couvre tous ces services : deux enregistrements SPF sur le même domaine, et SPF est en erreur.</li>
-              <li>Activer DKIM dans chacun de ces services, puis publier dans le DNS la clé qu'il donne.</li>
+              <li>Publier <strong>un seul</strong> enregistrement SPF qui couvre tous ces services : deux enregistrements SPF sur le même domaine, et SPF est en erreur. Même erreur si le SPF demande plus de 10 recherches DNS, ce qui arrive vite quand on ajoute un service après l'autre.</li>
+              <li>Activer DKIM dans chacun de ces services, puis publier dans le DNS la clé (ou le CNAME) qu'il donne.</li>
               <li>Publier un DMARC, au moins en <code>p=none</code> avec une adresse de rapport : la suite est dans le sujet 2.</li>
-              <li>Pour un domaine qui n'envoie aucun e-mail : un SPF qui n'autorise personne (<code>v=spf1 -all</code>) et un DMARC en <code>reject</code> tout de suite, comme pour mon client.</li>
+              <li>Pour un domaine qui n'envoie aucun e-mail : un DMARC en <code>reject</code> tout de suite, comme pour mon client. S'il ne fait pas non plus suivre d'e-mails, un SPF qui n'autorise personne (<code>v=spf1 -all</code>) ; chez mon client, le SPF autorise seulement Cloudflare, qui fait suivre ses e-mails.</li>
             </ul>
             <h4>Sources</h4>
             <ul class="sources">
@@ -1016,14 +1016,15 @@
             <h4>Ce que j'en retiens</h4>
             <p>Avoir un DMARC ne suffit pas : en <code>p=none</code>, un e-mail usurpé est quand même livré. On passe en général par étapes de <code>none</code> à <code>quarantine</code> puis <code>reject</code>, en lisant les rapports DMARC pour ne pas bloquer ses propres e-mails. C'est ce que vérifie mon <a href="projets/homelab-etape-4.html">outil d'audit</a> : un DMARC en <code>p=none</code> y apparaît en orange.</p>
             <h4>Ce que doit faire une entreprise</h4>
-            <p>Le risque, si elle reste en <code>p=none</code> : un escroc peut envoyer en son nom une fausse facture avec un autre RIB à ses clients, et l'e-mail sera livré. Les étapes pour aller jusqu'au blocage :</p>
+            <p>Le risque, si elle reste en <code>p=none</code> : un escroc peut envoyer en son nom une fausse facture avec un autre RIB à ses clients. Le domaine ne demande pas de la bloquer : elle pourra être livrée. Les étapes pour aller jusqu'au blocage :</p>
             <ul>
               <li>Mettre une adresse de rapport dans le DMARC (<code>rua=</code>) : sans elle, on ne sait pas qui envoie au nom du domaine.</li>
               <li>Lire les rapports pendant quelques semaines et corriger SPF ou DKIM pour chaque service légitime qui échoue.</li>
               <li>Passer en <code>quarantine</code>, vérifier dans les rapports qu'aucun e-mail légitime n'est touché, puis passer en <code>reject</code>.</li>
-              <li>Penser aux sous-domaines : sans balise <code>sp=</code>, ils suivent la politique du domaine principal ; avec elle, on peut leur en donner une autre, comme gmail.com.</li>
+              <li>Penser aux sous-domaines : sans balise <code>sp=</code> ni <code>np=</code>, ceux qui n'ont pas leur propre DMARC suivent la politique du domaine principal ; avec <code>sp=</code>, on peut leur en donner une autre, comme gmail.com.</li>
             </ul>
             <p>Aller trop vite en <code>reject</code> est le piège inverse : un service oublié dans la liste du sujet 1, et ses e-mails sont refusés.</p>
+            <p>Et DMARC a une limite : il protège seulement le nom de domaine exact. Une fausse facture envoyée depuis un domaine qui lui ressemble, ou depuis une vraie boîte piratée, passe quand même. Il faut aussi former les salariés à vérifier un changement de RIB par téléphone.</p>
             <h4>Sources</h4>
             <ul class="sources">
               <li><a href="https://www.afnic.fr/en/observatory-and-resources/expert-papers/spf-dkim-dmarc-and-bimi-on-fr-still-on-the-rise-in-2025/" rel="noopener">afnic.fr</a></li>

@@ -1024,11 +1024,12 @@
               <li>Penser aux sous-domaines : sans balise <code>sp=</code> ni <code>np=</code>, ceux qui n'ont pas leur propre DMARC suivent la politique du domaine principal ; avec <code>sp=</code>, on peut leur en donner une autre, comme gmail.com.</li>
             </ul>
             <p>Aller trop vite en <code>reject</code> est le piège inverse : un service oublié dans la liste du sujet 1, et ses e-mails sont refusés.</p>
-            <p>Et DMARC a une limite : il protège seulement le nom de domaine exact. Une fausse facture envoyée depuis un domaine qui lui ressemble, ou depuis une vraie boîte piratée, passe quand même. Il faut aussi former les salariés à vérifier un changement de RIB par téléphone.</p>
+            <p>Et DMARC a une limite : il protège seulement le nom de domaine exact. Une fausse facture envoyée depuis un domaine qui lui ressemble, ou depuis une vraie boîte piratée, passe quand même. Contre ça, Cybermalveillance.gouv.fr conseille d'activer la double authentification sur les messageries, et d'avoir une procédure interne pour vérifier toute demande de changement de coordonnées bancaires reçue par l'entreprise.</p>
             <h4>Sources</h4>
             <ul class="sources">
               <li><a href="https://www.afnic.fr/en/observatory-and-resources/expert-papers/spf-dkim-dmarc-and-bimi-on-fr-still-on-the-rise-in-2025/" rel="noopener">afnic.fr</a></li>
               <li><a href="https://www.rfc-editor.org/rfc/rfc9989#section-4.7" rel="noopener">RFC 9989, section 4.7 (balises <code>rua</code> et <code>sp</code>)</a></li>
+              <li><a href="https://www.cybermalveillance.gouv.fr/tous-nos-contenus/fiches-reflexes/escroquerie-faux-ordres-virement-fovi" rel="noopener">cybermalveillance.gouv.fr (fraude au faux ordre de virement)</a></li>
               <li>Relevé DNS personnel des enregistrements <code>_dmarc</code>, le 20/11/2026</li>
             </ul>
           </div>

@@ -1014,7 +1014,7 @@
             <p>Google exige un DMARC des gros expéditeurs et protège google.com au maximum, mais garde la politique la plus souple sur gmail.com. Google n'explique pas officiellement ce choix.</p>
             <p>L'exemple du sujet 1, un faux e-mail venant de <code>contact@impots.gouv.fr</code>, serait donc refusé par les grandes messageries : ce domaine est en <code>reject</code>.</p>
             <h4>Ce que j'en retiens</h4>
-            <p>Avoir un DMARC ne suffit pas : en <code>p=none</code>, un e-mail usurpé est quand même livré. On passe en général par étapes de <code>none</code> à <code>quarantine</code> puis <code>reject</code>, en lisant les rapports DMARC pour ne pas bloquer ses propres e-mails. C'est ce que vérifie mon <a href="projets/homelab-etape-4.html">outil d'audit</a> : un DMARC en <code>p=none</code> y apparaît en orange.</p>
+            <p>Avoir un DMARC ne suffit pas : en <code>p=none</code>, un e-mail usurpé peut quand même être livré. On passe en général par étapes de <code>none</code> à <code>quarantine</code> puis <code>reject</code>, en lisant les rapports DMARC pour ne pas bloquer ses propres e-mails. C'est ce que vérifie mon <a href="projets/homelab-etape-4.html">outil d'audit</a> : un DMARC en <code>p=none</code> y apparaît en orange.</p>
             <h4>Ce que doit faire une entreprise</h4>
             <p>Le risque, si elle reste en <code>p=none</code> : un escroc peut envoyer en son nom une fausse facture avec un autre RIB à ses clients. Le domaine ne demande pas de la bloquer : elle pourra être livrée. Les étapes pour aller jusqu'au blocage :</p>
             <ul>

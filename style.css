@@ -334,6 +334,54 @@ summary:hover { color: var(--cable-text); }
 .sources li { padding-left: 0; font-size: 14px; }
 .sources li::before { display: none; }
 .sources a { overflow-wrap: anywhere; }
+/* Veille : encadré « En bref », schémas, graphiques, frise et étapes */
+.bref { margin-top: 2px; padding: 10px 14px 12px; background: var(--paper); border-left: 5px solid var(--cable); }
+.bref-t { font-family: var(--mono); font-size: 12.5px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--cable-text); }
+.fiche .bref p { margin-top: 0; }
+.fiche .bref ul { margin-top: 4px; }
+.fiche figure { margin-top: 14px; }
+.fiche figcaption { margin-top: 6px; }
+.schema .hl-fixe .hl-tuile, .schema .dmarc { fill: var(--sheet); }
+.schema .dmarc { stroke: var(--cable); stroke-width: 2.2; }
+.graph .hl { max-width: 460px; }
+.b23 { fill: #c2939a; }
+.b25 { fill: #8e2f3c; }
+.p1 { fill: #cc9fa5; }
+.p2 { fill: #b0717a; }
+.p3 { fill: #934553; }
+.p4 { fill: #6b1f2b; }
+.fiche .legende { display: flex; flex-wrap: wrap; gap: 2px 16px; margin-top: 6px; font-size: 14px; }
+.fiche .legende li::before { top: .4em; width: 11px; height: 11px; }
+.fiche .legende li:nth-child(1)::before { background: #cc9fa5; }
+.fiche .legende li:nth-child(2)::before { background: #b0717a; }
+.fiche .legende li:nth-child(3)::before { background: #934553; }
+.fiche .legende li:nth-child(4)::before { background: #6b1f2b; }
+.fiche .frise, .fiche .etapes { list-style: none; padding-left: 0; }
+.fiche .frise { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 10px; border-top: 2px solid var(--ink); }
+.fiche .frise li { margin-top: 0; padding: 14px 0 0; font-size: 14px; color: var(--soft); }
+.fiche .frise li::before { left: 0; top: -7px; width: 12px; height: 12px; }
+.frise b { display: block; color: var(--ink); font-family: var(--mono); font-size: 13px; }
+.fiche .etapes { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 10px; margin-top: 12px; counter-reset: etape; }
+.fiche .etapes li { margin-top: 0; padding: 8px 10px; background: var(--paper); border: 1.5px solid var(--ink); font-size: 13.5px; color: var(--soft); counter-increment: etape; }
+.fiche .etapes li:last-child { border-color: var(--cable); border-width: 2.2px; }
+.fiche .etapes li::before { content: counter(etape); position: static; display: inline-grid; place-items: center; width: 18px; height: 18px; margin-right: 6px; color: #fff; font: 700 11.5px var(--mono); }
+.etapes b { display: inline; color: var(--ink); }
+.etapes b::after { content: ""; display: block; }
+.dmarc-rec { padding: 12px 14px; background: var(--paper); border: 1.5px solid var(--ink); }
+.fiche .dmarc-rec .rec { margin-top: 0; font-size: 14px; color: var(--soft); }
+.rec code { overflow-wrap: anywhere; }
+.dmarc-rec dl { margin-top: 8px; }
+.dmarc-rec dl div { display: grid; grid-template-columns: minmax(0, 11em) minmax(0, 1fr); gap: 10px; padding: 5px 0; border-top: 1px dashed var(--hair); font-size: 14px; }
+.dmarc-rec dt code { color: var(--cable-text); font-weight: 700; overflow-wrap: anywhere; }
+#veille .grid > .card { min-width: 0; }
+.releve td { font-size: 14.5px; }
+.pastille { display: inline-flex; margin-left: 4px; vertical-align: middle; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 600; white-space: nowrap; }
+.pastille::before { content: ""; width: 11px; height: 11px; border-radius: 50%; border: 1px solid var(--ink); }
+.pastille.vert::before { background: #2f8a4a; }
+.pastille.orange::before { background: #e08a1e; }
+@media (max-width: 420px) {
+  .dmarc-rec dl div { grid-template-columns: 1fr; gap: 0; }
+}
 
 /* Contact */
 .rules { width: 100%; margin-top: 26px; border-collapse: collapse; background: var(--sheet); border: 1.5px solid var(--ink); font-family: var(--mono); font-size: 14px; }

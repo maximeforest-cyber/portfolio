@@ -34,7 +34,7 @@
   ]
 }
 </script>
-<link rel="stylesheet" href="style.css?v=13">
+<link rel="stylesheet" href="style.css?v=14">
 </head>
 <body>
 <a class="skip" href="#contenu">Aller au contenu</a>
@@ -954,6 +954,14 @@
         <details>
           <summary>Lire la veille</summary>
           <div class="fiche">
+            <div class="bref">
+              <p class="bref-t">En bref</p>
+              <ul>
+                <li><b>Le problème :</b> n'importe qui peut envoyer un e-mail au nom d'un domaine.</li>
+                <li><b>Ce qui change :</b> Gmail, Yahoo et Outlook trient les e-mails selon SPF, DKIM et DMARC.</li>
+                <li><b>Pour une entreprise :</b> sans ces trois réglages, ses e-mails risquent de finir en spam.</li>
+              </ul>
+            </div>
             <h4>Le problème de départ</h4>
             <p>Le protocole SMTP, qui transporte les e-mails, ne vérifie pas l'expéditeur : n'importe qui peut écrire un e-mail qui semble venir de <code>contact@impots.gouv.fr</code>. Trois réglages publiés dans le DNS du domaine permettent de repérer ces e-mails usurpés :</p>
             <ul>
@@ -962,7 +970,17 @@
               <li>DMARC : il exige que le domaine vérifié par SPF ou par DKIM soit le même que celui affiché dans « De : » (c'est l'alignement), et il dit quoi faire si ce n'est pas le cas : rien (<code>p=none</code>, observation seulement), le mettre en spam (<code>quarantine</code>) ou le refuser (<code>reject</code>)</li>
             </ul>
             <p>Sans DMARC, un e-mail peut passer SPF ou DKIM avec le domaine de l'attaquant tout en affichant un autre expéditeur : SPF vérifie l'adresse d'enveloppe, pas celle que lit le destinataire.</p>
+            <figure class="hl-fig schema" data-anim>
+              <svg class="hl" viewBox="0 0 400 478" width="400" height="478" role="img" aria-labelledby="mail-titre mail-desc"><title id="mail-titre">Le trajet d'un e-mail et les trois contrôles</title><desc id="mail-desc">Un e-mail envoyé au nom de exemple.fr arrive au serveur qui le reçoit. Ce serveur vérifie SPF : l'adresse IP d'envoi est-elle autorisée par le domaine de l'enveloppe ? Il vérifie DKIM : la signature est-elle valide, et pour quel domaine ? Puis DMARC regarde si SPF ou DKIM a réussi pour le domaine affiché dans « De : ». Si DMARC réussit, l'e-mail est livré. S'il échoue, le serveur suit la politique du domaine : en quarantine, l'e-mail part en spam ; en reject, il est refusé ; en none, rien n'est demandé et l'e-mail usurpé peut être livré.</desc><defs><marker id="mail-fleche" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="hl-pointe" d="M0 0L10 5L0 10z"/></marker></defs><g class="hl-fixe"><rect class="hl-tuile" x="16" y="10" width="368" height="56"/><text class="hl-t" x="26" y="33">E-mail envoyé au nom de exemple.fr</text><text class="hl-s" x="26" y="53">De : contact@exemple.fr</text></g><line class="hl-flux" x1="200" y1="66" x2="200" y2="98" marker-end="url(#mail-fleche)"/><text class="hl-l" x="208" y="87">SMTP</text><rect class="hl-zone" x="8" y="100" width="384" height="218"/><text class="hl-z" x="20" y="122">Le serveur qui reçoit vérifie :</text><g class="hl-fixe"><rect class="hl-tuile" x="16" y="134" width="180" height="70"/><text class="hl-t" x="26" y="156">1. SPF</text><text class="hl-s" x="26" y="176">IP d'envoi autorisée</text><text class="hl-s" x="26" y="193">par l'enveloppe ?</text></g><g class="hl-fixe"><rect class="hl-tuile" x="204" y="134" width="180" height="70"/><text class="hl-t" x="214" y="156">2. DKIM</text><text class="hl-s" x="214" y="176">signature valide ?</text><text class="hl-s" x="214" y="193">pour quel domaine ?</text></g><line class="hl-flux" x1="106" y1="204" x2="106" y2="234" marker-end="url(#mail-fleche)"/><line class="hl-flux" x1="294" y1="204" x2="294" y2="234" marker-end="url(#mail-fleche)"/><rect class="hl-tuile dmarc" x="16" y="236" width="368" height="70"/><text class="hl-t" x="26" y="258">3. DMARC</text><text class="hl-s" x="26" y="278">SPF ou DKIM a-t-il réussi pour</text><text class="hl-s" x="26" y="295">le domaine du « De : » ? (alignement)</text><line class="hl-flux" x1="76" y1="306" x2="76" y2="350" marker-end="url(#mail-fleche)"/><text class="hl-l" x="84" y="336">réussi</text><line class="hl-flux" x1="200" y1="306" x2="200" y2="350" marker-end="url(#mail-fleche)"/><text class="hl-l" x="208" y="336">échec</text><line class="hl-flux" x1="324" y1="306" x2="324" y2="350" marker-end="url(#mail-fleche)"/><text class="hl-l" x="332" y="336">échec</text><g class="hl-fixe"><rect class="hl-tuile" x="16" y="352" width="120" height="70"/><text class="hl-t" x="26" y="375">Livré</text><text class="hl-s" x="26" y="395">boîte de</text><text class="hl-s" x="26" y="412">réception</text></g><g class="hl-fixe"><rect class="hl-tuile" x="140" y="352" width="120" height="70"/><text class="hl-t" x="150" y="375">Spam</text><text class="hl-s" x="150" y="395">politique</text><text class="hl-s" x="150" y="412">p=quarantine</text></g><g class="hl-fixe"><rect class="hl-tuile" x="264" y="352" width="120" height="70"/><text class="hl-t" x="274" y="375">Refusé</text><text class="hl-s" x="274" y="395">politique</text><text class="hl-s" x="274" y="412">p=reject</text></g><text class="hl-s" x="16" y="448">Échec avec p=none : rien n'est demandé,</text><text class="hl-s" x="16" y="466">l'e-mail usurpé peut quand même être livré.</text></svg>
+              <figcaption>Ce que vérifie le serveur qui reçoit un e-mail (exemple.fr est un domaine d'exemple).</figcaption>
+              <button class="pause" type="button" hidden>Mettre en pause le trafic</button>
+            </figure>
             <h4>Ce qui a changé</h4>
+            <ol class="frise">
+              <li><b>Février 2024</b>Google et Yahoo</li>
+              <li><b>5 mai 2025</b>Microsoft (Outlook.com, Hotmail, Live)</li>
+              <li><b>Septembre 2025</b>L'Afnic : 19,5 % des .fr ont un DMARC (sujet 2)</li>
+            </ol>
             <p>Depuis février 2024, Google et Yahoo demandent à <strong>tous</strong> les expéditeurs au moins SPF ou DKIM. Les <strong>gros expéditeurs</strong> (plus de 5 000 e-mails par jour vers Gmail) doivent avoir SPF, DKIM et un DMARC, au moins en <code>p=none</code>, ainsi qu'un lien de désinscription en un clic.</p>
             <p>Microsoft a suivi le 5 mai 2025 pour Outlook.com, Hotmail et Live, avec le même seuil de 5 000 e-mails par jour : les e-mails des domaines qui ne respectent pas ces règles partent en courrier indésirable.</p>
             <h4>Ce que j'en retiens</h4>
@@ -996,6 +1014,14 @@
         <details>
           <summary>Lire la veille</summary>
           <div class="fiche">
+            <div class="bref">
+              <p class="bref-t">En bref</p>
+              <ul>
+                <li><b>Le chiffre :</b> un domaine .fr sur cinq a un DMARC (19,5 % en 2025).</li>
+                <li><b>Le piège :</b> la plupart sont en <code>p=none</code> et ne bloquent rien.</li>
+                <li><b>Pour une entreprise :</b> aller par étapes jusqu'à <code>reject</code>, en lisant les rapports.</li>
+              </ul>
+            </div>
             <h4>Les chiffres</h4>
             <p>L'Afnic, qui gère les noms de domaine en .fr, a publié en septembre 2025 une étude sur tous les domaines en .fr, même ceux qui ne reçoivent pas de courrier (les chiffres de 2023 ci-dessous, publiés par l'Afnic en 2024, sont comptés de la même façon) :</p>
             <ul>
@@ -1003,14 +1029,34 @@
               <li>DKIM : 40,7 % (22,6 % en 2023)</li>
               <li>DMARC : 19,5 % (7,3 % en 2023)</li>
             </ul>
+            <figure class="graph">
+              <svg class="hl" viewBox="0 0 400 176" width="400" height="176" role="img" aria-labelledby="afnic-titre afnic-desc"><title id="afnic-titre">Part des domaines .fr avec SPF, DKIM et DMARC, en 2023 et en 2025</title><desc id="afnic-desc">SPF : 52,5 % en 2023, 69,0 % en 2025. DKIM : 22,6 % puis 40,7 %. DMARC : 7,3 % puis 19,5 %.</desc><rect class="b23" x="70" y="4" width="12" height="12"/><text class="hl-s" x="88" y="15">2023</text><rect class="b25" x="140" y="4" width="12" height="12"/><text class="hl-s" x="158" y="15">2025</text><text class="hl-t" x="0" y="55">SPF</text><rect class="b23" x="70" y="32" width="147" height="15"><title>SPF en 2023 : 52,5 %</title></rect><text class="hl-s" x="223" y="44">52,5 %</text><rect class="b25" x="70" y="49" width="193.2" height="15"><title>SPF en 2025 : 69,0 %</title></rect><text class="hl-s" x="269" y="61">69,0 %</text><text class="hl-t" x="0" y="105">DKIM</text><rect class="b23" x="70" y="82" width="63.3" height="15"><title>DKIM en 2023 : 22,6 %</title></rect><text class="hl-s" x="139" y="94">22,6 %</text><rect class="b25" x="70" y="99" width="114" height="15"><title>DKIM en 2025 : 40,7 %</title></rect><text class="hl-s" x="190" y="111">40,7 %</text><text class="hl-t" x="0" y="155">DMARC</text><rect class="b23" x="70" y="132" width="20.4" height="15"><title>DMARC en 2023 : 7,3 %</title></rect><text class="hl-s" x="96" y="144">7,3 %</text><rect class="b25" x="70" y="149" width="54.6" height="15"><title>DMARC en 2025 : 19,5 %</title></rect><text class="hl-s" x="131" y="161">19,5 %</text><path class="lk fin" d="M70 26V170"/></svg>
+              <figcaption>Part des domaines en .fr qui publient chaque réglage (source : Afnic).</figcaption>
+            </figure>
             <p>Parmi les domaines qui ont un DMARC, 49,7 % sont en <code>p=none</code> sans adresse de rapport, 13,0 % en <code>p=none</code> avec rapports, 16,7 % en <code>quarantine</code> et 20,6 % en <code>reject</code>. L'adoption progresse vite, mais la plupart ne bloquent rien, et la moitié n'observe même pas : sans adresse de rapport, le domaine ne reçoit aucun compte rendu.</p>
+            <figure class="graph">
+              <svg class="hl" viewBox="0 0 400 40" width="400" height="40" role="img" aria-labelledby="politiques-titre"><title id="politiques-titre">Politique des domaines .fr qui ont un DMARC : 49,7 % en none sans rapport, 13,0 % en none avec rapports, 16,7 % en quarantine, 20,6 % en reject</title><rect class="p1" x="20" y="6" width="176.9" height="28"><title>none sans adresse de rapport : 49,7 %</title></rect><rect class="p2" x="198.9" y="6" width="44.8" height="28"><title>none avec rapports : 13,0 %</title></rect><rect class="p3" x="245.7" y="6" width="58.1" height="28"><title>quarantine : 16,7 %</title></rect><rect class="p4" x="305.8" y="6" width="74.2" height="28"><title>reject : 20,6 %</title></rect></svg>
+              <ul class="legende">
+                <li><code>none</code>, sans adresse de rapport : 49,7 %</li>
+                <li><code>none</code>, avec rapports : 13,0 %</li>
+                <li><code>quarantine</code> : 16,7 %</li>
+                <li><code>reject</code> : 20,6 %</li>
+              </ul>
+              <figcaption>Ce que demandent les domaines .fr qui ont un DMARC, du plus souple au plus strict (Afnic, 2025).</figcaption>
+            </figure>
             <h4>Mon relevé du 20/11/2026</h4>
-            <ul>
-              <li><code>gmail.com</code> : <code>p=none</code> (observation seulement), mais <code>quarantine</code> pour ses sous-domaines</li>
-              <li><code>google.com</code> : <code>p=reject</code></li>
-              <li><code>orange.fr</code> : <code>p=quarantine</code></li>
-              <li><code>laposte.net</code> et <code>impots.gouv.fr</code> : <code>p=reject</code></li>
-            </ul>
+            <div class="tw">
+              <table class="t duo releve">
+                <thead><tr><th scope="col">Domaine</th><th scope="col">Politique DMARC et couleur dans mon outil</th></tr></thead>
+                <tbody>
+                  <tr><td><code>gmail.com</code></td><td><code>p=none</code> (observation seulement), mais <code>quarantine</code> pour ses sous-domaines <span class="pastille orange">orange</span></td></tr>
+                  <tr><td><code>google.com</code></td><td><code>p=reject</code> <span class="pastille vert">vert</span></td></tr>
+                  <tr><td><code>orange.fr</code></td><td><code>p=quarantine</code> <span class="pastille vert">vert</span></td></tr>
+                  <tr><td><code>laposte.net</code></td><td><code>p=reject</code> <span class="pastille vert">vert</span></td></tr>
+                  <tr><td><code>impots.gouv.fr</code></td><td><code>p=reject</code> <span class="pastille vert">vert</span></td></tr>
+                </tbody>
+              </table>
+            </div>
             <p>Google exige un DMARC des gros expéditeurs et protège google.com au maximum, mais garde la politique la plus souple sur gmail.com. Google n'explique pas officiellement ce choix.</p>
             <p>L'exemple du sujet 1, un faux e-mail venant de <code>contact@impots.gouv.fr</code>, serait donc refusé par les grandes messageries : ce domaine est en <code>reject</code>.</p>
             <h4>Ce que j'en retiens</h4>
@@ -1023,6 +1069,22 @@
               <li>Passer en <code>quarantine</code>, vérifier dans les rapports qu'aucun e-mail légitime n'est touché, puis passer en <code>reject</code>.</li>
               <li>Penser aux sous-domaines : sans balise <code>sp=</code> ni <code>np=</code>, ceux qui n'ont pas leur propre DMARC suivent la politique du domaine principal ; avec <code>sp=</code>, on peut leur en donner une autre, comme gmail.com.</li>
             </ul>
+            <ol class="etapes" aria-label="Les étapes jusqu'au blocage">
+              <li><b><code>p=none</code></b>avec <code>rua=</code> : on observe</li>
+              <li><b>Rapports</b>quelques semaines : on corrige SPF ou DKIM</li>
+              <li><b><code>quarantine</code></b>on vérifie qu'aucun e-mail légitime n'est touché</li>
+              <li><b><code>reject</code></b>l'usurpation du domaine est refusée</li>
+            </ol>
+            <figure class="dmarc-rec">
+              <p class="rec">TXT de <code>_dmarc.exemple.fr</code> :<br><code>v=DMARC1; p=quarantine; sp=reject; rua=mailto:dmarc@exemple.fr</code></p>
+              <dl>
+                <div><dt><code>v=DMARC1</code></dt><dd>c'est un enregistrement DMARC ; toujours en premier, sinon il est ignoré</dd></div>
+                <div><dt><code>p=quarantine</code></dt><dd>un e-mail au nom de exemple.fr qui échoue part en spam</dd></div>
+                <div><dt><code>sp=reject</code></dt><dd>pour les sous-domaines qui existent, comme factures.exemple.fr : refusé</dd></div>
+                <div><dt><code>rua=mailto:…</code></dt><dd>l'adresse où les messageries envoient leurs rapports</dd></div>
+              </dl>
+              <figcaption>Un enregistrement DMARC d'exemple, balise par balise (RFC 9989, section 4.7).</figcaption>
+            </figure>
             <p>Aller trop vite en <code>reject</code> est le piège inverse : un service oublié dans la liste du sujet 1, et ses e-mails sont refusés.</p>
             <p>Et DMARC a une limite : il protège seulement le nom de domaine exact. Une fausse facture envoyée depuis un domaine qui lui ressemble, ou depuis une vraie boîte piratée, passe quand même. Contre ça, Cybermalveillance.gouv.fr conseille d'activer la double authentification sur les messageries, et d'avoir une procédure interne pour vérifier toute demande de changement de coordonnées bancaires reçue par l'entreprise.</p>
             <h4>Sources</h4>

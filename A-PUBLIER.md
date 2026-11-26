@@ -107,7 +107,7 @@ Nouveau compte rendu sur mon portfolio : ArchiSite, un projet de BTS en binôme.
 
 De mon côté : le serveur web Apache, une autorité de certification interne déployée sur les postes par GPO, un HTTPS durci (TLS 1.2 et 1.3 seulement, HSTS) et un serveur FTPS pour que les développeurs déposent le site.
 
-Le moment le plus utile a été un test qui aurait dû échouer : la base de données arrivait à joindre le serveur web. En relisant le pare-feu, j'ai trouvé le filtrage désactivé, les deux DMZ dans la même zone et la base publiée sur le Wi-Fi du campus. Tout a été corrigé, puis vérifié dans le journal du pare-feu. Une règle bien écrite ne protège rien tant qu'on n'a pas testé ce qui doit être refusé.
+Le moment le plus utile a été un test qui aurait dû échouer : la base de données arrivait à joindre le serveur web. En relisant le pare-feu à deux, nous avons trouvé le filtrage désactivé, les deux DMZ dans la même zone et la base publiée sur le Wi-Fi du campus. Tout a été corrigé, puis vérifié dans le journal du pare-feu. Une règle bien écrite ne protège rien tant qu'on n'a pas testé ce qui doit être refusé.
 
 ## 2026-11-20 : Homelab n°2, étape 2 : le pare-feu et la segmentation
 

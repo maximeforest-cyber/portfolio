@@ -19,6 +19,20 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | mar. 01/12 | Homelab, étape 10 : des services dans Docker, avec un vrai certificat |
 | jeu. 03/12 | Homelab : tout le labo en un schéma cliquable |
 
+## 2026-11-26 : Veille : des schémas pour comprendre SPF, DKIM et DMARC
+
+- Statut : à relire
+- Lien : https://forestmaxime-pf.fr/#veille-exigences-messagerie
+- Image proposée : aucune (une capture du schéma « trajet d'un e-mail » de la fiche ferait une bonne image : à faire depuis le site en ligne)
+
+Mes fiches de veille sur la sécurité de la messagerie étaient un long texte. J'y ai ajouté des schémas.
+
+Le premier montre ce que fait le serveur qui reçoit un e-mail : il vérifie SPF (l'adresse IP d'envoi est-elle autorisée ?), DKIM (la signature est-elle bonne ?), puis DMARC (l'un des deux a-t-il réussi pour le domaine affiché dans « De : » ?). Ensuite, selon la politique du domaine, l'e-mail est livré, mis en spam ou refusé.
+
+Les autres : les chiffres de l'Afnic sur les domaines en .fr en graphique, un enregistrement DMARC expliqué balise par balise, et les étapes pour passer de p=none à reject sans bloquer ses propres e-mails.
+
+C'est ce que je règle pour mes clients, et ce que vérifie l'outil d'audit de mon homelab.
+
 ## 2026-11-20 : Veille, sujet 2 : où en est DMARC en France ?
 
 - Statut : à relire

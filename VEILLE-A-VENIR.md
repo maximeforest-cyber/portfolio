@@ -75,12 +75,12 @@ Faux e-mail annoté, après « Ce que SPF, DKIM et DMARC ne bloquent pas ». L'e
 ```html
             <figure class="faux-mail">
               <div class="fm">
-                <p><b>De :</b> Comptabilité &lt;compta@exemple-factures.fr&gt; <span class="fm-n">1</span></p>
+                <p><b>De :</b> Comptabilité &lt;compta@example-factures.com&gt; <span class="fm-n">1</span></p>
                 <p><b>Objet :</b> URGENT : nouveau RIB avant vendredi <span class="fm-n">2</span></p>
-                <p>Bonjour, suite à un changement de banque, merci de régler la facture n° 2026-118 sur notre nouveau compte <span class="fm-n">3</span>. Le RIB est ici : <u>exemple.fr.rib-facture.com</u> <span class="fm-n">4</span></p>
+                <p>Bonjour, suite à un changement de banque, merci de régler la facture n° 2026-118 sur notre nouveau compte <span class="fm-n">3</span>. Le RIB est ici : <u>example.com.rib-facture.com</u> <span class="fm-n">4</span></p>
               </div>
               <ol class="fm-notes">
-                <li>Un domaine qui ressemble au vrai (<code>exemple.fr</code>) : DMARC ne protège que le domaine exact, celui-ci passe.</li>
+                <li>Un domaine qui ressemble au vrai (<code>example.com</code>) : DMARC ne protège que le domaine exact, celui-ci passe.</li>
                 <li>L'urgence, pour qu'on ne prenne pas le temps de vérifier.</li>
                 <li>Un changement de RIB : on le vérifie par téléphone, au numéro qu'on connaît déjà.</li>
                 <li>Le vrai site est la fin de l'adresse (<code>rib-facture.com</code>), pas le début.</li>
@@ -93,7 +93,7 @@ Ce que DMARC bloque ou non, après le faux e-mail :
 
 ```html
             <div class="bloque">
-              <div><p class="bloque-t oui">Bloqué par DMARC en <code>reject</code></p><ul><li>un faux e-mail qui affiche exactement <code>exemple.fr</code></li></ul></div>
+              <div><p class="bloque-t oui">Bloqué par DMARC en <code>reject</code></p><ul><li>un faux e-mail qui affiche exactement <code>example.com</code></li></ul></div>
               <div><p class="bloque-t non">Pas bloqué</p><ul><li>un domaine qui ressemble au vrai</li><li>une vraie boîte piratée</li><li>un e-mail écrit par une IA, envoyé depuis le domaine de l'attaquant, bien configuré</li></ul></div>
             </div>
 ```

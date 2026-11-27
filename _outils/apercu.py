@@ -27,6 +27,7 @@ pages={
  'radius-8021x':("TRAVAUX PRATIQUES · BTS SIO",["802.1X : un VLAN selon","l'utilisateur"],"NPS · PEAP · EAP-TLS · Cisco"),
  'hsrp':("TRAVAUX PRATIQUES · BTS SIO",["HSRP : un deuxième","accès à Internet"],"HSRP · IP SLA · Cisco · Zyxel"),
  'spanning-tree':("TRAVAUX PRATIQUES · BTS SIO",["Spanning Tree : des liens","de secours sur le LAN"],"Rapid-PVST · fibre · BPDU Guard"),
+ 'mac-flooding':("TRAVAUX PRATIQUES · BTS SIO",["MAC flooding : saturer","un switch, le protéger"],"Kali · Wireshark · port-security"),
  'nas-gpo':("TRAVAUX PRATIQUES · BTS SIO",["Serveur NAS TrueNAS","et GPO"],"RAID 1 · partages SMB et ACL · lecteurs et logiciels par GPO"),
  'audit-ad':("ATELIER PROFESSIONNEL · BTS SIO",["Audit de sécurité de","l'Active Directory"],"PingCastle · ANSSI · plan de remédiation · en cours"),
 }

@@ -19,6 +19,20 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | mar. 01/12 | Homelab, étape 10 : des services dans Docker, avec un vrai certificat |
 | jeu. 03/12 | Homelab : tout le labo en un schéma cliquable |
 
+## 2026-11-27 : MAC flooding : saturer un switch, puis le protéger
+
+- Statut : à relire
+- Lien : https://forestmaxime-pf.fr/projets/mac-flooding.html
+- Image proposée : projets/img/mac-flooding-04.webp
+
+Nouveau compte rendu sur mon portfolio : une attaque MAC flooding, faite en binôme en TP.
+
+Depuis une machine Kali Linux, nous avons rempli la table d'adresses MAC d'un switch Cisco : 8 000 adresses, plus aucune place libre. Le switch envoie alors le trafic sur tous ses ports, et dans Wireshark nous avons vu les connexions FTP entre deux autres postes.
+
+Mais le serveur FTP utilisait TLS : on voyait qui se connectait à qui, pas les identifiants ni les fichiers.
+
+Pour finir, nous avons protégé le port avec port-security : 2 adresses MAC au plus, et une alerte à chaque violation.
+
 ## 2026-11-27 : Infra-Site : le planning prévu et réel
 
 - Statut : à relire

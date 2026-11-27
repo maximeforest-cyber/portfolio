@@ -304,7 +304,7 @@
       </div>
       <div class="card skill">
         <h3>Réseaux et sécurité</h3>
-        <ul class="tags"><li>TCP/IP</li><li><a href="projets/maquette-rioca.html#partie-4">VLAN</a></li><li><a href="projets/infra-site.html#partie-6">Routage RIP v2</a></li><li><a href="projets/infra-site.html#partie-4">NAT</a></li><li><a href="projets/maquette-rioca.html#partie-5">DHCP</a></li><li><a href="projets/nextcloud.html#partie-9">DNS</a></li><li><a href="projets/infra-site.html#partie-9">DMZ</a></li><li><a href="projets/infra-site.html#partie-9">Pare-feu</a></li><li><a href="projets/homelab-si-etape-2.html#partie-3">OPNsense</a></li><li><a href="projets/infra-site.html#partie-10">ACL</a></li><li><a href="projets/spanning-tree.html#partie-4">Spanning Tree</a></li><li><a href="projets/hsrp.html#partie-2">HSRP · IP SLA</a></li><li><a href="projets/radius-8021x.html#partie-3">802.1X · RADIUS</a></li><li><a href="projets/archisite.html#partie-4">PKI · TLS</a></li><li><a href="projets/nas-gpo.html#partie-7">NTP</a></li><li><a href="projets/homelab-etape-1.html#partie-3">SSH</a></li><li>Wireshark</li><li><a href="#stage-pyroalliance">Chiffrement des postes</a></li></ul>
+        <ul class="tags"><li>TCP/IP</li><li><a href="projets/maquette-rioca.html#partie-4">VLAN</a></li><li><a href="projets/infra-site.html#partie-6">Routage RIP v2</a></li><li><a href="projets/infra-site.html#partie-4">NAT</a></li><li><a href="projets/maquette-rioca.html#partie-5">DHCP</a></li><li><a href="projets/nextcloud.html#partie-9">DNS</a></li><li><a href="projets/infra-site.html#partie-9">DMZ</a></li><li><a href="projets/infra-site.html#partie-9">Pare-feu</a></li><li><a href="projets/homelab-si-etape-2.html#partie-3">OPNsense</a></li><li><a href="projets/infra-site.html#partie-10">ACL</a></li><li><a href="projets/spanning-tree.html#partie-4">Spanning Tree</a></li><li><a href="projets/hsrp.html#partie-2">HSRP · IP SLA</a></li><li><a href="projets/radius-8021x.html#partie-3">802.1X · RADIUS</a></li><li><a href="projets/archisite.html#partie-4">PKI · TLS</a></li><li><a href="projets/nas-gpo.html#partie-7">NTP</a></li><li><a href="projets/homelab-etape-1.html#partie-3">SSH</a></li><li><a href="projets/mac-flooding.html#partie-5">Wireshark</a></li><li><a href="#stage-pyroalliance">Chiffrement des postes</a></li></ul>
       </div>
       <div class="card skill">
         <h3>Virtualisation et cloud</h3>
@@ -539,6 +539,29 @@
         </details>
         <a class="doc" href="projets/spanning-tree.html">Lire le compte rendu</a>
         <ul class="tags"><li>Cisco</li><li>Spanning Tree</li><li>Redondance</li><li>Fibre</li></ul>
+      </article>
+
+      <article class="card project" id="projet-mac-flooding">
+        <p class="meta">Travaux pratiques · 2026</p>
+        <h3>MAC flooding : saturer un switch, puis le protéger</h3>
+        <p>Attaque par saturation de la table d'adresses MAC d'un switch Cisco depuis Kali Linux, observée avec Wireshark, puis protection des ports avec port-security.</p>
+        <p class="resultat"><b>Résultat :</b> table MAC saturée (8 000 adresses) et connexions FTP d'autres postes visibles dans Wireshark, mais chiffrées par TLS ; avec port-security, le port n'accepte plus que 2 adresses et signale l'attaque.</p>
+        <details>
+          <summary>Voir la fiche</summary>
+          <div class="fiche">
+            <h4>Contexte</h4>
+            <p>Un switch n'envoie chaque trame qu'au port de son destinataire, grâce à sa table d'adresses MAC. Si cette table est pleine, il envoie tout partout.</p>
+            <h4>Ce que j'ai fait</h4>
+            <ul>
+              <li>Saturation de la table MAC depuis une machine Kali Linux</li>
+              <li>Captures Wireshark avant et pendant l'attaque</li>
+              <li>Lecture des échanges FTP : connexions visibles, contenu chiffré par AUTH TLS</li>
+              <li>Protection par port-security (2 adresses, sticky, mode restrict)</li>
+            </ul>
+          </div>
+        </details>
+        <a class="doc" href="projets/mac-flooding.html">Lire le compte rendu</a>
+        <ul class="tags"><li>Wireshark</li><li>Kali Linux</li><li>Cisco</li><li>Port-security</li></ul>
       </article>
 
       <article class="card project" id="projet-nas-gpo">

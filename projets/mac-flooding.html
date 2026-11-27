@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAC flooding : saturer un switch, puis le protéger | Maxime Forest</title>
+<meta name="description" content="Compte rendu de TP : attaque par saturation de la table d&#x27;adresses MAC d&#x27;un switch Cisco depuis Kali Linux, observée avec Wireshark (connexions FTP d&#x27;autres postes visibles, contenu protégé par TLS), puis protection des ports avec port-security.">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#efe9df">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/mac-flooding.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/mac-flooding.html">
+<meta property="og:title" content="MAC flooding : saturer un switch, puis le protéger | Maxime Forest">
+<meta property="og:description" content="Compte rendu de TP : attaque par saturation de la table d&#x27;adresses MAC d&#x27;un switch Cisco depuis Kali Linux, observée avec Wireshark (connexions FTP d&#x27;autres postes visibles, contenu protégé par TLS), puis protection des ports avec port-security.">
+<meta property="og:image" content="https://forestmaxime-pf.fr/projets/img/apercu-mac-flooding.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="MAC flooding : saturer un switch, puis le protéger, sur le portfolio de Maxime Forest">
+<link rel="stylesheet" href="../style.css?v=15">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="../#projet-mac-flooding">← Projets et stages</a></p>
+    <p class="kicker">Travaux pratiques · <b>septembre 2026</b> · en binôme</p>
+    <h1>MAC flooding : saturer un switch, puis le protéger</h1>
+    <p class="lead">Attaque par saturation de la table d'adresses MAC d'un switch Cisco, lancée depuis Kali Linux et observée avec Wireshark, puis protection des ports avec port-security.</p>
+    <dl class="facts"><div><dt>Cadre</dt><dd>TP de 2<sup>e</sup> année de BTS SIO, en binôme, sur un petit réseau de test</dd></div><div><dt>Matériel</dt><dd>Deux switchs Cisco, une machine virtuelle Kali Linux (l'attaquant), un serveur FTP FileZilla Server et un client FTP</dd></div><div><dt>Points clés</dt><dd>Table d'adresses MAC, inondation, capture et lecture de trames avec Wireshark, FTP avec AUTH TLS, port-security</dd></div><div><dt>Résultat</dt><dd>Table MAC saturée (8 000 adresses, plus aucune place libre) et connexions FTP d'autres postes visibles dans Wireshark ; avec port-security, le port n'accepte plus que 2 adresses et signale l'attaque</dd></div></dl>
+    <ul class="tags"><li>Wireshark</li><li>Kali Linux</li><li>Cisco</li><li>Port-security</li><li>Sécurité de niveau 2</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Principe de l'attaque</a></li><li><a href="#partie-2"><span>02</span>Réseau de test</a></li><li><a href="#partie-3"><span>03</span>Avant l'attaque</a></li><li><a href="#partie-4"><span>04</span>Table MAC saturée</a></li><li><a href="#partie-5"><span>05</span>Ce que voit Wireshark</a></li><li><a href="#partie-6"><span>06</span>Protection : port-security</a></li><li><a href="#partie-7"><span>07</span>Bilan</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Principe de l'attaque</h2>
+<p>Un switch retient, dans sa table d'adresses MAC, sur quel port se trouve chaque machine. Il envoie ainsi chaque trame seulement sur le port de son destinataire : un poste ne voit pas les échanges des autres.</p>
+<p>Cette table a une taille limitée. L'attaque MAC flooding l'inonde de trames aux adresses MAC source inventées, jusqu'à la remplir. Le switch ne peut plus apprendre où sont les vraies machines : il envoie alors leurs trames sur tous ses ports, comme un simple concentrateur. L'attaquant peut capturer des échanges qui ne lui sont pas destinés.</p>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>Réseau de test</h2>
+<p>Le réseau de test, dans le VLAN 1 :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Machine</th><th scope="col">Rôle</th></tr></thead><tbody><tr><td>Kali Linux</td><td>L'attaquant, une machine virtuelle VirtualBox ; Wireshark capture le trafic de son côté</td></tr><tr><td>192.168.57.2</td><td>Serveur FTP (FileZilla Server)</td></tr><tr><td>192.168.57.4</td><td>Client FTP</td></tr><tr><td>Deux switchs Cisco</td><td>Reliés entre eux ; les machines y sont réparties</td></tr></tbody></table></div>
+<p>Avant l'attaque, la table du switch ne contient que 3 adresses, pour 7 380 places encore libres :</p>
+<figure class="shot"><a href="img/mac-flooding-01.webp"><img src="img/mac-flooding-01.webp" alt="Sortie du switch : Dynamic Address Count 3, Total Mac Addresses 3, Total Mac Address Space Available 7380." width="507" height="232" loading="lazy"></a><figcaption><b>Fig. 1</b> La table MAC avant l'attaque : 3 adresses.</figcaption></figure>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>Avant l'attaque</h2>
+<p>Côté attaquant, Wireshark ne voit que son propre trafic (requêtes DNS, ping) et les trames que les switchs envoient à tous : annonces Spanning Tree (STP) et CDP. Les échanges entre le client et le serveur FTP n'y apparaissent pas : le switch ne les envoie pas sur ce port.</p>
+<figure class="shot"><a href="img/mac-flooding-02.webp"><img src="img/mac-flooding-02.webp" alt="Capture Wireshark avant l'attaque : requêtes DNS et ping du poste attaquant, réponses ICMP, une trame STP et une trame CDP du switch." width="1599" height="362" loading="lazy"></a><figcaption><b>Fig. 2</b> Wireshark avant l'attaque : le poste attaquant ne voit que son trafic et les trames des switchs.</figcaption></figure>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>Table MAC saturée</h2>
+<p>Depuis Kali, l'outil d'attaque envoie des milliers de trames avec des adresses MAC source au hasard. La table se remplit : 8 000 adresses, plus aucune place libre. Nous avons fait le même constat sur les deux switchs.</p>
+<figure class="shot"><a href="img/mac-flooding-03.webp"><img src="img/mac-flooding-03.webp" alt="Sortie du switch pendant l'attaque : Dynamic Address Count 8000, Total Mac Addresses 8000, Total Mac Address Space Available 0." width="466" height="193" loading="lazy"></a><figcaption><b>Fig. 3</b> La table MAC pendant l'attaque : 8 000 adresses, 0 place libre.</figcaption></figure>
+</div>
+<div class="part" id="partie-5">
+<h2><span class="n">05</span>Ce que voit Wireshark</h2>
+<p>La capture dépasse maintenant 9 millions de trames. En n'affichant que le FTP, on voit les connexions du client 192.168.57.4 au serveur 192.168.57.2, qui ne sont pas destinées au poste attaquant : le switch les envoie désormais sur tous ses ports.</p>
+<figure class="shot"><a href="img/mac-flooding-04.webp"><img src="img/mac-flooding-04.webp" alt="Capture Wireshark pendant l'attaque, limitée au FTP : entre 192.168.57.2 et 192.168.57.4, la bannière 220-FileZilla Server 1.12.6, la commande AUTH TLS et la réponse 234 Using authentication type TLS, répétées pour plusieurs connexions." width="1345" height="546" loading="lazy"></a><figcaption><b>Fig. 4</b> Pendant l'attaque, Wireshark voit les connexions FTP entre deux autres postes.</figcaption></figure>
+<p>On voit qui se connecte à qui et à quel moment, ainsi que le nom et la version du serveur (FileZilla Server 1.12.6). Mais chaque connexion commence par <span class="k">AUTH TLS</span>, et le serveur l'accepte (<span class="k">234 Using authentication type TLS</span>). La suite est chiffrée : l'identifiant, le mot de passe et les fichiers échangés ne sont pas lisibles dans la capture.</p>
+<p>Avec un FTP sans TLS, l'identifiant et le mot de passe passeraient en clair (commandes <span class="k">USER</span> et <span class="k">PASS</span>) et seraient lisibles dans cette même capture. Ici, seuls les trois premiers messages FTP de chaque connexion sont en clair : le chiffrement protège le contenu, même quand le switch ne joue plus son rôle.</p>
+</div>
+<div class="part" id="partie-6">
+<h2><span class="n">06</span>Protection : port-security</h2>
+<p>Port-security limite le nombre d'adresses MAC qu'un port du switch accepte. Nous l'avons appliqué sur le port par lequel arrivent les trames de Kali, FastEthernet0/6 :</p>
+<pre class="cmd"><code>interface FastEthernet0/6
+ switchport mode access
+ switchport port-security
+ switchport port-security maximum 2
+ switchport port-security violation restrict
+ switchport port-security mac-address sticky</code></pre>
+<ul class="b"><li>Port-security refuse un port en mode dynamique : <span class="k">switchport mode access</span> le fixe en mode accès.</li><li><span class="k">maximum 2</span> : le port accepte au plus 2 adresses MAC.</li><li><span class="k">sticky</span> : le switch retient ces adresses et les ajoute à sa configuration.</li><li><span class="k">violation restrict</span> : les trames des autres adresses sont refusées et chaque violation est signalée dans les journaux, sans couper le port.</li></ul>
+<figure class="shot"><a href="img/mac-flooding-05.webp"><img src="img/mac-flooding-05.webp" alt="Sortie du switch après la protection : 0 adresse dynamique, 2 adresses statiques, 7309 places libres, puis trois messages PORT_SECURITY-2-PSECURE_VIOLATION causés par l'adresse MAC 0800.275a.87bc sur FastEthernet0/6." width="1824" height="270" loading="lazy"></a><figcaption><b>Fig. 5</b> Avec port-security : 2 adresses retenues, et les alertes de violation.</figcaption></figure>
+<aside class="verif" aria-label="Vérification">
+<p class="verif-t">Vérification</p>
+<p>Après la mise en place de la protection, la table ne contient plus que 2 adresses, retenues par <span class="k">sticky</span>, et il reste 7 309 places libres. Le switch affiche des messages <span class="k">%PORT_SECURITY-2-PSECURE_VIOLATION</span> sur FastEthernet0/6, pour l'adresse 0800.275a.87bc. Elle commence par 08:00:27, le préfixe des cartes réseau VirtualBox : c'est la machine Kali. Voir la figure 5.</p>
+</aside>
+</div>
+<div class="part" id="partie-7">
+<h2><span class="n">07</span>Bilan</h2>
+<ul class="b"><li>Un switch ne protège pas, à lui seul, la confidentialité du trafic : une fois sa table saturée, un poste du même réseau capture les échanges des autres.</li><li>Le chiffrement limite les dégâts : grâce à TLS, la capture montre les connexions FTP, mais pas les identifiants ni les fichiers.</li><li>Port-security bloque l'attaque à l'entrée du réseau. Le mode <span class="k">restrict</span> garde le port actif et signale l'attaque ; le mode <span class="k">shutdown</span>, utilisé par défaut, couperait complètement le port.</li></ul>
+<p>Ce TP m'a fait lire une vraie capture avec Wireshark : séparer le trafic de l'attaque du reste, filtrer un protocole, et repérer ce qui passe en clair et ce qui est chiffré.</p>
+</div>
+<nav class="pager" aria-label="Autres comptes rendus"><a href="spanning-tree.html"><span>Précédent</span>Spanning Tree : des liens de secours sur le LAN</a><a class="next" href="nas-gpo.html"><span>Suivant</span>Serveur NAS TrueNAS et GPO</a></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js?v=11"></script>
+</body>
+</html>

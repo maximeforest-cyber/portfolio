@@ -105,7 +105,7 @@
 </div>
 <div class="part" id="partie-7">
 <h2><span class="n">07</span>Bilan</h2>
-<ul class="b"><li>Un switch ne protège pas, à lui seul, la confidentialité du trafic : une fois sa table saturée, un poste du même réseau capture les échanges des autres.</li><li>Le chiffrement limite les dégâts : grâce à TLS, la capture montre les connexions FTP, mais pas les identifiants ni les fichiers.</li><li>Port-security, placé sur le port de l'attaquant, l'empêche de remplir la table du switch. Le mode <span class="k">restrict</span> garde le port actif et signale l'attaque ; le mode <span class="k">shutdown</span>, utilisé par défaut, couperait complètement le port.</li></ul>
+<ul class="b"><li>Un switch ne protège pas, à lui seul, la confidentialité du trafic : une fois sa table saturée, un poste du même réseau capture les échanges des autres.</li><li>Le chiffrement limite les dégâts : grâce à TLS, la capture montre les connexions FTP, mais pas les identifiants ni les fichiers.</li><li>Port-security limite les adresses retenues sur les ports où il est placé : sur le switch de la figure 5, il n'en reste que 2 malgré l'attaque. Le mode <span class="k">restrict</span> garde le port actif et signale l'attaque ; le mode <span class="k">shutdown</span>, utilisé par défaut, couperait complètement le port.</li></ul>
 <p>Ce TP m'a fait lire une vraie capture avec Wireshark : séparer le trafic de l'attaque du reste, filtrer un protocole, et repérer ce qui passe en clair et ce qui est chiffré.</p>
 </div>
 <nav class="pager" aria-label="Autres comptes rendus"><a href="spanning-tree.html"><span>Précédent</span>Spanning Tree : des liens de secours sur le LAN</a><a class="next" href="nas-gpo.html"><span>Suivant</span>Serveur NAS TrueNAS et GPO</a></nav>

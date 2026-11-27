@@ -25,6 +25,7 @@ pages={
  'homelab-si-etape-2':("HOMELAB N°2 · ÉTAPE 2",["Le pare-feu et","la segmentation"],"OPNsense · 4 zones · refus par défaut · 81 essais, 0 écart"),
  'archisite':("ATELIER PROFESSIONNEL · BTS SIO",["ArchiSite : un site","HTTPS dans la DMZ"],"Apache · CA interne · FTPS · MariaDB · Zyxel"),
  'radius-8021x':("TRAVAUX PRATIQUES · BTS SIO",["802.1X : un VLAN selon","l'utilisateur"],"NPS · PEAP · EAP-TLS · Cisco"),
+ 'hsrp':("TRAVAUX PRATIQUES · BTS SIO",["HSRP : un deuxième","accès à Internet"],"HSRP · IP SLA · Cisco · Zyxel"),
  'spanning-tree':("TRAVAUX PRATIQUES · BTS SIO",["Spanning Tree : des liens","de secours sur le LAN"],"Rapid-PVST · fibre · BPDU Guard"),
  'nas-gpo':("TRAVAUX PRATIQUES · BTS SIO",["Serveur NAS TrueNAS","et GPO"],"RAID 1 · partages SMB et ACL · lecteurs et logiciels par GPO"),
  'audit-ad':("ATELIER PROFESSIONNEL · BTS SIO",["Audit de sécurité de","l'Active Directory"],"PingCastle · ANSSI · plan de remédiation · en cours"),

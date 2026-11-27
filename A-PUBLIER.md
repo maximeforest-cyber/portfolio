@@ -19,6 +19,22 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | mar. 01/12 | Homelab, étape 10 : des services dans Docker, avec un vrai certificat |
 | jeu. 03/12 | Homelab : tout le labo en un schéma cliquable |
 
+## 2026-11-27 : HSRP : un deuxième accès à Internet
+
+- Statut : à relire
+- Lien : https://forestmaxime-pf.fr/projets/hsrp.html
+- Image proposée : projets/img/hsrp-13.webp
+
+Nouveau compte rendu sur mon portfolio : un deuxième accès à Internet pour le réseau de RIOCA, l'entreprise fictive de notre BTS.
+
+Tout le trafic passait par un seul routeur. En binôme, nous en avons ajouté un deuxième, avec HSRP : les deux routeurs partagent une adresse virtuelle, et si le premier tombe, le second prend le relais tout seul.
+
+Le piège : si c'est l'opérateur qui tombe, le câble reste branché et le premier routeur se croit toujours en forme. Nous l'avons réglé avec IP SLA, qui vérifie toutes les 5 secondes que l'opérateur répond.
+
+Maquette sur Packet Tracer, puis mise en place sur les routeurs Cisco et le pare-feu Zyxel : 11 tests de panne validés. Et une leçon : sur le matériel, la bascule échouait à cause d'une route oubliée sur le pare-feu, trouvée grâce à un compteur du NAT resté à zéro.
+
+#BTSSIO #Réseau #Cisco
+
 ## 2026-11-26 : Veille : des schémas pour comprendre SPF, DKIM et DMARC
 
 - Statut : à relire

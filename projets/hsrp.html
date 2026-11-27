@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HSRP : un deuxième accès à Internet | Maxime Forest</title>
+<meta name="description" content="Compte rendu de TP : deuxième routeur Internet ajouté au réseau de l&#x27;entreprise RIOCA, redondance de passerelle HSRP et suivi du fournisseur d&#x27;accès par IP SLA. Maquette Packet Tracer, puis mise en place sur les routeurs Cisco et le pare-feu Zyxel : 11 tests de panne validés.">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#efe9df">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/hsrp.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/hsrp.html">
+<meta property="og:title" content="HSRP : un deuxième accès à Internet | Maxime Forest">
+<meta property="og:description" content="Compte rendu de TP : deuxième routeur Internet ajouté au réseau de l&#x27;entreprise RIOCA, redondance de passerelle HSRP et suivi du fournisseur d&#x27;accès par IP SLA. Maquette Packet Tracer, puis mise en place sur les routeurs Cisco et le pare-feu Zyxel : 11 tests de panne validés.">
+<meta property="og:image" content="https://forestmaxime-pf.fr/projets/img/apercu-hsrp.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="HSRP : un deuxième accès à Internet, sur le portfolio de Maxime Forest">
+<link rel="stylesheet" href="../style.css?v=14">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="../#projet-hsrp">← Projets et stages</a></p>
+    <p class="kicker">Travaux pratiques · <b>octobre 2026</b> · en binôme</p>
+    <h1>HSRP : un deuxième accès à Internet</h1>
+    <p class="lead">Ajout d'un deuxième routeur Internet, relié à un autre accès, et d'une redondance de passerelle HSRP : si le premier routeur ou son accès tombe, le second prend le relais tout seul.</p>
+    <dl class="facts"><div><dt>Contexte</dt><dd>Tout le trafic Internet de RIOCA (entreprise fictive) passait par un seul routeur, RNET1, relié à un seul accès : un point unique de panne</dd></div><div><dt>Cadre</dt><dd>TP de 2<sup>e</sup> année de BTS SIO sur la maquette physique de RIOCA, en binôme : étude, maquette Packet Tracer, puis mise en place sur le matériel (tests du 16 octobre)</dd></div><div><dt>Matériel</dt><dd>Deux routeurs Cisco 2911, switch Cisco Catalyst 2960-X, pare-feu Zyxel USG Flex 500</dd></div><div><dt>Points clés</dt><dd>HSRP, IP virtuelle, priorités et preempt, IP SLA et track, NAT sur les deux routeurs</dd></div><div><dt>Résultat</dt><dd>4 tests en maquette et 7 sur le matériel validés : la panne d'un routeur, de son câble ou de son fournisseur d'accès fait passer le trafic par l'autre routeur en quelques secondes</dd></div></dl>
+    <ul class="tags"><li>Cisco</li><li>HSRP</li><li>IP SLA</li><li>Zyxel</li><li>Redondance</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Contexte</a></li><li><a href="#partie-2"><span>02</span>Choix</a></li><li><a href="#partie-3"><span>03</span>Maquette</a></li><li><a href="#partie-4"><span>04</span>Mise en place</a></li><li><a href="#partie-5"><span>05</span>Tests sur le matériel</a></li><li><a href="#partie-6"><span>06</span>Trouver la panne</a></li><li><a href="#partie-7"><span>07</span>Difficultés</a></li><li><a href="#partie-8"><span>08</span>Bilan et limites</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Contexte</h2>
+<p>Depuis le projet <a href="infra-site.html">Infra-Site</a>, le réseau de RIOCA sort sur Internet par le pare-feu Zyxel, puis par un seul routeur, RNET1, relié à un seul accès. Si RNET1 ou son lien tombe, l'entreprise perd Internet, et le serveur web de la DMZ n'est plus joignable de l'extérieur.</p>
+<p>L'objectif : ajouter un deuxième routeur, RNET2, relié à un autre accès, et faire en sorte qu'il prenne le relais <b>sans intervention</b>. Nous avons d'abord listé les pannes possibles et ce que la solution doit couvrir :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Élément</th><th scope="col">Panne possible</th><th scope="col">Couvert ?</th></tr></thead><tbody><tr><td>RNET1</td><td>Panne, plantage, coupure de courant</td><td>Oui</td></tr><tr><td>Lien RNET1 – switch SWNET</td><td>Câble ou port défaillant</td><td>Oui</td></tr><tr><td>Lien RNET1 – fournisseur d'accès</td><td>Câble débranché ou port coupé</td><td>Oui</td></tr><tr><td>Fournisseur d'accès de RNET1</td><td>Panne de l'opérateur, câble toujours branché</td><td>Oui, avec IP SLA (partie 4)</td></tr><tr><td>Switch SWNET, pare-feu Zyxel, les deux accès en même temps</td><td>Panne</td><td>Non : hors du sujet</td></tr></tbody></table></div>
+<p>Il fallait un routeur Cisco 2911 identique à RNET1, un port du switch SWNET, une deuxième prise vers l'accès Internet de la salle, et deux adresses de plus dans le réseau de la zone Internet (192.168.3.248/29) : une pour RNET2, une pour l'IP virtuelle. HSRP et IP SLA sont inclus dans l'IOS, sans licence à acheter.</p>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>Choix</h2>
+<p>HSRP fait partager une <b>IP virtuelle</b> (192.168.3.249) aux deux routeurs. Un seul y répond, le routeur actif ; l'autre attend en secours. Le pare-feu envoie tout vers cette IP virtuelle : il suit le routeur actif sans savoir lequel c'est.</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Choix</th><th scope="col">Pourquoi</th></tr></thead><tbody><tr><td>RNET1 en priorité 105, RNET2 en 100</td><td>La plus haute priorité devient active. 105 et pas 101 : quand RNET1 perd son accès, sa priorité baisse de 10 et doit passer sous les 100 de RNET2 (105 − 10 = 95)</td></tr><tr><td>Preempt sur les deux routeurs</td><td>Quand RNET1 revient, il reprend le rôle actif tout seul</td></tr><tr><td>Timers 1 et 3 secondes</td><td>Les routeurs s'envoient un message chaque seconde ; sans nouvelle pendant 3 secondes, le secours devient actif</td></tr><tr><td>Suivi de l'accès Internet par IP SLA</td><td>HSRP seul ne voit pas une panne du fournisseur d'accès : RNET1 continue d'envoyer ses messages et reste actif. IP SLA vérifie toutes les 5 secondes que la passerelle de l'opérateur répond</td></tr><tr><td>NAT recopié sur RNET2</td><td>Chaque routeur traduit les adresses vers son propre accès, sinon le trafic ne pourrait pas sortir par RNET2</td></tr></tbody></table></div>
+<p>L'impact sur le reste du réseau est faible : la route par défaut du Zyxel vise l'IP virtuelle, et un port de SWNET passe dans le VLAN 92. Les règles du pare-feu filtrent par zone, donc une seule change : RNET2 doit pouvoir envoyer sa sauvegarde au serveur TFTP. Le LAN, la DMZ et les VLAN ne bougent pas.</p>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>Maquette</h2>
+<p>Avant de toucher au matériel, nous avons reproduit la zone Internet dans Packet Tracer : un PC du LAN, un routeur à la place du Zyxel, SWNET, les deux RNET et deux routeurs « fournisseur d'accès ». Les deux portent l'adresse 8.8.8.8 : Internet reste joignable quel que soit le routeur actif.</p>
+<figure class="shot" id="fig-1"><a href="img/hsrp-01.webp"><img src="img/hsrp-01.webp" alt="Topologie Packet Tracer : Laptop0 (172.19.10.1), un routeur pare-feu, le switch SWNET (VLAN 92, 192.168.3.254/29), puis RNET1 (192.168.3.251) et RNET2 (192.168.3.250), reliés chacun à un routeur FAI (FAI0 192.168.4.254, FAI1 172.18.255.254). IP virtuelle HSRP : 192.168.3.249." width="904" height="793" loading="lazy"></a><figcaption><b>Fig. 1</b> La maquette Packet Tracer de la zone Internet.</figcaption></figure>
+<p>La configuration HSRP de RNET1. RNET2 a la même, avec sa propre adresse (192.168.3.250) et la priorité 100 :</p>
+<pre class="cmd"><code>RNET1(config)#interface Gi0/0
+RNET1(config-if)#ip address 192.168.3.251 255.255.255.248
+RNET1(config-if)#standby 1 ip 192.168.3.249
+RNET1(config-if)#standby 1 priority 105
+RNET1(config-if)#standby 1 preempt
+RNET1(config-if)#standby 1 timers 1 3
+RNET1(config-if)#standby 1 track GigabitEthernet0/1</code></pre>
+<p>Packet Tracer ne connaît pas IP SLA. Dans la maquette, RNET1 surveille donc seulement l'état de son interface vers le fournisseur d'accès (Gi0/1) : si elle tombe, sa priorité baisse de 10.</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Test en maquette</th><th scope="col">Résultat</th><th scope="col">Preuve</th></tr></thead><tbody><tr><td>1. Fonctionnement normal</td><td>RNET1 actif à 105, RNET2 en secours ; le trafic sort par RNET1</td><td><a href="#fig-2">Fig. 2</a></td></tr><tr><td>2. Coupure du lien de RNET1 vers son fournisseur</td><td>RNET1 descend à 95, RNET2 devient actif ; un seul ping perdu</td><td><a href="#fig-3">Fig. 3</a></td></tr><tr><td>3. Retour du lien</td><td>RNET1 reprend le rôle actif grâce au preempt</td><td>Constaté avec <span class="k">show standby brief</span></td></tr><tr><td>4. Panne complète de RNET1</td><td>RNET2 devient actif en quelques secondes ; deux pings perdus, dont le premier, perdu le temps de trouver l'adresse MAC (ARP)</td><td><a href="#fig-4">Fig. 4</a></td></tr></tbody></table></div>
+<figure class="shot" id="fig-2"><a href="img/hsrp-02.webp"><img src="img/hsrp-02.webp" alt="show standby sur RNET1 : State is Active, Virtual IP address is 192.168.3.249, Hello time 1 sec, hold time 3 sec, Preemption enabled, Standby router is 192.168.3.250, Priority 105, Track interface GigabitEthernet0/1 state Up decrement 10." width="627" height="294" loading="lazy"></a><figcaption><b>Fig. 2</b> Test 1 : RNET1 actif à 105.</figcaption></figure>
+<figure class="shot" id="fig-3"><a href="img/hsrp-03.webp"><img src="img/hsrp-03.webp" alt="Sur RNET1, shutdown de Gi0/1 : l'interface passe administratively down, la priorité tombe à 95 et RNET1 passe en Standby, avec 192.168.3.250 actif. Sur RNET2 : Standby -> Active, priorité 100." width="954" height="587" loading="lazy"></a><figcaption><b>Fig. 3</b> Test 2 : le lien de RNET1 tombe, sa priorité passe à 95 et RNET2 devient actif.</figcaption></figure>
+<figure class="shot" id="fig-4"><a href="img/hsrp-04.webp"><img src="img/hsrp-04.webp" alt="Sur RNET1, shutdown de Gi0/0 : HSRP passe de Active à Init. Sur RNET2, show standby brief : priorité 100, état Active, Standby unknown." width="788" height="267" loading="lazy"></a><figcaption><b>Fig. 4</b> Test 4 : RNET1 coupé, RNET2 devient actif.</figcaption></figure>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>Mise en place</h2>
+<p>Sur le matériel, RNET1 garde son nom d'hôte d'Infra-Site, RNET_GRP3. Le suivi de l'interface de la maquette a un défaut : si l'opérateur tombe alors que le câble reste branché, l'interface reste active, RNET1 garde sa priorité de 105 et le LAN perd Internet alors que le deuxième accès fonctionne.</p>
+<p>Sur les vrais routeurs, nous l'avons remplacé par <b>IP SLA</b> : toutes les 5 secondes, le routeur envoie un ping à la passerelle de son fournisseur d'accès. L'objet <span class="k">track 1</span> suit ce ping, et quand il échoue, HSRP baisse la priorité de 10. Le ping échoue aussi quand le câble est coupé : IP SLA couvre les deux cas.</p>
+<pre class="cmd"><code>RNET_GRP3(config)#ip sla 1
+RNET_GRP3(config-ip-sla)# icmp-echo 192.168.4.254 source-interface GigabitEthernet0/1
+RNET_GRP3(config-ip-sla-echo)# frequency 5
+RNET_GRP3(config)#ip sla schedule 1 life forever start-time now
+RNET_GRP3(config)#track 1 ip sla 1 reachability
+RNET_GRP3(config)#interface GigabitEthernet0/0
+RNET_GRP3(config-if)# standby 1 track 1 decrement 10</code></pre>
+<figure class="shot" id="fig-5"><a href="img/hsrp-05.webp"><img src="img/hsrp-05.webp" alt="show running-config sur RNET_GRP3 : track 1 ip sla 1 reachability, ip sla 1 avec icmp-echo 192.168.4.254 depuis Gi0/1 toutes les 5 secondes ; interface Gi0/0 en 192.168.3.251 avec standby 1 ip 192.168.3.249, timers 1 3, priority 105, preempt, track 1 decrement 10." width="732" height="416" loading="lazy"></a><figcaption><b>Fig. 5</b> IP SLA et HSRP sur RNET1.</figcaption></figure>
+<p>RNET2 reprend la même configuration. Seuls changent :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Élément</th><th scope="col">RNET1 (RNET_GRP3)</th><th scope="col">RNET2</th></tr></thead><tbody><tr><td>Adresse côté zone Internet</td><td>192.168.3.251</td><td>192.168.3.250</td></tr><tr><td>Priorité HSRP</td><td>105 (actif)</td><td>100 (secours)</td></tr><tr><td>Passerelle du fournisseur d'accès, visée par IP SLA</td><td>192.168.4.254</td><td>172.18.255.254</td></tr><tr><td>Adresse publiée du serveur web de la DMZ (NAT statique)</td><td>192.168.4.32</td><td>172.18.53.1</td></tr></tbody></table></div>
+<p>Sur SWNET, le port relié à RNET2 (vérifié avec <span class="k">show cdp neighbors</span>) passe dans le VLAN 92 :</p>
+<pre class="cmd"><code>interface GigabitEthernet1/0/22
+ switchport mode access
+ switchport access vlan 92
+ no shutdown</code></pre>
+<p>Sur le pare-feu Zyxel, trois changements :</p>
+<ul class="b"><li>interface wan1 : l'adresse reste 192.168.3.253, seule la passerelle passe à 192.168.3.249, l'IP virtuelle ;</li><li>route statique par défaut : de 192.168.3.251 (RNET1) à 192.168.3.249 ;</li><li>groupe d'objets <span class="k">EQUIP_BACKUP</span> : ajout de RNET2, pour que la règle de sauvegarde TFTP le laisse passer.</li></ul>
+<figure class="shot" id="fig-6"><a href="img/hsrp-06.webp"><img src="img/hsrp-06.webp" alt="Interface web du Zyxel, Edit Ethernet sur wan1 (zone WAN) : adresse fixe 192.168.3.253, masque 255.255.255.248, passerelle 192.168.3.249. Adresse MAC masquée." width="942" height="762" loading="lazy"></a><figcaption><b>Fig. 6</b> Le Zyxel garde son adresse ; seule sa passerelle vise l'IP virtuelle.</figcaption></figure>
+</div>
+<div class="part" id="partie-5">
+<h2><span class="n">05</span>Tests sur le matériel</h2>
+<p>Les tests sont lancés depuis un poste du service IT, avec un <span class="k">ping -t</span> et un <span class="k">tracert</span> vers 8.8.8.8. Le troisième saut du tracert montre par quel routeur sort le trafic : 192.168.3.251 pour RNET1, 192.168.3.250 pour RNET2.</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Test</th><th scope="col">Résultat</th><th scope="col">Preuve</th></tr></thead><tbody><tr><td>5. Fonctionnement normal</td><td>RNET1 actif à 105, RNET2 en secours à 100 avec son suivi IP SLA actif ; le trafic sort par RNET1</td><td><a href="#fig-7">Fig. 7</a>, <a href="#fig-8">8</a></td></tr><tr><td>6. Panne complète de RNET1 (port coupé sur SWNET)</td><td>RNET2 actif, il ne voit plus RNET1 (« unknown ») ; le trafic sort par RNET2</td><td><a href="#fig-9">Fig. 9</a>, <a href="#fig-10">10</a></td></tr><tr><td>7. Coupure du lien de RNET1 vers son fournisseur</td><td>Track à Down, RNET1 à 95 et en secours ; RNET2 actif et traduit le trafic du poste vers son propre accès</td><td><a href="#fig-11">Fig. 11</a>, <a href="#fig-12">12</a></td></tr><tr><td>8. Retour du lien</td><td>RNET1 reste à 95 jusqu'au ping IP SLA suivant, puis reprend le rôle actif quelques secondes plus tard</td><td>Constaté avec <span class="k">show standby brief</span> et <span class="k">tracert</span></td></tr><tr><td>9. Panne de l'opérateur, câble branché (accès de RNET1 coupé côté campus)</td><td>Gi0/1 reste active mais le track passe à Down (« Timeout ») : RNET1 à 95, RNET2 actif ; 3 pings perdus, une dizaine de secondes</td><td><a href="#fig-13">Fig. 13</a>, <a href="#fig-14">14</a></td></tr><tr><td>10. Sauvegarde TFTP de RNET2</td><td>Copie acceptée par le Zyxel, fichier reçu sur le serveur (3 522 octets, le 16/10 à 10:55)</td><td><a href="#fig-15">Fig. 15</a></td></tr><tr><td>11. Accès SSH à RNET2</td><td>Connexion réussie avec le compte du service IT, bannières affichées</td><td><a href="#fig-16">Fig. 16</a></td></tr></tbody></table></div>
+<figure class="shot" id="fig-7"><a href="img/hsrp-07.webp"><img src="img/hsrp-07.webp" alt="show standby brief sur RNET_GRP3 : priorité 105, Active, Standby 192.168.3.250. Sur RNET2 : priorité 100, Standby, Active 192.168.3.251 ; show track 1 : IP SLA 1 reachability Up, code OK ; ping de 172.18.255.254 réussi à 100 %." width="978" height="764" loading="lazy"></a><figcaption><b>Fig. 7</b> Test 5 : RNET1 actif, RNET2 en secours avec son suivi IP SLA actif.</figcaption></figure>
+<figure class="shot" id="fig-8"><a href="img/hsrp-08.webp"><img src="img/hsrp-08.webp" alt="tracert 8.8.8.8 depuis le poste IT : 172.19.60.254, 192.168.2.2, 192.168.3.251, 192.168.4.254, 192.168.3.254, puis dns.google. Sauts 6 à 12 masqués." width="944" height="514" loading="lazy"></a><figcaption><b>Fig. 8</b> Test 5 : le trafic sort par RNET1 (192.168.3.251). Les sauts chez l'opérateur sont masqués.</figcaption></figure>
+<div class="shots"><figure class="shot" id="fig-9"><a href="img/hsrp-09.webp"><img src="img/hsrp-09.webp" alt="show standby brief sur RNET2 : priorité 100, Active, Standby unknown, IP virtuelle 192.168.3.249." width="972" height="210" loading="lazy"></a><figcaption><b>Fig. 9</b> Test 6 : RNET2 actif, il ne voit plus RNET1.</figcaption></figure><figure class="shot" id="fig-10"><a href="img/hsrp-10.webp"><img src="img/hsrp-10.webp" alt="tracert 8.8.8.8 : 172.19.60.254, 192.168.2.2, 192.168.3.250, 172.18.255.254, 192.168.3.254, puis dns.google. Sauts 6 à 12 masqués." width="943" height="484" loading="lazy"></a><figcaption><b>Fig. 10</b> Test 6 : le trafic sort par RNET2 (192.168.3.250).</figcaption></figure></div>
+<figure class="shot" id="fig-11"><a href="img/hsrp-11.webp"><img src="img/hsrp-11.webp" alt="Sur RNET_GRP3 : shutdown de Gi0/1, show standby brief : priorité 95, Standby, actif 192.168.3.250. tracert 8.8.8.8 depuis le poste IT : 192.168.3.250 puis 172.18.255.254. Sauts 6 à 12 masqués." width="944" height="795" loading="lazy"></a><figcaption><b>Fig. 11</b> Test 7 : RNET1 passe à 95, le trafic sort par RNET2.</figcaption></figure>
+<figure class="shot" id="fig-12"><a href="img/hsrp-12.webp"><img src="img/hsrp-12.webp" alt="show ip nat translations sur RNET2 : NAT statique 172.18.53.1 vers 10.3.10.1, et ping du poste 172.19.60.1 traduit en 172.18.53.2 vers 8.8.8.8." width="1113" height="97" loading="lazy"></a><figcaption><b>Fig. 12</b> Pendant la bascule, RNET2 traduit le trafic du poste (172.19.60.1) vers son propre accès (172.18.53.2). Capture recadrée.</figcaption></figure>
+<div class="shots"><figure class="shot" id="fig-13"><a href="img/hsrp-13.webp"><img src="img/hsrp-13.webp" alt="Sur RNET_GRP3 : show ip interface brief, Gi0/0 et Gi0/1 up ; show track 1 : Reachability is Down, code Timeout ; show standby brief : priorité 95, Standby, actif 192.168.3.250." width="1044" height="689" loading="lazy"></a><figcaption><b>Fig. 13</b> Test 9 : le câble est branché (Gi0/1 active), mais le suivi est à Down : l'opérateur ne répond plus.</figcaption></figure><figure class="shot" id="fig-14"><a href="img/hsrp-14.webp"><img src="img/hsrp-14.webp" alt="tracert 8.8.8.8 depuis le poste : 192.168.3.250 puis 172.18.255.254, sauts 6 à 12 masqués ; ping continu vers 8.8.8.8 avec trois délais d'attente dépassés au milieu des réponses." width="1152" height="984" loading="lazy"></a><figcaption><b>Fig. 14</b> Test 9 : le trafic passe par RNET2 ; trois pings perdus pendant la bascule.</figcaption></figure></div>
+<div class="shots"><figure class="shot" id="fig-15"><a href="img/hsrp-15.webp"><img src="img/hsrp-15.webp" alt="Sur RNET2 : copy running-config tftp://172.19.100.5/RtNet2-confg, 3522 bytes copied. Sur le serveur TFTP : RtNet2-confg, 3522 octets, 16 octobre 10:55." width="770" height="215" loading="lazy"></a><figcaption><b>Fig. 15</b> Test 10 : la sauvegarde de RNET2 arrive sur le serveur TFTP.</figcaption></figure><figure class="shot" id="fig-16"><a href="img/hsrp-16.webp"><img src="img/hsrp-16.webp" alt="Connexion SSH avec le compte admin-it : bannière d'authentification requise pour le réseau RIOCA, puis bannière d'accès restreint au service IT, et invite RNET2#." width="832" height="572" loading="lazy"></a><figcaption><b>Fig. 16</b> Test 11 : connexion SSH à RNET2 depuis le poste IT.</figcaption></figure></div>
+<p>Dans les tracert, le saut 192.168.3.254 qui suit la passerelle de l'opérateur est un routeur du campus, pas SWNET : la même adresse existe de l'autre côté du NAT. Les deux accès rejoignent ce même routeur.</p>
+</div>
+<div class="part" id="partie-6">
+<h2><span class="n">06</span>Trouver la panne</h2>
+<p>Les trois pannes donnent la même bascule vers RNET2. Pour savoir laquelle a eu lieu, quelques commandes suffisent :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Vérification</th><th scope="col">RNET1 coupé de SWNET (ou éteint)</th><th scope="col">Lien de RNET1 vers l'opérateur coupé</th><th scope="col">Opérateur en panne, câble branché</th></tr></thead><tbody><tr><td><span class="k">show standby brief</span> sur RNET2</td><td>Secours « unknown » : RNET2 n'entend plus RNET1</td><td>Secours 192.168.3.251</td><td>Secours 192.168.3.251</td></tr><tr><td><span class="k">show ip interface brief</span> sur RNET1</td><td>Gi0/0 down</td><td>Gi0/1 down</td><td>Gi0/0 et Gi0/1 up</td></tr><tr><td><span class="k">show track 1</span> sur RNET1</td><td>Up</td><td>Down (« Socket set option error »)</td><td>Down (« Timeout »)</td></tr><tr><td>Conclusion</td><td>RNET1 ou son câble vers SWNET</td><td>Câble ou port Gi0/1 de RNET1</td><td>L'opérateur, au-delà du câble</td></tr></tbody></table></div>
+<p>On retrouve ces indices dans les captures : « unknown » au test 6 (<a href="#fig-9">fig. 9</a>), RNET1 toujours vu en secours au test 7 (<a href="#fig-11">fig. 11</a>), et au test 9 une interface active avec un suivi à Down (<a href="#fig-13">fig. 13</a>).</p>
+</div>
+<div class="part" id="partie-7">
+<h2><span class="n">07</span>Difficultés</h2>
+<ul class="b"><li><b>Mauvaise cible sur RNET2.</b> L'IP SLA de RNET2 visait d'abord la passerelle de l'opérateur de RNET1 (192.168.4.254). Le ping aurait échoué en permanence : RNET2 serait resté à 90 et n'aurait jamais pris le relais. Une opération IP SLA lancée ne se modifie pas : il a fallu la supprimer (<span class="k">no ip sla 1</span>) puis la recréer avec 172.18.255.254.</li><li><b>Adresse ou passerelle du Zyxel.</b> Saisir 192.168.3.249 comme adresse de wan1, au lieu de sa passerelle, crée un conflit avec l'IP virtuelle et coupe le retour du trafic. L'adresse reste 192.168.3.253, seule la passerelle change.</li><li><b>Une route oubliée.</b> Après le changement de passerelle, couper RNET1 coupait encore Internet. Sur RNET2, <span class="k">show ip nat statistics</span> affichait « Hits: 0 » : aucun paquet du LAN ne lui arrivait. Une route statique par défaut du Zyxel visait toujours 192.168.3.251 et contournait l'IP virtuelle. Une fois corrigée vers 192.168.3.249, le test 6 a été validé.</li><li><b>Délai d'attente refusé.</b> <span class="k">timeout 1000</span> renvoie une erreur : le délai d'attente d'IP SLA ne peut pas être plus court que son seuil (5 000 ms par défaut). Nous avons gardé la valeur par défaut.</li><li><b>Packet Tracer.</b> IP SLA n'y existe pas : d'où le suivi de l'interface en maquette, et une configuration différente sur le matériel.</li></ul>
+</div>
+<div class="part" id="partie-8">
+<h2><span class="n">08</span>Bilan et limites</h2>
+<p>Les 11 tests sont validés : 4 en maquette et 7 sur le matériel. La panne d'un routeur, de son câble ou de son opérateur fait passer le trafic par l'autre routeur, puis il revient tout seul sur RNET1. Ce qui reste à savoir :</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Limite</th><th scope="col">Conséquence</th></tr></thead><tbody><tr><td>IP SLA vise la passerelle de l'opérateur</td><td>Une coupure plus loin chez l'opérateur ne serait pas détectée. Piste : viser une adresse sur Internet, comme 8.8.8.8</td></tr><tr><td>La table NAT n'est pas partagée entre les deux routeurs</td><td>Après une bascule, les connexions déjà ouvertes sont coupées</td></tr><tr><td>Les deux routeurs sortent par des réseaux différents</td><td>L'adresse publiée du serveur web change après une bascule (192.168.4.32 puis 172.18.53.1)</td></tr><tr><td>SWNET et le Zyxel ne sont pas doublés</td><td>Ils restent des points uniques de panne. Les deux accès rejoignent aussi le même routeur du campus, puis le même opérateur : une panne à ce niveau coupe les deux</td></tr><tr><td>Le réseau /29 de la zone Internet est presque plein (5 adresses sur 6)</td><td>Un équipement de plus imposerait de passer en /28</td></tr></tbody></table></div>
+<p>Ce que j'en retiens : HSRP seul ne protège que du routeur qui tombe. Pour un opérateur en panne, il faut lui dire quoi surveiller, et c'est IP SLA qui le fait. Et une maquette qui marche ne suffit pas : sur le matériel, c'est une route statique oubliée sur le pare-feu qui faisait échouer la bascule, trouvée grâce au compteur du NAT resté à zéro.</p>
+</div>
+<nav class="pager" aria-label="Autres comptes rendus"><a href="infra-site.html"><span>Précédent</span>Infra-Site : DMZ, pare-feu et routage</a><a class="next" href="archisite.html"><span>Suivant</span>ArchiSite : site web sécurisé dans la DMZ</a></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js?v=11"></script>
+</body>
+</html>

@@ -31,7 +31,7 @@ Tout le trafic passait par un seul routeur. En binôme, nous en avons ajouté un
 
 Le piège : si c'est l'opérateur qui tombe, le câble reste branché et le premier routeur se croit toujours en forme. Nous l'avons réglé avec IP SLA, qui vérifie toutes les 5 secondes que l'opérateur répond.
 
-Maquette sur Packet Tracer, puis mise en place sur les routeurs Cisco et le pare-feu Zyxel : 11 tests de panne validés. Et une leçon : sur le matériel, la bascule échouait à cause d'une route oubliée sur le pare-feu, trouvée grâce à un compteur du NAT resté à zéro.
+Maquette sur Packet Tracer, puis mise en place sur les routeurs Cisco et le pare-feu Zyxel : 11 tests validés, dont 5 pannes simulées. Et une leçon : sur le matériel, la bascule échouait à cause d'une route oubliée sur le pare-feu, trouvée grâce à un compteur du NAT resté à zéro.
 
 #BTSSIO #Réseau #Cisco
 

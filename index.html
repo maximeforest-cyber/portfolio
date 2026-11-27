@@ -448,7 +448,7 @@
         <p class="meta">Travaux pratiques · 2026 · en binôme</p>
         <h3>HSRP : un deuxième accès à Internet</h3>
         <p>Ajout d'un deuxième routeur Internet, relié à un autre accès, et d'une redondance de passerelle HSRP : si le premier routeur ou son accès tombe, le second prend le relais tout seul.</p>
-        <p class="resultat"><b>Résultat :</b> 4 tests en maquette et 7 sur le matériel validés ; la panne d'un routeur, de son câble ou de son opérateur fait passer le trafic par l'autre routeur en quelques secondes.</p>
+        <p class="resultat"><b>Résultat :</b> 4 tests en maquette et 7 sur le matériel validés ; la panne d'un routeur, de son câble ou de son opérateur fait passer le trafic par l'autre routeur en quelques secondes, une dizaine quand c'est l'opérateur qui tombe.</p>
         <details>
           <summary>Voir la fiche</summary>
           <div class="fiche">
@@ -460,7 +460,7 @@
               <li>Maquette Packet Tracer : HSRP, priorités, preempt et suivi de l'interface</li>
               <li>Sur le matériel : deuxième routeur Cisco, IP SLA pour détecter la panne de l'opérateur, NAT recopié</li>
               <li>Pare-feu Zyxel : passerelle et route par défaut vers l'IP virtuelle, sauvegarde TFTP du nouveau routeur autorisée</li>
-              <li>11 tests de panne, tableau pour trouver l'origine d'une panne, limites</li>
+              <li>11 tests, dont 5 pannes simulées ; tableau pour trouver l'origine d'une panne ; limites</li>
             </ul>
           </div>
         </details>

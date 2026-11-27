@@ -19,6 +19,18 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | mar. 01/12 | Homelab, étape 10 : des services dans Docker, avec un vrai certificat |
 | jeu. 03/12 | Homelab : tout le labo en un schéma cliquable |
 
+## 2026-11-27 : Infra-Site : le planning prévu et réel
+
+- Statut : à relire
+- Lien : https://forestmaxime-pf.fr/projets/infra-site.html#partie-1
+- Image proposée : aucune (le diagramme est en HTML dans la page ; une capture d'écran de la page est possible)
+
+J'ai ajouté le diagramme de Gantt à mon compte rendu Infra-Site, le projet où j'étais chef de projet en binôme.
+
+21 tâches, avec pour chacune le temps prévu et le temps réellement passé. Quatre ont dépassé : le routage RIP v2, l'administration à distance en SSH, les sauvegardes automatiques vers le serveur TFTP et la mise en place des règles du pare-feu. Les dix-sept autres ont pris moins de temps que prévu : mes tâches ont pris 22 h 41 pour 27 h prévues.
+
+Comparer le prévu et le réel, c'est ce qui permet de mieux estimer le projet suivant.
+
 ## 2026-11-27 : HSRP : un deuxième accès à Internet
 
 - Statut : à relire

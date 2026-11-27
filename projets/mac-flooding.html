@@ -66,8 +66,8 @@
 <h2><span class="n">02</span>Réseau de test</h2>
 <p>Le réseau de test, dans le VLAN 1 :</p>
 <div class="tw"><table class="t"><thead><tr><th scope="col">Machine</th><th scope="col">Rôle</th></tr></thead><tbody><tr><td>Kali Linux</td><td>L'attaquant, une machine virtuelle VirtualBox ; Wireshark capture le trafic de son côté</td></tr><tr><td>192.168.57.2</td><td>Serveur FTP (FileZilla Server)</td></tr><tr><td>192.168.57.4</td><td>Client FTP</td></tr><tr><td>Deux switchs Cisco</td><td>Reliés entre eux ; les machines y sont réparties</td></tr></tbody></table></div>
-<p>Avant l'attaque, la table du switch ne contient que 3 adresses, pour 7 380 places encore libres :</p>
-<figure class="shot"><a href="img/mac-flooding-01.webp"><img src="img/mac-flooding-01.webp" alt="Sortie du switch : Dynamic Address Count 3, Total Mac Addresses 3, Total Mac Address Space Available 7380." width="507" height="232" loading="lazy"></a><figcaption><b>Fig. 1</b> La table MAC avant l'attaque : 3 adresses.</figcaption></figure>
+<p>Avant l'attaque, la table de l'un des switchs ne contient que 3 adresses, pour 7 380 places encore libres :</p>
+<figure class="shot"><a href="img/mac-flooding-01.webp"><img src="img/mac-flooding-01.webp" alt="Sortie du switch : Dynamic Address Count 3, Total Mac Addresses 3, Total Mac Address Space Available 7380." width="507" height="232" loading="lazy"></a><figcaption><b>Fig. 1</b> La table MAC d'un switch avant l'attaque : 3 adresses.</figcaption></figure>
 </div>
 <div class="part" id="partie-3">
 <h2><span class="n">03</span>Avant l'attaque</h2>
@@ -76,8 +76,8 @@
 </div>
 <div class="part" id="partie-4">
 <h2><span class="n">04</span>Table MAC saturée</h2>
-<p>Depuis Kali, l'outil d'attaque envoie des milliers de trames avec des adresses MAC source au hasard. La table se remplit : 8 000 adresses, plus aucune place libre. Nous avons fait le même constat sur les deux switchs.</p>
-<figure class="shot"><a href="img/mac-flooding-03.webp"><img src="img/mac-flooding-03.webp" alt="Sortie du switch pendant l'attaque : Dynamic Address Count 8000, Total Mac Addresses 8000, Total Mac Address Space Available 0." width="466" height="193" loading="lazy"></a><figcaption><b>Fig. 3</b> La table MAC pendant l'attaque : 8 000 adresses, 0 place libre.</figcaption></figure>
+<p>Depuis Kali, l'outil d'attaque envoie des milliers de trames avec des adresses MAC source au hasard. Les tables des deux switchs se remplissent ; sur celui de la figure 3 : 8 000 adresses, plus aucune place libre.</p>
+<figure class="shot"><a href="img/mac-flooding-03.webp"><img src="img/mac-flooding-03.webp" alt="Sortie du switch pendant l'attaque : Dynamic Address Count 8000, Total Mac Addresses 8000, Total Mac Address Space Available 0." width="466" height="193" loading="lazy"></a><figcaption><b>Fig. 3</b> La table MAC d'un switch pendant l'attaque : 8 000 adresses, 0 place libre.</figcaption></figure>
 </div>
 <div class="part" id="partie-5">
 <h2><span class="n">05</span>Ce que voit Wireshark</h2>
@@ -88,23 +88,24 @@
 </div>
 <div class="part" id="partie-6">
 <h2><span class="n">06</span>Protection : port-security</h2>
-<p>Port-security limite le nombre d'adresses MAC qu'un port du switch accepte. Nous l'avons appliqué sur le port par lequel arrivent les trames de Kali, FastEthernet0/6 :</p>
-<pre class="cmd"><code>interface FastEthernet0/6
+<p>Port-security limite le nombre d'adresses MAC qu'un port du switch accepte. Nous l'avons configuré sur le port de Kali, FastEthernet0/1 :</p>
+<pre class="cmd"><code>interface FastEthernet0/1
  switchport mode access
  switchport port-security
  switchport port-security maximum 2
  switchport port-security violation restrict
  switchport port-security mac-address sticky</code></pre>
 <ul class="b"><li>Port-security refuse un port en mode dynamique : <span class="k">switchport mode access</span> le fixe en mode accès.</li><li><span class="k">maximum 2</span> : le port accepte au plus 2 adresses MAC.</li><li><span class="k">sticky</span> : le switch retient ces adresses et les ajoute à sa configuration.</li><li><span class="k">violation restrict</span> : les trames des autres adresses sont refusées et chaque violation est signalée dans les journaux, sans couper le port.</li></ul>
+<p>Les alertes de la figure 5 sont signalées sur FastEthernet0/6, le port qui relie les deux switchs : port-security y était donc actif aussi, et c'est par ce lien qu'arrivaient les trames de Kali. Sur un lien entre deux switchs, une limite de 2 adresses bloquerait aussi les autres machines qui passent par ce lien : la protection se place d'abord sur les ports des postes.</p>
 <figure class="shot"><a href="img/mac-flooding-05.webp"><img src="img/mac-flooding-05.webp" alt="Sortie du switch après la protection : 0 adresse dynamique, 2 adresses statiques, 7309 places libres, puis trois messages PORT_SECURITY-2-PSECURE_VIOLATION causés par l'adresse MAC 0800.275a.87bc sur FastEthernet0/6." width="1824" height="270" loading="lazy"></a><figcaption><b>Fig. 5</b> Avec port-security : 2 adresses retenues, et les alertes de violation.</figcaption></figure>
 <aside class="verif" aria-label="Vérification">
 <p class="verif-t">Vérification</p>
-<p>Après la mise en place de la protection, la table ne contient plus que 2 adresses, retenues par <span class="k">sticky</span>, et il reste 7 309 places libres. Le switch affiche des messages <span class="k">%PORT_SECURITY-2-PSECURE_VIOLATION</span> sur FastEthernet0/6, pour l'adresse 0800.275a.87bc. Elle commence par 08:00:27, le préfixe des cartes réseau VirtualBox : c'est la machine Kali. Voir la figure 5.</p>
+<p>Après la mise en place de la protection, la table du switch de la figure 5 ne contient plus que 2 adresses, retenues par <span class="k">sticky</span>, et il reste 7 309 places libres. Le switch affiche des messages <span class="k">%PORT_SECURITY-2-PSECURE_VIOLATION</span> sur FastEthernet0/6, pour l'adresse 0800.275a.87bc. Elle commence par 08:00:27, le préfixe des cartes réseau VirtualBox : c'est la machine Kali. Voir la figure 5.</p>
 </aside>
 </div>
 <div class="part" id="partie-7">
 <h2><span class="n">07</span>Bilan</h2>
-<ul class="b"><li>Un switch ne protège pas, à lui seul, la confidentialité du trafic : une fois sa table saturée, un poste du même réseau capture les échanges des autres.</li><li>Le chiffrement limite les dégâts : grâce à TLS, la capture montre les connexions FTP, mais pas les identifiants ni les fichiers.</li><li>Port-security bloque l'attaque à l'entrée du réseau. Le mode <span class="k">restrict</span> garde le port actif et signale l'attaque ; le mode <span class="k">shutdown</span>, utilisé par défaut, couperait complètement le port.</li></ul>
+<ul class="b"><li>Un switch ne protège pas, à lui seul, la confidentialité du trafic : une fois sa table saturée, un poste du même réseau capture les échanges des autres.</li><li>Le chiffrement limite les dégâts : grâce à TLS, la capture montre les connexions FTP, mais pas les identifiants ni les fichiers.</li><li>Port-security, placé sur le port de l'attaquant, l'empêche de remplir la table du switch. Le mode <span class="k">restrict</span> garde le port actif et signale l'attaque ; le mode <span class="k">shutdown</span>, utilisé par défaut, couperait complètement le port.</li></ul>
 <p>Ce TP m'a fait lire une vraie capture avec Wireshark : séparer le trafic de l'attaque du reste, filtrer un protocole, et repérer ce qui passe en clair et ce qui est chiffré.</p>
 </div>
 <nav class="pager" aria-label="Autres comptes rendus"><a href="spanning-tree.html"><span>Précédent</span>Spanning Tree : des liens de secours sur le LAN</a><a class="next" href="nas-gpo.html"><span>Suivant</span>Serveur NAS TrueNAS et GPO</a></nav>

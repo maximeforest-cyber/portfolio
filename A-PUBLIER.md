@@ -27,7 +27,7 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 
 Nouveau compte rendu sur mon portfolio : GLBP, testé en binôme sur la maquette de notre entreprise fictive.
 
-Avec HSRP, un seul de nos deux routeurs Internet transmettait, l'autre attendait une panne. Avec GLBP, les deux travaillent en même temps : chaque client reçoit l'adresse MAC de l'un ou de l'autre. Et la tolérance de panne reste là : quand un routeur tombe, seuls 2 pings sont perdus.
+Avec HSRP, un seul de nos deux routeurs Internet transmettait, l'autre attendait une panne. Avec GLBP, chaque client reçoit l'adresse MAC de l'un ou de l'autre : nos deux PC de test passaient chacun par un routeur différent. Et la tolérance de panne reste là : quand un routeur tombe, seuls 2 pings sont perdus.
 
 Ce que j'en retiens surtout : sur notre maquette, le pare-feu est le seul client des routeurs. Il ne reçoit qu'une adresse MAC, donc tout le trafic passerait quand même par un seul routeur. Avant de répartir la charge, il faut savoir qui sont les clients.
 

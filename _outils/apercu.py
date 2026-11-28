@@ -26,6 +26,7 @@ pages={
  'archisite':("ATELIER PROFESSIONNEL · BTS SIO",["ArchiSite : un site","HTTPS dans la DMZ"],"Apache · CA interne · FTPS · MariaDB · Zyxel"),
  'radius-8021x':("TRAVAUX PRATIQUES · BTS SIO",["802.1X : un VLAN selon","l'utilisateur"],"NPS · PEAP · EAP-TLS · Cisco"),
  'hsrp':("TRAVAUX PRATIQUES · BTS SIO",["HSRP : un deuxième","accès à Internet"],"HSRP · IP SLA · Cisco · Zyxel"),
+ 'glbp':("TRAVAUX PRATIQUES · BTS SIO",["GLBP : faire travailler","les deux routeurs"],"GLBP · AVG et AVF · weighting et tracking · Cisco"),
  'spanning-tree':("TRAVAUX PRATIQUES · BTS SIO",["Spanning Tree : des liens","de secours sur le LAN"],"Rapid-PVST · fibre · BPDU Guard"),
  'mac-flooding':("TRAVAUX PRATIQUES · BTS SIO",["MAC flooding : saturer","un switch, le protéger"],"Kali · Wireshark · port-security"),
  'nas-gpo':("TRAVAUX PRATIQUES · BTS SIO",["Serveur NAS TrueNAS","et GPO"],"RAID 1 · partages SMB et ACL · lecteurs et logiciels par GPO"),

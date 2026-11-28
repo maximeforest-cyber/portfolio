@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GLBP : faire travailler les deux routeurs Internet | Maxime Forest</title>
+<meta name="description" content="Compte rendu de TP : HSRP remplacé par GLBP sur les deux routeurs Cisco de l&#x27;entreprise RIOCA, pour répartir les clients entre les deux routeurs sans perdre la tolérance de panne. Rôles AVG et AVF, suivi du lien Internet (weighting et tracking), panne d&#x27;un routeur, comparaison des algorithmes de répartition.">
+<meta name="author" content="Maxime Forest">
+<meta name="theme-color" content="#efe9df">
+<link rel="canonical" href="https://forestmaxime-pf.fr/projets/glbp.html">
+<link rel="icon" type="image/png" href="../favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://forestmaxime-pf.fr/projets/glbp.html">
+<meta property="og:title" content="GLBP : faire travailler les deux routeurs Internet | Maxime Forest">
+<meta property="og:description" content="Compte rendu de TP : HSRP remplacé par GLBP sur les deux routeurs Cisco de l&#x27;entreprise RIOCA, pour répartir les clients entre les deux routeurs sans perdre la tolérance de panne. Rôles AVG et AVF, suivi du lien Internet (weighting et tracking), panne d&#x27;un routeur, comparaison des algorithmes de répartition.">
+<meta property="og:image" content="https://forestmaxime-pf.fr/projets/img/apercu-glbp.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="GLBP : faire travailler les deux routeurs Internet, sur le portfolio de Maxime Forest">
+<link rel="stylesheet" href="../style.css?v=15">
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><span class="logo" aria-hidden="true">MF</span>Maxime Forest</a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <nav class="nav" id="menu" aria-label="Navigation principale">
+      <ul><li><a href="../#a-propos">À propos</a></li><li><a href="../#competences">Compétences</a></li><li><a class="on" href="../#projets">Projets et stages</a></li><li><a href="../#parcours">Parcours</a></li><li><a href="../#certifications">Certifications</a></li><li><a href="../#veille">Veille</a></li><li><a href="../#contact">Contact</a></li></ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="../#projet-glbp">← Projets et stages</a></p>
+    <p class="kicker">Travaux pratiques · <b>novembre 2026</b> · en binôme</p>
+    <h1>GLBP : faire travailler les deux routeurs Internet</h1>
+    <p class="lead">Avec HSRP, un seul des deux routeurs Internet de RIOCA transmet le trafic, l'autre attend une panne. Pendant ce TP, nous l'avons remplacé par GLBP pour faire travailler les deux routeurs en même temps, sans perdre la tolérance de panne.</p>
+    <dl class="facts"><div><dt>Contexte</dt><dd>Sur la maquette de RIOCA (entreprise fictive), <a href="hsrp.html">HSRP</a> est en place entre RNET1 et RNET2 : le deuxième accès Internet ne sert qu'en cas de panne</dd></div><div><dt>Cadre</dt><dd>TP de 2<sup>e</sup> année de BTS SIO sur la maquette physique, en binôme (24 novembre). GLBP remplace HSRP le temps du TP, sans être sauvegardé, puis HSRP est remis en place</dd></div><div><dt>Matériel</dt><dd>Deux routeurs Cisco, le switch SwitchNET, le pare-feu Zyxel et deux PC de test</dd></div><div><dt>Points clés</dt><dd>GLBP, rôles AVG et AVF, MAC virtuelles, weighting et tracking, préemption, algorithmes round-robin, weighted et host-dependent</dd></div><div><dt>Résultat</dt><dd>Les deux PC de test passent chacun par un routeur différent ; la panne d'un routeur ne coûte que 2 pings, celle d'un lien Internet fait passer le trafic par l'autre routeur. Limite : le pare-feu, seul client des routeurs, n'en utilise qu'un</dd></div></dl>
+    <ul class="tags"><li>Cisco</li><li>GLBP</li><li>HSRP</li><li>Répartition de charge</li><li>Redondance</li></ul>
+  </div>
+</div>
+
+<div class="report">
+  <div class="wrap">
+    <nav class="toc" aria-label="Sommaire">
+      <p>Sommaire</p>
+      <ol><li><a href="#partie-1"><span>01</span>Contexte et adressage</a></li><li><a href="#partie-2"><span>02</span>De HSRP à GLBP</a></li><li><a href="#partie-3"><span>03</span>Rôles AVG et AVF</a></li><li><a href="#partie-4"><span>04</span>Un routeur par client</a></li><li><a href="#partie-5"><span>05</span>Panne d'un lien Internet</a></li><li><a href="#partie-6"><span>06</span>Panne d'un routeur</a></li><li><a href="#partie-7"><span>07</span>Algorithmes de répartition</a></li><li><a href="#partie-8"><span>08</span>Difficultés</a></li><li><a href="#partie-9"><span>09</span>Bilan : HSRP ou GLBP ?</a></li></ol>
+    </nav>
+    <article>
+<div class="part" id="partie-1">
+<h2><span class="n">01</span>Contexte et adressage</h2>
+<p>RNET1 (nommé RNET_GRP3 sur les captures) et RNET2 relient le pare-feu de RIOCA à deux fournisseurs d'accès différents. Avec HSRP, RNET1 transmet tout et RNET2 attend : le deuxième accès ne sert jamais tant que RNET1 fonctionne. GLBP, lui aussi propriétaire Cisco, garde une seule adresse de passerelle mais répartit les clients entre plusieurs routeurs.</p>
+<p>Les adresses du sujet ne correspondaient pas à notre maquette. Nous avons gardé l'IP virtuelle de HSRP, 192.168.3.249, pour GLBP : le pare-feu, qui l'utilise comme passerelle, n'avait rien à changer.</p>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Équipement</th><th scope="col">Interface</th><th scope="col">Adresse</th><th scope="col">Passerelle</th></tr></thead><tbody><tr><td>RNET1</td><td>Gi0/0 (côté pare-feu)</td><td>192.168.3.251/29</td><td>–</td></tr><tr><td>RNET1</td><td>Gi0/1 (fournisseur 1)</td><td>192.168.4.31</td><td>192.168.4.254</td></tr><tr><td>RNET2</td><td>Gi0/0 (côté pare-feu)</td><td>192.168.3.250/29</td><td>–</td></tr><tr><td>RNET2</td><td>Gi0/1 (fournisseur 2)</td><td>172.18.53.2</td><td>172.18.255.254</td></tr><tr><td>GLBP, groupe 1</td><td>IP virtuelle</td><td>192.168.3.249/29</td><td>–</td></tr><tr><td>Pare-feu Zyxel</td><td>côté SwitchNET</td><td>192.168.3.253/29</td><td>192.168.3.249</td></tr><tr><td>PC-T1</td><td>carte réseau</td><td>192.168.3.252/29</td><td>192.168.3.249</td></tr><tr><td>PC-T2</td><td>carte réseau</td><td>192.168.3.254/29</td><td>192.168.3.249</td></tr></tbody></table></div>
+<p>Le réseau en /29 n'a que 6 adresses : pour libérer la 192.168.3.254, l'adresse de gestion de SwitchNET a été retirée pendant le TP. Les deux PC de test sont branchés sur SwitchNET, dans le même VLAN 92 que les routeurs et le pare-feu.</p>
+</div>
+<div class="part" id="partie-2">
+<h2><span class="n">02</span>De HSRP à GLBP</h2>
+<p>Au départ, RNET1 est actif en HSRP avec la priorité 105, RNET2 en secours avec 100, et l'IP virtuelle est 192.168.3.249. Le suivi de l'accès Internet (track 1, par IP SLA) est en place sur les deux routeurs.</p>
+<figure class="shot" id="fig-1"><a href="img/glbp-01.webp"><img src="img/glbp-01.webp" alt="RNET_GRP3 : show standby brief, groupe 1 priorité 105 Active, secours 192.168.3.250, IP virtuelle 192.168.3.249 ; configuration de Gi0/0 avec standby 1 ip, timers 1 3, priority 105, preempt et track 1 decrement 10 ; show track : IP SLA 1 joignable, suivi par HSRP." width="1003" height="777" loading="lazy"></a><figcaption><b>Fig. 1</b> RNET1 avant le TP : actif en HSRP, priorité 105.</figcaption></figure>
+<figure class="shot" id="fig-2"><a href="img/glbp-02.webp"><img src="img/glbp-02.webp" alt="RNET2 : show standby brief, groupe 1 priorité 100 Standby, actif 192.168.3.251, IP virtuelle 192.168.3.249 ; configuration de Gi0/0 sans ligne priority ; show track : IP SLA 1 joignable, suivi par HSRP." width="1060" height="753" loading="lazy"></a><figcaption><b>Fig. 2</b> RNET2 avant le TP : en secours, priorité 100 par défaut.</figcaption></figure>
+<p>HSRP doit être retiré avant de configurer GLBP sur la même adresse : sinon le routeur répondrait aux requêtes ARP pour 192.168.3.249 avec deux adresses MAC virtuelles différentes, et la passerelle deviendrait instable. Sur RNET1 :</p>
+<pre class="cmd"><code>interface GigabitEthernet0/0
+ no standby 1 track 1 decrement 10
+ no standby 1 preempt
+ no standby 1 priority 105
+ no standby 1 timers 1 3
+ no standby 1 ip 192.168.3.249</code></pre>
+<p>Mêmes commandes sur RNET2, sans la ligne <span class="k">priority</span>. L'objet de suivi track 1 est gardé pour remettre HSRP à la fin. Dès ce moment, plus aucun routeur ne répond pour 192.168.3.249 : les PC de test joignent encore 192.168.3.250 et 192.168.3.251, mais plus la passerelle, et le LAN n'a plus Internet jusqu'à la configuration de GLBP.</p>
+<pre class="cmd"><code>! RNET1
+interface GigabitEthernet0/0
+ glbp 1 ip 192.168.3.249
+ glbp 1 priority 110
+ glbp 1 preempt
+ glbp 1 load-balancing round-robin
+
+! RNET2 : mêmes lignes, sans la priorité (100 par défaut)</code></pre>
+<p>Le routeur à la plus haute priorité devient l'AVG (<i>Active Virtual Gateway</i>). Nous avons choisi RNET1, déjà routeur principal avec HSRP.</p>
+</div>
+<div class="part" id="partie-3">
+<h2><span class="n">03</span>Rôles AVG et AVF</h2>
+<p>GLBP sépare deux rôles. L'<b>AVG</b> répond aux requêtes ARP pour l'IP virtuelle et distribue les adresses MAC virtuelles aux clients. Chaque <b>AVF</b> (<i>Active Virtual Forwarder</i>) porte une de ces MAC et transmet le trafic qui lui est envoyé. Ici, chaque routeur est AVF pour sa MAC, et RNET1 est en plus l'AVG.</p>
+<figure class="shot" id="fig-3"><a href="img/glbp-03.webp"><img src="img/glbp-03.webp" alt="show glbp brief sur RNET2 : groupe Standby, forwarder 1 (0007.b400.0101) en Listen, forwarder 2 (0007.b400.0102) Active. Sur RNET_GRP3 : groupe Active priorité 110, forwarder 1 Active, forwarder 2 en Listen. Puis show glbp détaillé : hello 3 s, hold 10 s, weighting 100 avec seuils lower 1 et upper 100, round-robin, deux forwarders avec préemption min delay 30 sec." width="1056" height="1036" loading="lazy"></a><figcaption><b>Fig. 3</b> Les rôles sur les deux routeurs, puis le détail sur RNET1.</figcaption></figure>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Rôle</th><th scope="col">Porté par</th><th scope="col">État sur RNET1</th><th scope="col">État sur RNET2</th></tr></thead><tbody><tr><td>AVG (IP 192.168.3.249)</td><td>RNET1</td><td>Active</td><td>Standby</td></tr><tr><td>Forwarder 1, MAC 0007.b400.0101</td><td>RNET1</td><td>Active</td><td>Listen</td></tr><tr><td>Forwarder 2, MAC 0007.b400.0102</td><td>RNET2</td><td>Listen</td><td>Active</td></tr></tbody></table></div>
+<p>L'état <b>Listen</b> veut dire que le routeur connaît la MAC et se tient prêt à la reprendre si son routeur tombe. Les valeurs par défaut relevées sur RNET1 : un message toutes les 3 secondes (hello), une panne déclarée après 10 secondes sans nouvelles (holdtime), un poids (weighting) de 100.</p>
+</div>
+<div class="part" id="partie-4">
+<h2><span class="n">04</span>Un routeur par client</h2>
+<p>Sur chaque PC, nous avons vidé le cache ARP, puis lancé un ping vers la passerelle et un <span class="k">tracert</span>. Les deux PC ont la même passerelle, mais pas la même adresse MAC pour elle :</p>
+<figure class="shot" id="fig-4"><a href="img/glbp-04.webp"><img src="img/glbp-04.webp" alt="Invite de commandes de PC-T1 : arp -d, ping 192.168.3.249 (3 réponses sur 4), arp -a où 192.168.3.249 a l'adresse physique 00-07-b4-00-01-02, puis tracert -d 8.8.8.8 dont le premier saut est 192.168.3.250." width="1047" height="900" loading="lazy"></a><figcaption><b>Fig. 4</b> PC-T1 reçoit la MAC du forwarder 2 : son premier saut est RNET2 (192.168.3.250).</figcaption></figure>
+<figure class="shot" id="fig-5"><a href="img/glbp-05.webp"><img src="img/glbp-05.webp" alt="arp -a sur PC-T2 (interface 192.168.3.254) : 192.168.3.249 a l'adresse physique 00-07-b4-00-01-01." width="463" height="185" loading="lazy"></a><figcaption><b>Fig. 5</b> PC-T2 reçoit la MAC du forwarder 1 : il passe par RNET1.</figcaption></figure>
+<p>La charge est donc répartie <b>par client</b> : chaque PC envoie tout son trafic au routeur dont il a reçu la MAC. Avec l'algorithme <span class="k">round-robin</span>, l'AVG donne les MAC à tour de rôle, à chaque requête ARP. Après un nouveau <span class="k">arp -d *</span>, PC-T2 est passé de la MAC 0102 à la MAC 0101 : un client peut changer de routeur d'une fois sur l'autre.</p>
+<p>Les PC de test ne figurent pas dans les règles de NAT des routeurs : ils n'ont pas Internet. Ce n'est pas gênant ici : seul le premier saut montre quel routeur est utilisé.</p>
+</div>
+<div class="part" id="partie-5">
+<h2><span class="n">05</span>Panne d'un lien Internet</h2>
+<p>Si le lien de RNET1 vers son fournisseur tombe, RNET1 reste en vie : il continue de porter la MAC 0101 et reçoit le trafic de ses clients, sans pouvoir l'envoyer vers Internet. Pour l'éviter, GLBP baisse le poids du routeur quand un objet suivi tombe, et un routeur dont le poids passe sous le seuil bas perd son rôle de forwarder. L'objet track 1 étant pris par HSRP, nous avons utilisé l'objet 2, sur les deux routeurs :</p>
+<pre class="cmd"><code>track 2 interface GigabitEthernet0/1 line-protocol
+interface GigabitEthernet0/0
+ glbp 1 weighting 100 lower 85 upper 95
+ glbp 1 weighting track 2 decrement 20</code></pre>
+<p>Test : <span class="k">shutdown</span> sur Gi0/1 de RNET1. Son poids passe à 80 (100 − 20), sous le seuil bas de 85 : RNET2 transmet alors pour les deux MAC.</p>
+<figure class="shot" id="fig-6"><a href="img/glbp-06.webp"><img src="img/glbp-06.webp" alt="RNET_GRP3 : show track 2, Line protocol is Down (hw admin-down) ; show glbp : toujours AVG Active, Weighting 80, low (configured 100), thresholds lower 85 upper 95, Track object 2 state Down decrement 20 ; forwarders 1 et 2 en Listen, actifs sur 192.168.3.250." width="1111" height="967" loading="lazy"></a><figcaption><b>Fig. 6</b> RNET1 pendant la coupure : poids 80, sous le seuil de 85, plus aucun forwarder actif.</figcaption></figure>
+<figure class="shot" id="fig-7"><a href="img/glbp-07.webp"><img src="img/glbp-07.webp" alt="RNET2 : show track 2, Line protocol is Up ; show glbp : Standby, weighting 100, 2 forwarders actifs, forwarder 1 (0007.b400.0101, learnt) et forwarder 2 (0007.b400.0102) en état Active, Active is local." width="997" height="906" loading="lazy"></a><figcaption><b>Fig. 7</b> RNET2 pendant la coupure : il transmet pour les deux MAC.</figcaption></figure>
+<p>Les clients n'ont rien à changer : ils gardent la même MAC, seul le routeur qui la porte a changé. RNET1 reste AVG, car le poids ne joue que sur le rôle de forwarder.</p>
+<p>Au retour du lien, le poids de RNET1 remonte à 100, au-dessus du seuil haut de 95. Il reprend sa MAC au bout de 33 secondes environ : la préemption des forwarders attend 30 secondes par défaut, pour ne pas reprendre la main sur un lien encore instable.</p>
+<figure class="shot" id="fig-8"><a href="img/glbp-08.webp"><img src="img/glbp-08.webp" alt="RNET_GRP3 : no shutdown sur Gi0/1, message TRACKING-5-STATE 2 Down->Up à 10:44:47 ; show glbp brief répété : forwarders 1 et 2 en Listen ; à 10:45:20, message GLBP-6-FWDSTATECHANGE Fwd 1 state Listen -> Active ; le forwarder 1 redevient Active sur local." width="1483" height="1020" loading="lazy"></a><figcaption><b>Fig. 8</b> Retour du lien : track 2 revient à 10:44:47, RNET1 reprend le forwarder 1 à 10:45:20.</figcaption></figure>
+</div>
+<div class="part" id="partie-6">
+<h2><span class="n">06</span>Panne d'un routeur</h2>
+<p>Un ping continu est lancé depuis PC-T2, qui passe par RNET1, puis le câble Gi0/0 de RNET1 est débranché. Nous n'avons pas éteint le routeur : au redémarrage, il aurait rechargé sa configuration sauvegardée, avec HSRP.</p>
+<figure class="shot" id="fig-9"><a href="img/glbp-09.webp"><img src="img/glbp-09.webp" alt="Ping continu vers 192.168.3.249 : réponses de 2 à 3 ms, deux lignes Délai d'attente de la demande dépassé, une réponse à 977 ms, puis les réponses reprennent normalement." width="510" height="373" loading="lazy"></a><figcaption><b>Fig. 9</b> Ping continu depuis PC-T2 : 2 réponses perdues pendant la panne de RNET1.</figcaption></figure>
+<figure class="shot" id="fig-10"><a href="img/glbp-10.webp"><img src="img/glbp-10.webp" alt="RNET2 : show glbp brief, groupe 1 priorité 100 Active, Standby router unknown, forwarders 1 et 2 (0007.b400.0101 et 0102) Active sur local." width="970" height="112" loading="lazy"></a><figcaption><b>Fig. 10</b> RNET2 pendant la panne : AVG, et forwarder pour les deux MAC.</figcaption></figure>
+<p>Seules 2 réponses sont perdues, le temps que RNET2 constate la panne (holdtime de 10 secondes). Sous Windows, chaque ping sans réponse attend environ 4 secondes : les 2 pertes et la réponse suivante, à 977 ms, font bien une dizaine de secondes. RNET2 prend alors tous les rôles, et le PC garde la même MAC. Au retour du câble, RNET1 redevient AVG grâce à sa priorité plus haute (110 contre 100) et à <span class="k">glbp 1 preempt</span>, puis reprend son forwarder après les 30 secondes de préemption.</p>
+</div>
+<div class="part" id="partie-7">
+<h2><span class="n">07</span>Algorithmes de répartition</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Algorithme</th><th scope="col">Comment l'AVG choisit la MAC</th><th scope="col">Résultat sur PC-T1</th></tr></thead><tbody><tr><td><span class="k">round-robin</span> (celui du TP)</td><td>À tour de rôle, à chaque requête ARP</td><td>La MAC change d'une requête à l'autre (partie 4)</td></tr><tr><td><span class="k">weighted</span>, poids 150 sur RNET1 et 50 sur RNET2</td><td>Au hasard, selon le poids : 75 % pour RNET1 (150 / 200), 25 % pour RNET2</td><td>4 essais sur 4 vers RNET1 : un tirage de probabilité, pas un tour de rôle. Cela arrive environ une fois sur trois (0,75<sup>4</sup> ≈ 32 %)</td></tr><tr><td><span class="k">host-dependent</span></td><td>Selon l'adresse MAC du client : un client tombe toujours sur le même routeur</td><td>La MAC 0101 à chaque essai, même après avoir vidé le cache ARP</td></tr></tbody></table></div>
+<p>Pour le test en <span class="k">weighted</span>, il a fallu baisser les seuils de RNET2 (<span class="k">glbp 1 weighting 50 lower 35 upper 45</span>) : avec le seuil bas de 85 de la partie 5, un poids de 50 lui aurait fait perdre son rôle de forwarder, et RNET1 aurait tout pris.</p>
+<p><span class="k">host-dependent</span> sert quand un client doit garder la même passerelle, par exemple avec du NAT : il garde la même adresse en sortie. Nous sommes ensuite revenus au round-robin, poids 100 et seuils 85 / 95 sur les deux routeurs, vérifiés avec <span class="k">show glbp</span>.</p>
+</div>
+<div class="part" id="partie-8">
+<h2><span class="n">08</span>Difficultés</h2>
+<ul class="b"><li><b>Adresses du sujet différentes de la maquette.</b> L'IP virtuelle de HSRP était en .249 et RNET2 en .250 : nous avons gardé la même IP virtuelle pour GLBP et placé les PC de test en .252 et .254.</li><li><b>Un PC sur le mauvais switch.</b> PC-T2 ne joignait pas la passerelle : il était branché sur un switch du LAN et pas sur SwitchNET.</li><li><b>Ports libres inutilisables.</b> Les ports libres de SwitchNET étaient coupés et dans le VLAN 1, alors que les routeurs sont dans le VLAN 92 : nous en avons activé deux dans le VLAN 92.</li><li><b>Adresse déjà prise.</b> La 192.168.3.254 était l'adresse de gestion de SwitchNET : retirée pendant le TP, puis remise.</li><li><b>Objet de suivi déjà utilisé.</b> track 1 servait à l'IP SLA de HSRP : GLBP a utilisé track 2.</li></ul>
+<p>Remise en état : la configuration GLBP n'a jamais été sauvegardée. RNET1, RNET2 et SwitchNET ont été redémarrés avec <span class="k">reload</span>, en refusant la sauvegarde : ils ont rechargé leur configuration de démarrage, avec HSRP et l'adresse de gestion du switch. PC-T2 a été remis en DHCP avec l'authentification 802.1X, sur sa prise d'origine, et les postes du LAN ont retrouvé Internet.</p>
+</div>
+<div class="part" id="partie-9">
+<h2><span class="n">09</span>Bilan : HSRP ou GLBP ?</h2>
+<div class="tw"><table class="t"><thead><tr><th scope="col">Critère</th><th scope="col">HSRP</th><th scope="col">GLBP</th></tr></thead><tbody><tr><td>Rôles</td><td>Active et Standby</td><td>Un AVG, jusqu'à 4 AVF</td></tr><tr><td>MAC virtuelle</td><td>0000.0c07.acXX (XX = groupe, en version 1)</td><td>0007.b400.XXYY (XX = groupe, YY = forwarder)</td></tr><tr><td>Routeurs qui transmettent</td><td>Un seul</td><td>Jusqu'à 4 en même temps</td></tr><tr><td>Préemption par défaut</td><td>Désactivée</td><td>Désactivée pour l'AVG, activée pour les AVF (après 30 s)</td></tr><tr><td>Norme</td><td>Propriétaire Cisco</td><td>Propriétaire Cisco</td></tr></tbody></table></div>
+<p>GLBP garde la tolérance de panne de HSRP : 2 pings perdus quand un routeur tombe, et le tracking fait passer le trafic par l'autre routeur quand un lien Internet tombe. Mais il répartit <b>par client</b>, au moment de sa requête ARP, et pas par paquet.</p>
+<p>Or, sur la maquette, les postes du LAN passent par le pare-feu, et c'est lui le seul client des routeurs. Il reçoit une seule MAC virtuelle : tout le trafic du LAN partirait par un seul routeur et un seul fournisseur. Pour répartir vraiment, il faudrait plusieurs clients devant les routeurs, ou que le pare-feu répartisse lui-même, avec deux routes par défaut par exemple.</p>
+<p>GLBP ne fonctionne qu'entre routeurs Cisco. Si RNET2 était remplacé par un routeur d'une autre marque, il faudrait passer à VRRP, un standard de l'IETF. Pour garder une répartition, on créerait deux groupes VRRP avec un routeur maître différent dans chacun, et une passerelle différente pour chaque moitié des clients.</p>
+<p>Ce que j'en retiens : répartir la charge, ce n'est pas seulement l'activer sur les routeurs. Il faut savoir qui sont les clients : ici, un seul client derrière les routeurs suffit à rendre la répartition inutile, même si tous les tests sont bons.</p>
+</div>
+<nav class="pager" aria-label="Autres comptes rendus"><a href="hsrp.html"><span>Précédent</span>HSRP : un deuxième accès à Internet</a><a class="next" href="archisite.html"><span>Suivant</span>ArchiSite : site web sécurisé dans la DMZ</a></nav>
+    </article>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="annee">2026</span> Maxime Forest</span>
+    <span>Site statique : aucun cookie, aucun traceur, aucune ressource externe.</span>
+    <a href="https://github.com/maximeforest-cyber/portfolio" rel="noopener">Code source</a>
+  </div>
+</footer>
+
+<script src="../script.js?v=11"></script>
+</body>
+</html>

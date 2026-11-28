@@ -19,6 +19,18 @@ Une entrée par nouveauté du site, la plus récente en haut. Les posts sont pub
 | mar. 01/12 | Homelab, étape 10 : des services dans Docker, avec un vrai certificat |
 | jeu. 03/12 | Homelab : tout le labo en un schéma cliquable |
 
+## 2026-11-28 : GLBP : faire travailler les deux routeurs Internet
+
+- Statut : à relire
+- Lien : https://forestmaxime-pf.fr/projets/glbp.html
+- Image proposée : projets/img/glbp-03.webp
+
+Nouveau compte rendu sur mon portfolio : GLBP, testé en binôme sur la maquette de notre entreprise fictive.
+
+Avec HSRP, un seul de nos deux routeurs Internet transmettait, l'autre attendait une panne. Avec GLBP, les deux travaillent en même temps : chaque client reçoit l'adresse MAC de l'un ou de l'autre. Et la tolérance de panne reste là : quand un routeur tombe, seuls 2 pings sont perdus.
+
+Ce que j'en retiens surtout : sur notre maquette, le pare-feu est le seul client des routeurs. Il ne reçoit qu'une adresse MAC, donc tout le trafic passerait quand même par un seul routeur. Avant de répartir la charge, il faut savoir qui sont les clients.
+
 ## 2026-11-27 : MAC flooding : saturer un switch, puis le protéger
 
 - Statut : à relire

@@ -304,7 +304,7 @@
       </div>
       <div class="card skill">
         <h3>Réseaux et sécurité</h3>
-        <ul class="tags"><li>TCP/IP</li><li><a href="projets/maquette-rioca.html#partie-4">VLAN</a></li><li><a href="projets/infra-site.html#partie-6">Routage RIP v2</a></li><li><a href="projets/infra-site.html#partie-4">NAT</a></li><li><a href="projets/maquette-rioca.html#partie-5">DHCP</a></li><li><a href="projets/nextcloud.html#partie-9">DNS</a></li><li><a href="projets/infra-site.html#partie-9">DMZ</a></li><li><a href="projets/infra-site.html#partie-9">Pare-feu</a></li><li><a href="projets/homelab-si-etape-2.html#partie-3">OPNsense</a></li><li><a href="projets/infra-site.html#partie-10">ACL</a></li><li><a href="projets/spanning-tree.html#partie-4">Spanning Tree</a></li><li><a href="projets/hsrp.html#partie-2">HSRP · IP SLA</a></li><li><a href="projets/radius-8021x.html#partie-3">802.1X · RADIUS</a></li><li><a href="projets/archisite.html#partie-4">PKI · TLS</a></li><li><a href="projets/nas-gpo.html#partie-7">NTP</a></li><li><a href="projets/homelab-etape-1.html#partie-3">SSH</a></li><li><a href="projets/mac-flooding.html#partie-5">Wireshark</a></li><li><a href="#stage-pyroalliance">Chiffrement des postes</a></li></ul>
+        <ul class="tags"><li>TCP/IP</li><li><a href="projets/maquette-rioca.html#partie-4">VLAN</a></li><li><a href="projets/infra-site.html#partie-6">Routage RIP v2</a></li><li><a href="projets/infra-site.html#partie-4">NAT</a></li><li><a href="projets/maquette-rioca.html#partie-5">DHCP</a></li><li><a href="projets/nextcloud.html#partie-9">DNS</a></li><li><a href="projets/infra-site.html#partie-9">DMZ</a></li><li><a href="projets/infra-site.html#partie-9">Pare-feu</a></li><li><a href="projets/homelab-si-etape-2.html#partie-3">OPNsense</a></li><li><a href="projets/infra-site.html#partie-10">ACL</a></li><li><a href="projets/spanning-tree.html#partie-4">Spanning Tree</a></li><li><a href="projets/hsrp.html#partie-2">HSRP · IP SLA</a></li><li><a href="projets/glbp.html#partie-4">GLBP</a></li><li><a href="projets/radius-8021x.html#partie-3">802.1X · RADIUS</a></li><li><a href="projets/archisite.html#partie-4">PKI · TLS</a></li><li><a href="projets/nas-gpo.html#partie-7">NTP</a></li><li><a href="projets/homelab-etape-1.html#partie-3">SSH</a></li><li><a href="projets/mac-flooding.html#partie-5">Wireshark</a></li><li><a href="#stage-pyroalliance">Chiffrement des postes</a></li></ul>
       </div>
       <div class="card skill">
         <h3>Virtualisation et cloud</h3>
@@ -466,6 +466,29 @@
         </details>
         <a class="doc" href="projets/hsrp.html">Lire le compte rendu</a>
         <ul class="tags"><li>Cisco</li><li>HSRP</li><li>IP SLA</li><li>Redondance</li></ul>
+      </article>
+
+      <article class="card project" id="projet-glbp">
+        <p class="meta">Travaux pratiques · 2026 · en binôme</p>
+        <h3>GLBP : faire travailler les deux routeurs Internet</h3>
+        <p>HSRP remplacé par GLBP le temps d'un TP, pour que les deux routeurs Internet transmettent en même temps, sans perdre la tolérance de panne.</p>
+        <p class="resultat"><b>Résultat :</b> les deux PC de test passent chacun par un routeur différent ; la panne d'un routeur ne coûte que 2 pings. Limite trouvée : le pare-feu, seul client des routeurs, n'en utilise qu'un.</p>
+        <details>
+          <summary>Voir la fiche</summary>
+          <div class="fiche">
+            <h4>Contexte</h4>
+            <p>Avec HSRP, un seul des deux routeurs de RIOCA transmet ; le deuxième accès Internet ne sert qu'en cas de panne.</p>
+            <h4>Ce que nous avons fait</h4>
+            <ul>
+              <li>Retrait de HSRP et configuration de GLBP sur la même IP virtuelle</li>
+              <li>Rôles AVG et AVF, MAC virtuelles reçues par deux PC de test</li>
+              <li>Suivi du lien Internet (weighting et tracking), panne d'un routeur</li>
+              <li>Comparaison des algorithmes round-robin, weighted et host-dependent ; retour à HSRP</li>
+            </ul>
+          </div>
+        </details>
+        <a class="doc" href="projets/glbp.html">Lire le compte rendu</a>
+        <ul class="tags"><li>Cisco</li><li>GLBP</li><li>Répartition de charge</li><li>Redondance</li></ul>
       </article>
 
       <article class="card project" id="projet-archisite">
